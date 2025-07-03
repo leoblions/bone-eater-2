@@ -1,0 +1,28 @@
+trigger -> actionID
+Warps:
+locations_trigger(0)== triggerID
+locations_trigger(1)==actionID == action_records(0)
+action_records(1) = 0
+action_records(2) == warpID == warp_destinations(0)
+
+
+Action Record fields:
+FIELDS = 4;
+AFID = 0;
+AFKIND = 1;
+AFARG = 2;
+AFNEXT = 3;
+// action kinds
+AKIND_WARP = 0;
+AKIND_DIALOG = 1;
+AKIND_QUESTFLAG = 2;
+AKIND_ADDITEM = 3;
+AKIND_SUBITEM = 4;
+AKIND_HEAL = 5;
+//warp destinations
+WD_FIELDS = 4;
+
+WD_ID = 0;
+WD_GRIDX = 1;
+WD_GRIDY = 2;
+WD_LEVEL = 3;
