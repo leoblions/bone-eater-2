@@ -95,10 +95,12 @@ public class Game extends JPanel implements Runnable {
 	void init() {
 		this.imageutils=new Imageutils(this);
 		this.player = new Player(this);
+		this.entity = new Entity(this);
 		this.editor=new Editor(this);
 		this.input = new Input(this);
 		this.tilegrid = new Tilegrid(this);
 		this.collision=new Collision(this);
+		this.pathfind = new Pathfind(this);
 		this.background =new Background(this);
 		this.trigger = new Trigger(this);
 		this.hud=new Hud(this);
@@ -182,10 +184,10 @@ public class Game extends JPanel implements Runnable {
 		this.tilegrid.draw();
 		this.decor.draw();
 		this.player.draw();
-		
+		this.entity.draw();
 		this.trigger.draw();
 		this.hud.draw();
-
+		this.pathfind.draw();
 		this.editor.draw();
 		this.console.draw();
 	
@@ -201,11 +203,13 @@ public class Game extends JPanel implements Runnable {
 			;
 		}else {
 			this.tilegrid.update();
+			this.entity.update();
 			this.decor.update();
 			this.background.update();
 			this.editor.update();
 			this.player.update();
 			this.trigger.update();
+			this.pathfind.update();
 			this.hud.update();
 			this.camera.update();
 			

@@ -40,17 +40,20 @@ public class Player {
 	int speed =SPEED_WALK;
 	public boolean[] directions = {false,false,false,false};
 	public Rectangle wpActivateArea;
+	public Rectangle collider; //wp cooridinates
 	public boolean invincible = false;
 	
 	
 	
 	public Player(Game game) {
+		
 		this.game = game;
 		this.worldX = 300;
 		this.worldY = 300;
 		this.animationPacer = new Pacer(9);
 		maxY =game.getHeight() - height;
 		maxX = game.getWidth() - width;
+		this.collider = new Rectangle(this.worldX,this.worldY,this.width,this.height);
 		this.initImages();
 		
 	}
@@ -120,8 +123,20 @@ public class Player {
 		motion();
 		if (this.walkTimeout >0)walkTimeout  --;
 		if (this.attackTimeout >0)attackTimeout  --;
+		this.updateCollider();
 		
 	}
+	
+	private void updateCollider() {
+		this.collider.x = this.worldX;
+		this.collider.y = this.worldY;
+		this.collider.width = this.width;
+		this.collider.height = 
+				this.height;
+		
+	}
+	
+	
 	
 	private void motion() {
 		if (this.run) {

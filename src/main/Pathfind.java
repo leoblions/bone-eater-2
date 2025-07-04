@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.time.temporal.ValueRange;
 
 public class Pathfind {
-	Game gp;
+	Game game;
 	boolean[][] wallgrid; // false = no wall, true = wall
 	boolean[][] checkGrid; // used by enemies to find player w/o walking thru walls
 	int[][] pfGrid; // used for updating pfGrid
@@ -18,44 +18,50 @@ public class Pathfind {
 	public final int TARGET_OFFSET_X = 30;
 	public final int TARGET_OFFSET_Y = 30;
 	private boolean DRAW_WALL_GRID = false;
-	private boolean DRAW_PF_NUMBERS = false;
+	private boolean DRAW_PF_NUMBERS = true;
 	private final boolean SUPPRESS_OOBE = true;
 
-	public Pathfind(Game gp) {
-		this.gp = gp;
-		this.rows = (gp.HEIGHT / gp.tilegrid.tileSize) + 1;
-		this.cols = (gp.WIDTH / gp.tilegrid.tileSize) + 1;
+	public Pathfind(Game game) {
+		this.game = game;
+//		this.rows = (game.HEIGHT / game.tilegrid.tileSize) + 1;
+//		this.cols = (game.WIDTH / game.tilegrid.tileSize) + 1;
+		this.rows = Game.ROWS;
+		this.cols = Game.COLS;
 		this.wallgrid = new boolean[rows][cols];
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
-		halfSquare = gp.tilegrid.tileSize / 2;
+		halfSquare = game.tilegrid.tileSize / 2;
 		pfPacer = new Pacer(GRID_UPDATE_PERIOD);
 
 	}
 
 	private boolean screenGridPositionIsSolid(int sgridX, int sgridY) {
-		int soffsetGridX = (gp.cameraX + halfSquare) / gp.tilegrid.tileSize;
-		int soffsetGridY = (gp.cameraY + halfSquare) / gp.tilegrid.tileSize;
+		int soffsetGridX = (game.cameraX + halfSquare) / game.tilegrid.tileSize;
+		int soffsetGridY = (game.cameraY + halfSquare) / game.tilegrid.tileSize;
 		int gridX = sgridX + soffsetGridX;
 		int gridY = sgridY + soffsetGridY;
 		int kind;
 		try {
-			kind = gp.tilegrid.getTileYX(gridY,gridX);
+			kind = game.tilegrid.getTileYX(gridY,gridX);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return true;
 		}
 		return Collision.tileKindIsSolid(kind);
 
 	}
+	
+	private boolean kindIsSolid(int kind) {
+		if (kind>15 &&kind>-1) {
+			return true;
+		}else {return false;
+		
+		}
+	}
 
 	public void updateWallGrid() {
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < cols; x++) {
-				if (screenGridPositionIsSolid(x, y)) {
-					this.wallgrid[y][x] = true;
-				} else {
-					this.wallgrid[y][x] = false;
-				}
+				this.wallgrid[y][x] = kindIsSolid(this.game.tilegrid.getTileYX(y, x));
 			}
 		}
 	}
@@ -89,10 +95,10 @@ public class Pathfind {
 	
 	public char getDirectionTowardsPlayer(Point worldP) {
 		
-		int screenX = (int) worldP.getX() - gp.cameraX;
-		int screenY = (int) worldP.getY() - gp.cameraY;
-		int screenGX = screenX / gp.tilegrid.tileSize;
-		int screenGY = screenY / gp.tilegrid.tileSize;
+		int screenX = (int) worldP.getX() - game.cameraX;
+		int screenY = (int) worldP.getY() - game.cameraY;
+		int screenGX = screenX / game.tilegrid.tileSize;
+		int screenGY = screenY / game.tilegrid.tileSize;
 		int L, R, U, D, max;
 		max = 0;
 		char dir = 'N';
@@ -134,8 +140,8 @@ public class Pathfind {
 	public void updatePFGrid() {
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
-		int pgX = (gp.player.screenX +TARGET_OFFSET_X )/ gp.tilegrid.tileSize;
-		int pgY = (gp.player.screenY +TARGET_OFFSET_Y )/ gp.tilegrid.tileSize;
+		int pgX = (game.player.worldX +TARGET_OFFSET_X )/ Game.TILE_SIZE;
+		int pgY = (game.player.worldY +TARGET_OFFSET_Y )/ Game.TILE_SIZE;
 		try {
 
 			checkGrid[pgY][pgX]= true; 
@@ -182,14 +188,14 @@ public class Pathfind {
 			for (int y = 0; y < rows; y++) {
 				for (int x = 0; x < cols; x++) {
 					if (this.wallgrid[y][x] ) {
-						int w = 50;
-						int h = 50;
+						int w = Game.TILE_SIZE;
+						int h = Game.TILE_SIZE;
 
-						int boxX = x * gp.tilegrid.tileSize;
-						int boxY = y * gp.tilegrid.tileSize;
+						int screenX = x * Game.TILE_SIZE - game.cameraX;
+						int screenY = y * Game.TILE_SIZE - game.cameraY;
 
-						gp.g.setColor(healthBarColor);
-						gp.g.fillRect(boxX, boxY, w, h);
+						game.g.setColor(healthBarColor);
+						game.g.fillRect(screenX, screenY, w, h);
 					}
 
 				}
@@ -198,15 +204,16 @@ public class Pathfind {
 		if(DRAW_PF_NUMBERS) {
 			for (int y = 0; y < rows; y++) {
 				for (int x = 0; x < cols; x++) {
-					if (this.pfGrid[y][x] > 0) {
-						int w = 50;
-						int h = 50;
+					if (this.pfGrid[y][x] > 16) {
+						int w = Game.TILE_SIZE;
+						int h = Game.TILE_SIZE;
 
-						int boxX = x * gp.tilegrid.tileSize;
-						int boxY = y * gp.tilegrid.tileSize;
+						int screenX = x * Game.TILE_SIZE - game.cameraX;
+						int screenY = y * Game.TILE_SIZE - game.cameraY;
+						int alpha = pfGrid[y][x] /2;
 
-						gp.g.setColor(new Color(50, 200, 50, pfGrid[y][x]));
-						gp.g.fillRect(boxX, boxY, w, h);
+						game.g.setColor(new Color(50, 200, 200,alpha ));
+						game.g.fillRect(screenX, screenY, w, h);
 					}
 
 				}
@@ -217,7 +224,7 @@ public class Pathfind {
 	}
 
 	public void update() {
-		if (gp.tilegrid.grid==null) {
+		if (game.tilegrid.grid==null) {
 			return;
 		}
 		updateWallGrid();
