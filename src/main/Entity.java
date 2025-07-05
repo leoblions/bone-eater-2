@@ -22,10 +22,18 @@ public class Entity {
 	final int PFWORLDY = 1;
 	final int PFWORLDW = 2;
 	final int PFWORLDH = 3;
+	
 	final char DOWN = 'd';
 	final int UP = 'u';
 	final int LEFT = 'l';
 	final int RIGHT = 'r';
+	
+	final char ES_FOLLOW = 'f';
+	final char ES_STAND = 's';
+	final char ES_WANDER = 'w';
+	final char ES_DEAD = 'd';
+	final char ES_ATTACK = 'a';
+	
 
 	final int ENTITY_PLAYER_COLLIDE_RANGE = 40;
 
@@ -33,7 +41,8 @@ public class Entity {
 
 	final boolean DRAW_COLLRECT = true;
 
-	final int DEFAULT_SPEED = 5;
+	final int SPEED_WALK = 2;
+	final int SPEED_CHASE = 5;
 
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
 	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
@@ -208,8 +217,9 @@ public class Entity {
 			return;
 		}
 		if (eunit.alive && eunit.chasePlayer) {
-			eunit.state = 'w';
+			eunit.state = 'f';
 			this.setDirectionByPathFind(eunit);
+			//eunit.direction=UP;
 
 		} else if (!eunit.alive) {
 			// update image
@@ -251,7 +261,7 @@ public class Entity {
 		eunitA.colliderTest.x = eunitA.worldX;
 		eunitA.colliderTest.y = eunitA.worldY;
 
-		switch (eunitA.currDirection) {
+		switch (eunitA.direction) {
 		case UP:
 
 			eunitA.colliderTest.y -= eunitA.currentSpeed;
@@ -475,7 +485,7 @@ public class Entity {
 	public void cycleSprite(EntityUnit eunit) {
 		int directionIndexpart = 0;
 
-		switch (eunit.currDirection) {
+		switch (eunit.direction) {
 		case UP:
 			directionIndexpart = 0;
 			break;
@@ -515,14 +525,19 @@ public class Entity {
 	}
 
 	public void moveDirection(EntityUnit eunit) {
+		
 		if (eunit.state == 'w') {
-			eunit.currentSpeed = DEFAULT_SPEED;
-		} else {
+			eunit.currentSpeed = SPEED_WALK;
+		} else if(eunit.state == 'f') {
+			eunit.currentSpeed = SPEED_CHASE;
+		}else {
 			eunit.currentSpeed = 0;
 		}
 		//eunit.worldX = 0;
 		//eunit.worldY = 0;
-		switch (eunit.currDirection) {
+		switch (eunit.direction) {
+		case 'n':
+			break;
 		case UP:
 			eunit.worldY += -eunit.currentSpeed;
 
@@ -592,13 +607,13 @@ public class Entity {
 	 * @return
 	 */
 	public boolean tileAhead(EntityUnit eunit) {
-		return game.collision.collideTileRectDirection(eunit.colliderTest, eunit.currDirection);
+		return game.collision.collideTileRectDirection(eunit.colliderTest, eunit.direction);
 	}
 
 	private void setDirectionByPathFind(EntityUnit eunit) {
 
-		Point worldPoint = new Point(eunit.worldX, eunit.worldY);
-		eunit.direction = game.pathfind.getDirectionTowardsPlayer(worldPoint);
+		//Point worldPoint = new Point(eunit.worldX, eunit.worldY);
+		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY);
 		// currDirection = translateDirectionLetterToEnum(direction);
 
 	}

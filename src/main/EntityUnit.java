@@ -51,10 +51,10 @@ public class EntityUnit {
 	int rightTurnDebounceWait = 0; // prevent making too many right turns in quick succession
 	boolean foundWall = false;
 	public boolean enemy = false;
-	public boolean chasePlayer = false;
+	public boolean chasePlayer = true;
 	public boolean playerPressToActivate = false;
 	Game game;
-	char currDirection = 'n';
+	//char currDirection = 'n';
 	
 	public int[] gridXY, testGridXY, forwardGridXY;
 
@@ -89,7 +89,12 @@ public class EntityUnit {
 		alive = true;
 		health = FULL_HEALTH;
 		
-		currDirection = 'd';
+		direction = 'n';
+		switch(kind) {
+		case 0:
+			this.width = 60;
+			this.height = 120;
+		}
 	}
 
 	
