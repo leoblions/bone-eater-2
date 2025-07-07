@@ -34,6 +34,7 @@ public class Entity {
 	final char ES_DEAD = 'd';
 	final char ES_ATTACK = 'a';
 	
+	final int VISUAL_RANGE = 5; // how far entities can see
 
 	final int ENTITY_PLAYER_COLLIDE_RANGE = 40;
 
@@ -73,6 +74,7 @@ public class Entity {
 	public boolean frozen = false;
 	public boolean drawHitbox = true;
 	public boolean activateEntityUnitFlag;
+	
 
 	public Entity(Game game) {
 		this.game = game;
@@ -104,6 +106,28 @@ public class Entity {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private boolean entityCheckChangedTile(EntityUnit eunit) {
+		if(eunit.worldX==eunit.lastTile[0]&&eunit.worldY==eunit.lastTile[1]) {
+			eunit.tileChanged=true;
+			eunit.lastTile[0]=eunit.worldX;
+			eunit.lastTile[1]=eunit.worldY;
+			return true;
+			
+		}else {
+			eunit.tileChanged = false;
+			return false;
+		}
+	}
+	
+	public int entityPlayerDistance(EntityUnit eunit) {
+		double deltaX = this.game.player.worldX - eunit.worldX;
+		double deltaY = this.game.player.worldY - eunit.worldY;
+		double Asquared = Math.pow(deltaX,2);
+		double Bsquared = Math.pow(deltaY,2);
+		double hypotenuse = Math.sqrt(Asquared+Bsquared);
+		return (int)hypotenuse;
 	}
 
 	public void playerAttackEntityMelee() {
@@ -194,7 +218,8 @@ public class Entity {
 		for (int i = 0; i < entityUnits.size(); i++) {
 			EntityUnit eunit = entityUnits.get(i);
 			if (null != eunit) {
-
+				entityCheckChangedTile(eunit);
+				updateState(eunit);
 				updatePosition(eunit);
 				updateColliderUnit(eunit);
 
@@ -208,6 +233,71 @@ public class Entity {
 		playerMelee = false;
 
 	}
+	/**
+	 * 
+	 * @param startGridX grid position of entity X
+	 * @param startGridY grid position of entity Y
+	 * @param deltaX change of X with each iteration
+	 * @param deltaY change of Y with each iteration
+	 * @param iterations distance of entity's vision
+	 * @return
+	 */
+	public boolean senseBeam(int startGridX, int startGridY, int deltaX, int deltaY, int iterations) {
+		// allows entity to see player in a given direction
+		// true if player spotted
+		int currGridX = startGridX;
+		int currGridY = startGridY;
+		boolean isWall=false;
+		boolean isPlayer=false;
+		for (int i = 0; i< iterations; i++) {
+			try {
+				isWall = this.game.pathfind.wallgrid[startGridY][startGridX];
+			}catch(Exception e) {
+				isWall = true;
+			}
+			int playerPos[]=  this.game.player.getGridPosition();
+			isPlayer = (playerPos[0]==currGridX&& playerPos[1]==currGridY);
+			if(isPlayer&& !isWall) {
+				return true;
+			}else if(!isPlayer && isWall) {
+				return false;
+			}
+			  currGridX += deltaX;
+			  currGridY += deltaY;
+			
+			
+			
+		}
+		return false;
+		
+	}
+	
+	public void updateState(EntityUnit eunit) {
+		// for sensing player
+		if (eunit.state==ES_WANDER||eunit.state==ES_STAND) {
+			int deltaX, deltaY;
+			 deltaY = (eunit.direction=='d')?1:0;
+			 deltaY = (eunit.direction=='u')?-1:0;
+			 deltaX = (eunit.direction=='l')?-1:0;
+			 deltaX = (eunit.direction=='r')?1:0;
+			 boolean playerSpotted = senseBeam(eunit.tileX, eunit.tileY, deltaX, deltaY, VISUAL_RANGE);
+			 //System.out.println("playerSpotted "+playerSpotted);
+			 if(playerSpotted) {
+				 eunit.state=ES_FOLLOW;
+			 }
+			
+		}else if(eunit.state==ES_FOLLOW){
+			int playerPos[] = this.game.player.getGridPosition();
+			if(eunit.tileX==playerPos[0]&& eunit.tileY==playerPos[1]) {
+				eunit.direction=ES_ATTACK;
+			}
+			
+		}
+		
+		 
+		
+		
+	}
 
 	public void updatePosition(EntityUnit eunit) {
 
@@ -216,17 +306,26 @@ public class Entity {
 		if (game.entity.frozen) {
 			return;
 		}
-		if (eunit.alive && eunit.chasePlayer) {
+		if (eunit.alive && (eunit.chasePlayer||eunit.state=='f')) {
 			eunit.state = 'f';
-			this.setDirectionByPathFind(eunit);
+			eunit.entityPlayerDistance = this.entityPlayerDistance(eunit);
+			if(eunit.entityPlayerDistance>110) {
+				this.setDirectionByPathFind(eunit);
+			}else {
+				//eunit.direction = 'n';
+			}
+			
 			//eunit.direction=UP;
 
 		} else if (!eunit.alive) {
 			// update image
 		}
 		if (!moveOverlapsOtherEntityUnit(eunit)) {
+			if(eunit.entityPlayerDistance>110) {
+				moveDirection(eunit);
+			}
 
-			moveDirection(eunit);
+			
 		} else {
 			eunit.state = 's';
 		}
@@ -614,7 +713,19 @@ public class Entity {
 
 		//Point worldPoint = new Point(eunit.worldX, eunit.worldY);
 		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY);
-		// currDirection = translateDirectionLetterToEnum(direction);
+		int[] playerLoc = this.game.player.getGridPosition();
+		
+		if(playerLoc[1]==eunit.worldY-1) {
+			eunit.direction='u';
+		}else if(playerLoc[1]==eunit.worldY+1){
+			eunit.direction='d';
+		}else if(playerLoc[0]==eunit.worldX-1){
+			eunit.direction='l';
+		}else if(playerLoc[0]==eunit.worldY+1){
+			eunit.direction='r';
+		}else if(playerLoc[0]==eunit.worldX && playerLoc[1]==eunit.worldY ) {
+			eunit.direction='n';
+		}
 
 	}
 

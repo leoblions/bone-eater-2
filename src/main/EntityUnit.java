@@ -40,6 +40,7 @@ public class EntityUnit {
 	int health = 100;
 	int offsetX = 0;
 	int offsetY = 0;
+	int gridX,gridY;
 	
 	boolean alive = true;
 	int screenX,screenY;
@@ -51,8 +52,11 @@ public class EntityUnit {
 	int rightTurnDebounceWait = 0; // prevent making too many right turns in quick succession
 	boolean foundWall = false;
 	public boolean enemy = false;
-	public boolean chasePlayer = true;
+	public boolean chasePlayer = false;
 	public boolean playerPressToActivate = false;
+	public int[] lastTile;
+	public boolean tileChanged;
+	int entityPlayerDistance;
 	Game game;
 	//char currDirection = 'n';
 	
@@ -76,10 +80,14 @@ public class EntityUnit {
 		this.startGY = startGY;
 		this.kind = kind;
 		this.UID = UID;
-		
+		this.entityPlayerDistance = 500;
 		this.worldX = startGX * Game.TILE_SIZE;
 		this.worldY = startGY * Game.TILE_SIZE;
+		this.gridX = worldX / Game.TILE_SIZE;
+		this.gridY = worldY / Game.TILE_SIZE;
 		
+		this.lastTile = new int[] {this.gridX,this.gridY};
+		this.tileChanged=false;
 	
 
 		this.collider = new Rectangle(0, 0, width, height); //WP coordinates
@@ -91,9 +99,13 @@ public class EntityUnit {
 		
 		direction = 'n';
 		switch(kind) {
-		case 0:
+		case 0:// basic guard
 			this.width = 60;
 			this.height = 120;
+			this.state = 's';
+			if (UID==1) {
+				this.direction='u';
+			}
 		}
 	}
 

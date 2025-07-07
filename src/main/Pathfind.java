@@ -34,6 +34,8 @@ public class Pathfind {
 		pfPacer = new Pacer(GRID_UPDATE_PERIOD);
 
 	}
+	
+	
 
 	private boolean screenGridPositionIsSolid(int sgridX, int sgridY) {
 		int soffsetGridX = (game.cameraX + halfSquare) / game.tilegrid.tileSize;
@@ -98,8 +100,8 @@ public class Pathfind {
 		
 		//int screenX = (int) worldP.getX() - game.cameraX;
 		//int screenY = (int) worldP.getY() - game.cameraY;
-		int entityGX =  (entityWX+50) / Game.TILE_SIZE;
-		int entityGY =  (entityWY+50) / Game.TILE_SIZE;
+		int entityGX =  (entityWX) / Game.TILE_SIZE;
+		int entityGY =  (entityWY) / Game.TILE_SIZE;
 		int L, R, U, D, max;
 		boolean isWall=false;
 		max = 0;
@@ -236,6 +238,7 @@ public class Pathfind {
 		if(this.pfPacer.check()) {
 			updateWallGrid();
 			updatePFGrid();
+			
 		}
 		
 	}
