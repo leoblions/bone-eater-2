@@ -241,6 +241,19 @@ public class Imageutils {
 		return UDLR;
 
 	}
+	
+	public static BufferedImage[] flipImageRow(BufferedImage[] imagesOrig) throws IOException {
+		
+	
+		BufferedImage[] newImages = new BufferedImage[imagesOrig.length];
+	
+		for (int i=0;i< newImages.length-1;i++) {
+			newImages[i] = flipBufferedImage(imagesOrig[i],true,false);
+			
+		}
+		return newImages;
+
+	}
 
 	public static <T> boolean contains(T[] collection, T query) {
 		// equivalent to Python's "in" keyword using generics

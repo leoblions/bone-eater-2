@@ -49,9 +49,11 @@ public class Entity {
 	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
 	private static final String DATA_FILE_PREFIX = "entity";
 	private static final String DATA_FILE_SUFFIX = ".csv";
+	final int ATTACK_FRAMES=4;
 	private final int DEF_DAMAGE_FROM_PLAYER = 5;
 	final int IMAGES_PER_ENTITY = 16;
 	private BufferedImage[][] entityImages;
+	private BufferedImage[][] attackImages;
 	Game game;
 	final int ENTITY_KINDS = 10;
 	final int FIELDS = 4;
@@ -92,14 +94,19 @@ public class Entity {
 
 	public void initImages() {
 		this.entityImages = new BufferedImage[ENTITY_KINDS][IMAGES_PER_ENTITY];
-
-		BufferedImage[] tempBI = null;
+		this.attackImages = new BufferedImage[ENTITY_KINDS][IMAGES_PER_ENTITY];
+		BufferedImage[] tempBI, tempBIL, tempBIR = null;
 		String URL = null;
 		try {
-			URL = "/images/guard_100_200.png";
+			URL = "/images/guard_100_200w.png";
 			// tempBI = new Imageutils(game).spriteSheetCutter(URL, 4, 4, 100, 200);
 			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
 			this.entityImages[EK_GUARD] = tempBI;
+			
+			URL = "/images/guard_100_200a.png";
+			tempBI = this.game.imageutils.characterSheetUDL4(URL, 200, 200);
+		
+			this.attackImages[EK_GUARD] = tempBI;
 
 		} catch (Exception e) {
 			System.err.println("EntityUnit Failed to open the resource: " + URL);
@@ -193,7 +200,14 @@ public class Entity {
 			game.g.drawRect(eunit.worldX - game.cameraX, eunit.worldY - game.cameraY, eunit.width, eunit.height);
 		eunit.screenX = (eunit.worldX - game.cameraX);
 		eunit.screenY = (eunit.worldY - game.cameraY);
-		game.g.drawImage(this.entityImages[eunit.kind][eunit.currentImageIndex], eunit.screenX + eunit.offsetX,
+		BufferedImage image = null;
+		if(eunit.state=='a') {
+			image=this.attackImages[eunit.kind][eunit.currentImageIndex];
+		}else {
+			image=this.entityImages[eunit.kind][eunit.currentImageIndex];
+		}
+		
+		game.g.drawImage(image, eunit.screenX + eunit.offsetX,
 
 				eunit.screenY + eunit.offsetY, eunit.width, eunit.height, null);
 
@@ -580,8 +594,33 @@ public class Entity {
 			eunit.state = 'd';
 		}
 	}
+	
+	public void cycleSpriteAttack(EntityUnit eunit) {
+		int directionIndexpart = 0;
+		switch (eunit.direction) {
+		
+		case UP:
+			directionIndexpart = 0;
+			break;
+		case DOWN:
+			directionIndexpart = 4;
+			break;
+		case LEFT:
+			directionIndexpart = 8;
+			break;
+		case RIGHT:
+			directionIndexpart = 12;
+			break;
+		default:
+			directionIndexpart = 4;
+		}
+	}
 
 	public void cycleSprite(EntityUnit eunit) {
+//		if (eunit.state=='a') {
+//			cycleSpriteAttack(eunit);
+//			return;
+//		}
 		int directionIndexpart = 0;
 
 		switch (eunit.direction) {
@@ -600,7 +639,8 @@ public class Entity {
 		default:
 			directionIndexpart = 4;
 		}
-		if (eunit.state == 's' && animationPacer.check()) {
+		var changeFrame = animationPacer.check(); 
+		if (eunit.state == 's' && changeFrame) {
 
 			if (eunit.frame == 0) {
 				eunit.frame = 2;
@@ -608,7 +648,7 @@ public class Entity {
 				eunit.frame = 0;
 			}
 
-		} else if (eunit.state == 'w' && animationPacer.check()) {
+		} else if ((eunit.state == 'w' || eunit.state == 'f'||eunit.state == 'a') && changeFrame) {
 
 			if (eunit.frame < 3) {
 				eunit.frame++;
