@@ -22,7 +22,7 @@ public class Entity {
 	final int PFWORLDY = 1;
 	final int PFWORLDW = 2;
 	final int PFWORLDH = 3;
-	
+	final int WALL_COLLIDE_WIGGLEROOM = 10;
 	final char DOWN = 'd';
 	final int UP = 'u';
 	final int LEFT = 'l';
@@ -289,11 +289,81 @@ public class Entity {
 	public void updateState(EntityUnit eunit) {
 		// for sensing player
 		if (eunit.state==ES_WANDER||eunit.state==ES_STAND) {
-			int deltaX, deltaY;
+			int deltaX=0;
+			int deltaY=0;
+			
 			 deltaY = (eunit.direction=='d')?1:0;
 			 deltaY = (eunit.direction=='u')?-1:0;
 			 deltaX = (eunit.direction=='l')?-1:0;
 			 deltaX = (eunit.direction=='r')?1:0;
+			 boolean playerSpotted = senseBeam(eunit.tileX, eunit.tileY, deltaX, deltaY, VISUAL_RANGE);
+			 //System.out.println("playerSpotted "+playerSpotted);
+			 if(playerSpotted) {
+				 eunit.state=ES_FOLLOW;
+			 }
+			
+		}else if(eunit.state==ES_FOLLOW){
+			int playerPos[] = this.game.player.getGridPosition();
+			if(eunit.tileX==playerPos[0]&& eunit.tileY==playerPos[1]) {
+				eunit.direction=ES_ATTACK;
+			}
+			
+		}
+		
+		 
+		
+		
+	}
+	
+	public void updateState8w(EntityUnit eunit) {
+		// for sensing player
+		if (eunit.state==ES_WANDER||eunit.state==ES_STAND) {
+			int deltaX=0;
+			int deltaY=0;
+			int d8 = eunit.direction8w;
+			
+//			 deltaY = (eunit.direction=='d')?1:0;
+//			 deltaY = (eunit.direction=='u')?-1:0;
+//			 deltaX = (eunit.direction=='l')?-1:0;
+//			 deltaX = (eunit.direction=='r')?1:0;
+			 switch(d8) {
+			 case 0:
+				 deltaX = 0;
+				 deltaY = -1;
+				 break;
+			 case 1:
+				 deltaX =1;
+				 deltaY = -1;
+				 break;
+			 case 2:
+				 deltaX = 1;
+				 deltaY = 0;
+				 break;
+			 case 3:
+				 deltaX = 1;
+				 deltaY = 1;
+				 break;
+			 case 4:
+				 deltaX = 0;
+				 deltaY = 1;
+				 break;
+			 case 5:
+				 deltaX = -1;
+				 deltaY = 1;
+				 break;
+			 case 6:
+				 deltaX = -1;
+				 deltaY = 0;
+				 break;
+			 case 7:
+				 deltaX = -1;
+				 deltaY = -1;
+				 break;
+			 case 8:
+				 deltaX = 0;
+				 deltaY = 0;
+				 break;
+			 }
 			 boolean playerSpotted = senseBeam(eunit.tileX, eunit.tileY, deltaX, deltaY, VISUAL_RANGE);
 			 //System.out.println("playerSpotted "+playerSpotted);
 			 if(playerSpotted) {
@@ -624,6 +694,9 @@ public class Entity {
 		int directionIndexpart = 0;
 
 		switch (eunit.direction) {
+		case 'n':
+			directionIndexpart = 4;
+			break;
 		case UP:
 			directionIndexpart = 0;
 			break;
@@ -753,6 +826,7 @@ public class Entity {
 
 		//Point worldPoint = new Point(eunit.worldX, eunit.worldY);
 		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY);
+		eunit.direction8w=game.pathfind.getDirectionTowardsPlayer8way(eunit.worldX, eunit.worldY);
 		int[] playerLoc = this.game.player.getGridPosition();
 		
 		if(playerLoc[1]==eunit.worldY-1) {
@@ -770,10 +844,10 @@ public class Entity {
 	}
 
 	private void updateColliderUnit(EntityUnit eunit) {
-		eunit.collider.x = eunit.worldX;
-		eunit.collider.y = eunit.worldY;
-		eunit.collider.width = eunit.width;
-		eunit.collider.height = eunit.height;
+		eunit.collider.x = eunit.worldX+WALL_COLLIDE_WIGGLEROOM;
+		eunit.collider.y = eunit.worldY+WALL_COLLIDE_WIGGLEROOM;
+		eunit.collider.width = eunit.width-WALL_COLLIDE_WIGGLEROOM;
+		eunit.collider.height = eunit.height-WALL_COLLIDE_WIGGLEROOM;
 
 	}
 

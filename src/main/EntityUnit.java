@@ -41,6 +41,8 @@ public class EntityUnit {
 	int offsetX = 0;
 	int offsetY = 0;
 	int gridX,gridY;
+	int locationOffsetX = 25;
+	int locationOffsetY  =35;
 	
 	boolean alive = true;
 	int screenX,screenY;
@@ -57,6 +59,7 @@ public class EntityUnit {
 	public int[] lastTile;
 	public boolean tileChanged;
 	int entityPlayerDistance;
+	int direction8w;
 	Game game;
 	//char currDirection = 'n';
 	
@@ -98,6 +101,7 @@ public class EntityUnit {
 		health = FULL_HEALTH;
 		
 		direction = 'n';
+		direction8w = 8;
 		switch(kind) {
 		case 0:// basic guard
 			this.width = 60;

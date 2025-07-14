@@ -139,6 +139,7 @@ public class Player {
 	
 	
 	private void motion() {
+
 		if (this.run) {
 			speed = SPEED_RUN;
 		}else {
@@ -186,6 +187,8 @@ public class Player {
 		this.screenY=worldY-game.cameraY;
 		
 	}
+	
+	
 	public void warpPlayer(int gridX, int gridY) {
 
 		velX = 0;
@@ -229,6 +232,8 @@ public class Player {
 			this.state = 'w';
 		} 
 	}
+	
+	
 	
 	public void cycleSprite() {
 
@@ -311,6 +316,8 @@ public class Player {
 		}
 
 	}
+	
+	
 	public void takeDamageFromEnemy(int dEF_DAMAGE_FROM_PLAYER) {
 		// TODO Auto-generated method stub
 		

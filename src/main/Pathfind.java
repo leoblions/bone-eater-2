@@ -18,8 +18,10 @@ public class Pathfind {
 	public final int TARGET_OFFSET_X = 30;
 	public final int TARGET_OFFSET_Y = 30;
 	private boolean DRAW_WALL_GRID = false;
-	private boolean DRAW_PF_NUMBERS = false;
+	private boolean DRAW_PF_NUMBERS = true;
 	private final boolean SUPPRESS_OOBE = true;
+	private final int [] modifiersX = {0,1,1,1,0,-1,-1,-1,0};
+	private final int [] modifiersY = {-1,-1,0,1,1,1,0,-1,0};
 
 	public Pathfind(Game game) {
 		this.game = game;
@@ -102,10 +104,18 @@ public class Pathfind {
 		//int screenY = (int) worldP.getY() - game.cameraY;
 		int entityGX =  (entityWX) / Game.TILE_SIZE;
 		int entityGY =  (entityWY) / Game.TILE_SIZE;
-		int L, R, U, D, max;
+		int L, R, U, D, N, max;
 		boolean isWall=false;
 		max = 0;
 		char dir = 'n';
+		try {
+			N = pfGrid[entityGY][entityGX];
+			isWall = this.wallgrid[entityGY][entityGX];
+			if  (N>max && !isWall) {
+				max = N;
+				dir = 'n';
+			}
+		}catch(Exception e) {}
 		try {
 			L = pfGrid[entityGY][entityGX-1];
 			isWall = this.wallgrid[entityGY][entityGX-1];
@@ -140,6 +150,50 @@ public class Pathfind {
 		}catch(Exception e) {}
 		
 		return dir;
+				
+		
+		
+	}
+	
+public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
+		
+		/**
+		 * 0 top
+		 * 1 trc
+		 * 2 right
+		 * 3 brc
+		 * 4 bottom
+		 * 5 blc
+		 * 6 left
+		 * 7 tlc
+		 * 8 neutral
+		 */
+	
+		int entityGX =  (entityWX) / Game.TILE_SIZE;
+		int entityGY =  (entityWY) / Game.TILE_SIZE;
+		int testValue; 
+		int maxDirection = -1;
+		boolean isWall=false;
+		int maxValue = 0;
+		int xcoord = 0;
+		int ycoord = 0;
+		for (int i = 0;i<9;i++) {
+			xcoord = entityGX + modifiersX[i];
+			ycoord = entityGY + modifiersY[i];
+			try {
+				testValue = pfGrid[xcoord][ycoord];
+				isWall = this.wallgrid[entityGY][entityGX];
+				if  (testValue>maxValue && !isWall) {
+					maxDirection = i;
+					maxValue=testValue;
+				}
+			}catch(Exception e) {}
+			
+		}
+		
+		
+		
+		return maxDirection;
 				
 		
 		
@@ -204,6 +258,7 @@ public class Pathfind {
 
 						game.g.setColor(healthBarColor);
 						game.g.fillRect(screenX, screenY, w, h);
+						
 					}
 
 				}
@@ -220,8 +275,9 @@ public class Pathfind {
 						int screenY = y * Game.TILE_SIZE - game.cameraY;
 						int alpha = pfGrid[y][x] ;
 
-						game.g.setColor(new Color(50, 200, 200,alpha ));
-						game.g.fillRect(screenX, screenY, w, h);
+						game.g.setColor(new Color(2, 2, 2,250 ));
+						//game.g.fillRect(screenX, screenY, w, h);
+						game.g.drawString(Integer.toString(alpha), screenX+25, screenY+25);
 					}
 
 				}
