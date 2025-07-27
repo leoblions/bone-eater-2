@@ -24,8 +24,8 @@ public class Player {
 	public int height = 50;
 	public int spriteOffsetX =-0;
 	public int spriteOffsetY =-25;
-	public int spriteWidth =60;
-	public int spriteHeight=100;
+	public int spriteWidth =40;
+	public int spriteHeight=80;
 	public char state = 'w';// w=walk, a=attack, h=hit, d=dead, s=stand
 	public char direction = 'd';
 	public int frame = 0;

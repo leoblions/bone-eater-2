@@ -104,8 +104,8 @@ public class EntityUnit {
 		direction8w = 8;
 		switch(kind) {
 		case 0:// basic guard
-			this.width = 60;
-			this.height = 120;
+			this.width = 40;
+			this.height = 80;
 			this.state = 's';
 			if (UID==1) {
 				this.direction='u';

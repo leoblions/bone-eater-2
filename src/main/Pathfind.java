@@ -89,6 +89,24 @@ public class Pathfind {
 		
 	}
 	
+	private boolean cellHasMarkedCardinalNeighbor( boolean[][] grid, int gridX, int gridY) {
+		if(
+				
+				cellExistsAndGTOne(grid,   gridX-1, gridY   ) ||
+				
+				cellExistsAndGTOne(grid,   gridX,   gridY -1) ||
+				cellExistsAndGTOne(grid,   gridX,   gridY +1) ||
+		
+				cellExistsAndGTOne(grid,   gridX+1, gridY   ) 
+			
+				) {
+			return true;
+		}else {
+			return false;
+		}
+		
+	}
+	
 	private boolean cellExistsAndGTOne( boolean[][] grid, int gridX, int gridY) {
 		try {
 			boolean cellValue = grid[gridY][gridX];
@@ -102,8 +120,10 @@ public class Pathfind {
 		
 		//int screenX = (int) worldP.getX() - game.cameraX;
 		//int screenY = (int) worldP.getY() - game.cameraY;
-		int entityGX =  (entityWX) / Game.TILE_SIZE;
-		int entityGY =  (entityWY) / Game.TILE_SIZE;
+		int ENTITY_OFFSET_X = -40;
+		int ENTITY_OFFSET_Y = 40;
+		int entityGX =  (entityWX+ENTITY_OFFSET_X) / Game.TILE_SIZE;
+		int entityGY =  (entityWY+ENTITY_OFFSET_Y) / Game.TILE_SIZE;
 		int L, R, U, D, N, max;
 		boolean isWall=false;
 		max = 0;
@@ -118,6 +138,7 @@ public class Pathfind {
 		}catch(Exception e) {}
 		try {
 			L = pfGrid[entityGY][entityGX-1];
+			//System.out.println("LT "+L);
 			isWall = this.wallgrid[entityGY][entityGX-1];
 			if  (L>max && !isWall) {
 				max = L;
@@ -126,6 +147,7 @@ public class Pathfind {
 		}catch(Exception e) {}
 		try {
 			R = pfGrid[entityGY][entityGX+1];
+			//System.out.println("RT "+R);
 			isWall = this.wallgrid[entityGY][entityGX+1];
 			if  (R>max && !isWall) {
 				max = R;
@@ -134,6 +156,7 @@ public class Pathfind {
 		}catch(Exception e) {}
 		try {
 			U = pfGrid[entityGY-1][entityGX];
+			//System.out.println("UP "+U);
 			isWall = this.wallgrid[entityGY-1][entityGX];
 			if  (U>max && !isWall) {
 				max = U;
@@ -181,12 +204,14 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 			xcoord = entityGX + modifiersX[i];
 			ycoord = entityGY + modifiersY[i];
 			try {
-				testValue = pfGrid[xcoord][ycoord];
-				isWall = this.wallgrid[entityGY][entityGX];
+				testValue = pfGrid[ycoord][xcoord];
+				isWall = this.wallgrid[ycoord][xcoord];
+				
 				if  (testValue>maxValue && !isWall) {
 					maxDirection = i;
 					maxValue=testValue;
 				}
+				
 			}catch(Exception e) {}
 			
 		}
@@ -213,6 +238,7 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 		}
 		
 		for(int i = 0; i< PF_GRID_PASSES ; i++) {
+		//for(int i = PF_GRID_PASSES; i >=0 ; i--) {
 			pfPass(i);
 		}
 		
@@ -236,7 +262,7 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 				if (tileIsWall) {
 					continue; // don't mark walls
 				}else {
-					if(cellHasMarkedNeighbor(checkGrid,x,y)) {
+					if(cellHasMarkedCardinalNeighbor(checkGrid,x,y)) {
 						pfGrid[y][x]+=amountToAdd;
 					}
 				}

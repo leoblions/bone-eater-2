@@ -47,6 +47,44 @@ public class Collision {
 		}
 	}
 	
+public boolean[] collideTileTestWXY(int testX,int testY, int width, int height) {
+		
+
+		boolean[] collisions = new boolean[] { false, false, false, false };
+		if (gp.tilegrid.grid==null) {
+			return collisions;
+		}
+		
+
+		// up coll
+		int tmp = tileAtWorldCoord(testX + (width / 2), testY - BUFFER_ZONE);
+		if (tileKindIsSolid(tmp)) {
+			//System.out.println("collide up");
+			collisions[0] = true;
+		}
+		// down coll
+		tmp = tileAtWorldCoord(testX + (width / 2), testY + (height) + BUFFER_ZONE);
+		if (tileKindIsSolid(tmp)) {
+			//System.out.println("collide dn");
+			collisions[1] = true;
+		}
+		// left coll
+		tmp = tileAtWorldCoord(testX - BUFFER_ZONE, testY + height / 2);
+		if (tileKindIsSolid(tmp)) {
+			//System.out.println("collide lt");
+			collisions[2] = true;
+		}
+		// right coll
+		tmp = tileAtWorldCoord(testX + width + BUFFER_ZONE, testY + height / 2);
+		if (tileKindIsSolid(tmp)) {
+			//System.out.println("collide rt");
+			collisions[3] = true;
+
+		}
+		return collisions;
+
+	}
+	
 public boolean[] collideTilePlayerTestWXY(int testX,int testY) {
 		
 
