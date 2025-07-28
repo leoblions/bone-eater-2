@@ -20,6 +20,12 @@ public class EntityUnit {
 
 	final boolean DRAW_COLLRECT = true;
 	private final int FULL_HEALTH = 100;
+	
+	public static final char ATTACK = 'a';
+	public static final char WALK = 'w';
+	public static final char STAND = 's';
+	public static final char DEAD = 'd';
+	public static final char HIT = 'h';
 
 	
 

@@ -26,7 +26,7 @@ public class Tilegrid {
 	Game game;
 	BufferedImage image;
 	BufferedImage[] images;
-	public  int tileSize = 50;
+	public  int tileSize =  Game.TILE_SIZE;
 	public int grid[][]=null;
 	private BufferedImage placeholder;
 	
@@ -43,7 +43,7 @@ public class Tilegrid {
 		
 	}
 	
-	private void initGrid() {
+	public void initGrid() {
 		this.grid=new int[ROWS][COLS];
 		for(int y = 0;y< ROWS;y++) {
 			for(int x = 0;x< COLS;x++) {
@@ -128,9 +128,9 @@ public class Tilegrid {
         } catch (IOException e) {
             e.printStackTrace();
         }
-		BufferedImage[] items1 = new Imageutils(game).spriteSheetCutter("/images/tileFloor.png", 4, 4, 100, 100);
+		BufferedImage[] items1 = new Imageutils(game).spriteSheetCutter("/images/tileFloor.png", 4, 4,  Game.TILE_SIZE, Game.TILE_SIZE);
 
-		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter("/images/tileWall.png", 4, 4, 100, 100);
+		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter("/images/tileWall.png", 4, 4,  Game.TILE_SIZE,  Game.TILE_SIZE);
 
 		BufferedImage[] itemImages = Imageutils.appendArray(items1, items2);
 		

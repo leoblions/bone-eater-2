@@ -27,8 +27,8 @@ public class Pathfind {
 		this.game = game;
 //		this.rows = (game.HEIGHT / game.tilegrid.tileSize) + 1;
 //		this.cols = (game.WIDTH / game.tilegrid.tileSize) + 1;
-		this.rows = Game.ROWS;
-		this.cols = Game.COLS;
+		this.rows = Game.ROWS*2;
+		this.cols = Game.COLS*2;
 		this.wallgrid = new boolean[rows][cols];
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
@@ -50,7 +50,7 @@ public class Pathfind {
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return true;
 		}
-		return Collision.tileKindIsSolid(kind);
+		return Collision.tileIsSolid(kind);
 
 	}
 	
@@ -66,7 +66,7 @@ public class Pathfind {
 	public void updateWallGrid() {
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < cols; x++) {
-				this.wallgrid[y][x] = kindIsSolid(this.game.tilegrid.getTileYX(y, x));
+				this.wallgrid[y][x] = game.collision.tileIsSolid(this.game.collision.getTileYX(y, x));
 			}
 		}
 	}
@@ -120,10 +120,10 @@ public class Pathfind {
 		
 		//int screenX = (int) worldP.getX() - game.cameraX;
 		//int screenY = (int) worldP.getY() - game.cameraY;
-		int ENTITY_OFFSET_X = -40;
-		int ENTITY_OFFSET_Y = 40;
-		int entityGX =  (entityWX+ENTITY_OFFSET_X) / Game.TILE_SIZE;
-		int entityGY =  (entityWY+ENTITY_OFFSET_Y) / Game.TILE_SIZE;
+		int ENTITY_OFFSET_X = 0;
+		int ENTITY_OFFSET_Y = 0;
+		int entityGX =  (entityWX+ENTITY_OFFSET_X) / Game.COLL_GRID_SIZE;
+		int entityGY =  (entityWY+ENTITY_OFFSET_Y) / Game.COLL_GRID_SIZE;
 		int L, R, U, D, N, max;
 		boolean isWall=false;
 		max = 0;
@@ -227,8 +227,8 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 	public void updatePFGrid() {
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
-		int pgX = (game.player.worldX +TARGET_OFFSET_X )/ Game.TILE_SIZE;
-		int pgY = (game.player.worldY +TARGET_OFFSET_Y )/ Game.TILE_SIZE;
+		int pgX = (game.player.worldX +TARGET_OFFSET_X )/ Game.COLL_GRID_SIZE;
+		int pgY = (game.player.worldY +TARGET_OFFSET_Y )/ Game.COLL_GRID_SIZE;
 		try {
 
 			checkGrid[pgY][pgX]= true; 
@@ -276,11 +276,11 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 			for (int y = 0; y < rows; y++) {
 				for (int x = 0; x < cols; x++) {
 					if (this.wallgrid[y][x] ) {
-						int w = Game.TILE_SIZE;
-						int h = Game.TILE_SIZE;
+						int w = Game.COLL_GRID_SIZE;
+						int h = Game.COLL_GRID_SIZE;
 
-						int screenX = x * Game.TILE_SIZE - game.cameraX;
-						int screenY = y * Game.TILE_SIZE - game.cameraY;
+						int screenX = x * Game.COLL_GRID_SIZE - game.cameraX;
+						int screenY = y * Game.COLL_GRID_SIZE - game.cameraY;
 
 						game.g.setColor(healthBarColor);
 						game.g.fillRect(screenX, screenY, w, h);
@@ -294,11 +294,11 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 			for (int y = 0; y < rows; y++) {
 				for (int x = 0; x < cols; x++) {
 					if (this.pfGrid[y][x] > 16) {
-						int w = Game.TILE_SIZE;
-						int h = Game.TILE_SIZE;
+						int w = Game.COLL_GRID_SIZE;
+						int h = Game.COLL_GRID_SIZE;
 
-						int screenX = x * Game.TILE_SIZE - game.cameraX;
-						int screenY = y * Game.TILE_SIZE - game.cameraY;
+						int screenX = x * Game.COLL_GRID_SIZE - game.cameraX;
+						int screenY = y * Game.COLL_GRID_SIZE - game.cameraY;
 						int alpha = pfGrid[y][x] ;
 
 						game.g.setColor(new Color(2, 2, 2,250 ));

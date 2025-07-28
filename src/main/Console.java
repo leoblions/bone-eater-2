@@ -73,6 +73,10 @@ public class Console {
 				// game.entityManager.frozen =!game.entityManager.frozen ;
 				// System.out.printf("Entity frozen %b\n",game.entityManager.frozen);
 				break;
+			case "SAVE":
+				game.editor.saveOrLoadData(true);
+			case "LOAD":
+				game.editor.saveOrLoadData(false);
 			case "WARP":
 				if (wordAmount != 2)
 					break;
@@ -99,24 +103,59 @@ public class Console {
 				// game.inventory.addItem(kind, 1);
 				break;
 			case "TILE":
-				game.editor.editMode = 't';
+				game.editor.editMode = Editor.TILE;
 				if (wordAmount != 2)
 					break;
 				try {
 					kind = Integer.parseInt(splitCommand[1]);
 					}catch(Exception e) {
 						kind = 0;
+						if(splitCommand[1].contentEquals("RESET")) {
+							game.tilegrid.initGrid();
+						}
+					}
+				game.editor.setAssetID(kind);
+				break;
+			case "WALL":
+				game.editor.editMode = Editor.WALL;
+				if (wordAmount != 2)
+					break;
+				try {
+					kind = Integer.parseInt(splitCommand[1]);
+					}catch(Exception e) {
+						kind = 0;
+						if(splitCommand[1].contentEquals("RESET")) {
+							game.tilegrid.initGrid();
+						}
+					}
+				game.editor.setAssetID(kind);
+				break;
+			case "COLLISION":
+			case "COLL":
+				game.editor.editMode = Editor.COLLISION;
+				if (wordAmount != 2)
+					break;
+				try {
+					kind = Integer.parseInt(splitCommand[1]);
+					}catch(Exception e) {
+						kind = 0;
+						if(splitCommand[1].contentEquals("RESET")) {
+							game.collision.initGrid();
+						}
 					}
 				game.editor.setAssetID(kind);
 				break;
 			case "DECOR":
-				game.editor.editMode = 'd';
+				game.editor.editMode = Editor.DECOR;
 				if (wordAmount != 2)
 					break;
 				try {
 				kind = Integer.parseInt(splitCommand[1]);
 				}catch(Exception e) {
 					kind = 0;
+					if(splitCommand[1].contentEquals("RESET")) {
+						game.tilegrid.initGrid();
+					}
 				}
 				game.editor.setAssetID(kind);
 				break;

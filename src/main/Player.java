@@ -7,18 +7,33 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Player {
+	public static final char ATTACK = 'a';
+	public static final char WALK = 'w';
+	public static final char STAND = 's';
+	public static final char DEAD = 'd';
+	public static final char HIT = 'h';
+	
+	public static final char UP = 'u';
+	public static final char DOWN = 'd';
+	public static final char LEFT = 'l';
+	public static final char RIGHT = 'r';
+	public static final char NONE = 'n';
+	
 	final int MOVE_DISTANCE = 2;
 	final int SPEED_WALK = 2;
 	final int SPEED_RUN=4;
 	boolean run = false;
-	final int STARTX = 400;
-	final int STARTY = 400;
+	final int STARTX = 200;
+	final int STARTY = 300;
 	final int WALK_TIMEOUT = 20;
-	final int ATTACK_TIMEOUT = 20;
+	final int ATTACK_TIMEOUT = 100;
 
 	Game game;
 	Image image;
 	Image[] images;
+	Image[] imagesAttack;
+	Image[] imagesWalk;
+	
 	public int worldX,worldY,screenX,screenY;
 	public int width = 50;
 	public int height = 50;
@@ -26,8 +41,8 @@ public class Player {
 	public int spriteOffsetY =-25;
 	public int spriteWidth =40;
 	public int spriteHeight=80;
-	public char state = 'w';// w=walk, a=attack, h=hit, d=dead, s=stand
-	public char direction = 'd';
+	public char state = Player.WALK;// w=walk, a=attack, h=hit, d=dead, s=stand
+	public char direction = DOWN;
 	public int frame = 0;
 	public int currentImageIndex = 0;
 	public int walkTimeout =0;
@@ -48,8 +63,8 @@ public class Player {
 	public Player(Game game) {
 		
 		this.game = game;
-		this.worldX = 300;
-		this.worldY = 300;
+		this.worldX = STARTX;
+		this.worldY = STARTY;
 		this.animationPacer = new Pacer(9);
 		maxY =game.getHeight() - height;
 		maxX = game.getWidth() - width;
@@ -71,10 +86,13 @@ public class Player {
             e.printStackTrace();
         }
 		
-		String SpriteSheet = "/images/zomPlayer.png";
+		String walkImagesURL = "/images/zomPlayer.png";
+		String attackImagesURL = "/images/zombieAttack.png";
 		
 		try {
-			this.images = this.game.imageutils.characterSheetUDL4(SpriteSheet, 100, 200);
+			this.images = this.game.imageutils.characterSheetUDL4(walkImagesURL, 100, 200);
+			this.imagesWalk = this.game.imageutils.characterSheetUDL4(walkImagesURL, 100, 200);
+			this.imagesAttack = this.game.imageutils.characterSheetUDL4(attackImagesURL, 100, 200);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -95,16 +113,16 @@ public class Player {
 		int fx = tx;
 		int fy = ty;
 		switch (direction) {
-		case 'u':
+		case UP:
 			fy -= 1;
 			break;
-		case 'd':
+		case DOWN:
 			fy += 1;
 			break;
-		case 'l':
+		case LEFT:
 			fx -= 1;
 			break;
-		case 'r':
+		case RIGHT:
 			fx += 1;
 			break;
 		default:
@@ -116,8 +134,16 @@ public class Player {
 		tilePlayer[1] = Utils.clamp(0, game.tilegrid.ROWS , ty);
 	}
 	
+	public void attack() {
+
+		this.state=ATTACK;
+		this.attackTimeout=ATTACK_TIMEOUT;
+		
+	}
+	
 	public void update() {
 		this.image = this.images[this.currentImageIndex];
+		
 		setPlayerState();
 		cycleSprite();
 		motion();
@@ -150,24 +176,24 @@ public class Player {
 		if(directions[0]) {
 			velY =- speed;
 			walkTimeout  = WALK_TIMEOUT;
-			this.direction='u';
+			this.direction=UP;
 		}
 		else if(directions[1]) {
 			velY = speed;
 			walkTimeout  = WALK_TIMEOUT;
-			this.direction='d';
+			this.direction=DOWN;
 		}else {
 			velY = 0;
 		}
 		if(directions[2]) {
 			velX =- speed;
 			walkTimeout  = WALK_TIMEOUT;
-			this.direction='l';
+			this.direction=LEFT;
 		}
 		else if(directions[3]) {
 			velX = speed;
 			walkTimeout  = WALK_TIMEOUT;
-			this.direction='r';
+			this.direction=RIGHT;
 		}else {
 			velX = 0;
 		}
@@ -221,24 +247,27 @@ public class Player {
 		if (attack  ) {
 			walkTimeout=WALK_TIMEOUT;
 			attackTimeout=ATTACK_TIMEOUT;
-			this.state ='a';
+			this.state =ATTACK;
 
 		} 
 		if(!playerMoved && !attacking && walkTimeout==0){
-			this.state = 's';
+			this.state = STAND;
 		}
 		
 		if (playerMoved && walkTimeout>0 && !attacking ) {
-			this.state = 'w';
+			this.state = WALK;
 		} 
 	}
 	
 	
 	
 	public void cycleSprite() {
-
-		if (state == 's') {
-			int directionIndexpart = 0;
+		int directionIndexpart = 0;
+		switch(this.state) {
+		
+		case STAND:
+			this.images=this.imagesWalk;
+		
 			switch (direction) {
 			case 'u':
 				directionIndexpart = 0;
@@ -255,36 +284,15 @@ public class Player {
 			}
 			currentImageIndex = directionIndexpart;
 			return;
-		} else if (state =='a') {
-			int directionIndexpart = 16;
-			switch (direction) {
-			case 'u':
-				directionIndexpart = 16;
-				break;
-			case 'd':
-				directionIndexpart = 20;
-				break;
-			case 'l':
-				directionIndexpart = 24;
-				break;
-			case 'r':
-				directionIndexpart = 28;
-				break;
+			
+		case WALK:
+		case ATTACK:
+			
+			if(state==ATTACK) {
+				this.images=this.imagesAttack;
+			}else {
+				this.images=this.imagesWalk;
 			}
-			if (animationPacer.check()) {
-				if (frame < 3) {
-					frame++;
-				} else {
-					frame = 0;
-				}
-
-			}
-			currentImageIndex = frame + directionIndexpart;
-			return;
-		} else if (state == 'w') {
-
-			int directionIndexpart = 0;
-
 			switch (direction) {
 			case 'u':
 				directionIndexpart = 0;
@@ -310,10 +318,92 @@ public class Player {
 			}
 
 			currentImageIndex = frame + directionIndexpart;
-
-		} else {
-			currentImageIndex = 0;
+			break;
+			
 		}
+
+//		if (state == STAND || state==ATTACK) {
+//			if(state==ATTACK) {
+//				this.images=this.imagesAttack;
+//			}else {
+//				this.images=this.imagesWalk;
+//			}
+//			int directionIndexpart = 0;
+//			switch (direction) {
+//			case 'u':
+//				directionIndexpart = 0;
+//				break;
+//			case 'd':
+//				directionIndexpart = 4;
+//				break;
+//			case 'l':
+//				directionIndexpart = 8;
+//				break;
+//			case 'r':
+//				directionIndexpart = 12;
+//				break;
+//			}
+//			currentImageIndex = directionIndexpart;
+//			return;
+//		} else if (state =='p') {
+//			int directionIndexpart = 16;
+//			switch (direction) {
+//			case 'u':
+//				directionIndexpart = 16;
+//				break;
+//			case 'd':
+//				directionIndexpart = 20;
+//				break;
+//			case 'l':
+//				directionIndexpart = 24;
+//				break;
+//			case 'r':
+//				directionIndexpart = 28;
+//				break;
+//			}
+//			if (animationPacer.check()) {
+//				if (frame < 3) {
+//					frame++;
+//				} else {
+//					frame = 0;
+//				}
+//
+//			}
+//			currentImageIndex = frame + directionIndexpart;
+//			return;
+//		} else if (state == WALK||state==ATTACK) {
+//
+//			int directionIndexpart = 0;
+//
+//			switch (direction) {
+//			case 'u':
+//				directionIndexpart = 0;
+//				break;
+//			case 'd':
+//				directionIndexpart = 4;
+//				break;
+//			case 'l':
+//				directionIndexpart = 8;
+//				break;
+//			case 'r':
+//				directionIndexpart = 12;
+//				break;
+//			}
+//
+//			if (animationPacer.check()) {
+//				if (frame < 3) {
+//					frame++;
+//				} else {
+//					frame = 0;
+//				}
+//
+//			}
+//
+//			currentImageIndex = frame + directionIndexpart;
+//
+//		} else {
+//			currentImageIndex = 0;
+//		}
 
 	}
 	

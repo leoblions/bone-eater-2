@@ -171,8 +171,8 @@ public class Decor {
 				try {
 					kind = game.tilegrid.getTileYX(y, x);
 					aboveKind = game.tilegrid.getTileYX(y + 1, x);
-					boolean solid = Collision.tileKindIsSolid(kind);
-					boolean solidAbove = Collision.tileKindIsSolid(aboveKind);
+					boolean solid = Collision.tileIsSolid(kind);
+					boolean solidAbove = Collision.tileIsSolid(aboveKind);
 					if (true == solid && !solidAbove) {
 						grid[y][x] = kind;
 					}

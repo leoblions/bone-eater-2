@@ -202,7 +202,7 @@ public class Entity {
 		eunit.screenX = (eunit.worldX - game.cameraX);
 		eunit.screenY = (eunit.worldY - game.cameraY);
 		BufferedImage image = null;
-		if(eunit.state=='a') {
+		if(eunit.state==EntityUnit.ATTACK) {
 			image=this.attackImages[eunit.kind][eunit.currentImageIndex];
 		}else {
 			image=this.entityImages[eunit.kind][eunit.currentImageIndex];
@@ -415,15 +415,27 @@ public class Entity {
 		boolean[] collisions = this.game.collision.collideTileTestWXY( testX, testY,  eunit.width,  eunit.height);
 		if(collisions[0]&&deltaXY4[1]<0) {
 			deltaXY4[1] = BOUNCE ;
+			if (eunit.direction==UP) {
+				eunit.direction=DOWN;
+			}
 		}
 		if(collisions[1]&&deltaXY4[1]>0) {
 			deltaXY4[1] =-BOUNCE ;
+			if (eunit.direction==DOWN) {
+				eunit.direction=UP;
+			}
 		}
 		if(collisions[2]&&deltaXY4[0]<0) {
 			deltaXY4[0] =BOUNCE ;
+			if (eunit.direction==LEFT) {
+				eunit.direction=RIGHT;
+			}
 		}
 		if(collisions[3]&&deltaXY4[0]>0) {
 			deltaXY4[0] =-BOUNCE ;
+			if (eunit.direction==RIGHT) {
+				eunit.direction=LEFT;
+			}
 		}else {
 			 
 		}
@@ -972,9 +984,9 @@ public class Entity {
 	}
 
 	private void setDirectionByPathFind(EntityUnit eunit) {
-
+		
 		//Point worldPoint = new Point(eunit.worldX, eunit.worldY);
-		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY);
+		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY+eunit.height);
 		eunit.direction8w=game.pathfind.getDirectionTowardsPlayer8way(eunit.worldX, eunit.worldY);
 		int[] playerLoc = this.game.player.getGridPosition();
 		

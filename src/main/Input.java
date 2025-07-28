@@ -73,6 +73,11 @@ public class Input {
 			System.out.println("edit tile");
 
 			break;
+		case KeyEvent.VK_F:
+			this.game.player.attack();
+			
+
+			break;
 		case KeyEvent.VK_O:
 			this.game.editor.editMode = 'o';
 			this.game.editor.updateStrings();

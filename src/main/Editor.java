@@ -10,13 +10,21 @@ import java.util.ArrayList;
 
 public class Editor {
 	Game game;
+	public static final char NORMAL = 'n';
+	public static final char TILE = 't';
+	public static final char TRIGGER = 'o';
+	public static final char DECOR = 'd';
+	public static final char WALL = 'w';
+	public static final char COLLISION = 'c';
+	private final int MIN_ASSET_ID = -1;
+	
 	Color smBorder = new Color(50, 50, 50, 50);
 	private static String editModeString, assetIDstring, latchString;
 	Font arial16;
 	public char editMode; // n=normal, t=tile, o=trigger
 	public boolean delete = false;
 	public int assetID;
-	char activeComponent = 'n';
+	char activeComponent = NORMAL;
 	// latch is used to click and drag tiles
 	public boolean latchEnable = true;
 	public boolean latchActive = false;
@@ -25,7 +33,7 @@ public class Editor {
 	public Editor(Game game) {
 		this.game = game;
 		arial16 = new Font("Arial", Font.PLAIN, 16);
-		this.editMode = 'n';
+		this.editMode = NORMAL;
 		editModeString = String.valueOf(this.editMode);
 		assetIDstring = getAssetIDString();
 		this.latchString = "";
@@ -50,20 +58,30 @@ public class Editor {
 	public void paintAsset() {
 		int gridX = (this.game.mouseX + game.cameraX) / this.game.tilegrid.tileSize;
 		int gridY = (this.game.mouseY + game.cameraY) / this.game.tilegrid.tileSize;
+		int gridXColl = (this.game.mouseX + game.cameraX) / this.game.COLL_GRID_SIZE;
+		int gridYColl = (this.game.mouseY + game.cameraY) / this.game.COLL_GRID_SIZE;
 		boolean delete = false;
 		switch (this.editMode) {
-		case 'n':
+		case NORMAL:
 			System.out.println("Normal mode, nothing to edit here");
 			break;
-		case 't':
+		case TILE:
 			this.game.tilegrid.setTileXYK(gridX, gridY, assetID);
 			System.out.println("paint tile " + gridX + " " + gridY + " " + assetID);
 			break;
-		case 'o':
+		case COLLISION:
+			this.game.collision.setTileXYK(gridXColl, gridYColl, assetID);
+			System.out.println("paint collision " + gridXColl + " " + gridYColl + " " + assetID);
+			break;
+		case WALL:
+			this.game.wall.setTileXYK(gridX, gridY, assetID);
+			System.out.println("paint wall " + gridX + " " + gridY + " " + assetID);
+			break;
+		case TRIGGER:
 			 delete = assetID==0;
 			this.game.trigger.setTileGXY(gridX,gridY,delete);
 			break;
-		case 'd':
+		case DECOR:
 			 delete = assetID==0;
 			 System.out.println("paint decor " + gridX + " " + gridY + " " + assetID);
 			 this.game.decor.setTileXYK(gridX, gridY, assetID);
@@ -94,28 +112,42 @@ public class Editor {
 	public void saveOrLoadData(boolean save){
 		//true=save
 		switch(this.editMode) {
-		case 'n':
+		case NORMAL:
 			return;
 			
-		case 't': 
+		case TILE: 
 			if(save) {
 				this.game.tilegrid.saveTilegrid();
 			}else {
 				this.game.tilegrid.loadTilegrid() ;
 			}
 			break;
-		case 'o':
+		case COLLISION: 
+			if(save) {
+				this.game.collision.saveTilegrid();
+			}else {
+				this.game.collision.loadTilegrid() ;
+			}
+			break;
+		case TRIGGER:
 			if(save) {
 				this.game.trigger.saveRecordsToFile();
 			}else {
 				this.game.trigger.loadRecordsFromFile() ;
 			}
 			break;
-		case 'd':
+		case DECOR:
 			if(save) {
 				this.game.decor.saveGridCurrentRoom();
 			}else {
 				this.game.decor.loadGridCurrentRoom() ;
+			}
+			break;
+		case WALL:
+			if(save) {
+				this.game.wall.saveTilegrid();
+			}else {
+				this.game.wall.loadTilegrid() ;
 			}
 			break;
 			
@@ -146,8 +178,8 @@ public class Editor {
 		case 3:
 			if (down == 0) {
 				this.assetID -= 1;
-				if (assetID < 0)
-					assetID = 0;
+				if (assetID < MIN_ASSET_ID)
+					assetID = MIN_ASSET_ID;
 				this.updateStrings();
 				System.out.println("assetID " + assetID);
 

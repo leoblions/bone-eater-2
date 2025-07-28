@@ -21,6 +21,7 @@ public class Game extends JPanel implements Runnable {
 	static int HEIGHT;
 	static int WIDTH;
 	static final int TILE_SIZE = 100;
+	static final int COLL_GRID_SIZE = 50;
 	static final int ROWS = 25;
 	static final int COLS = 25;
 	
@@ -32,6 +33,7 @@ public class Game extends JPanel implements Runnable {
 	public Graphics g;
 	public Utils utils;
 	public Trigger trigger;
+	public Wall wall;
 	public Hud hud;
 	public Player player;
 	public Editor editor;
@@ -99,6 +101,7 @@ public class Game extends JPanel implements Runnable {
 		this.editor=new Editor(this);
 		this.input = new Input(this);
 		this.tilegrid = new Tilegrid(this);
+		this.wall = new Wall(this);
 		this.collision=new Collision(this);
 		this.pathfind = new Pathfind(this);
 		this.background =new Background(this);
@@ -145,6 +148,8 @@ public class Game extends JPanel implements Runnable {
 		
 		if(LOAD_FIRST_LEVEL) {
 			this.tilegrid.loadTilegrid();
+			this.wall.loadTilegrid();
+			this.collision.loadTilegrid();
 		}
 		
 		
@@ -182,6 +187,8 @@ public class Game extends JPanel implements Runnable {
 	void draw() {
 		this.background.draw();
 		this.tilegrid.draw();
+		this.wall.draw();
+		this.collision.draw();
 		this.decor.draw();
 		this.player.draw();
 		this.entity.draw();
@@ -203,6 +210,8 @@ public class Game extends JPanel implements Runnable {
 			;
 		}else {
 			this.tilegrid.update();
+			this.wall.update();
+			this.collision.update();
 			this.entity.update();
 			this.decor.update();
 			this.background.update();
