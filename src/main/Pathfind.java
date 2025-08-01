@@ -13,6 +13,9 @@ public class Pathfind {
 	Color healthBarColor = new Color(50, 200, 50, 250);
 	int halfSquare;
 	Pacer pfPacer;
+	public static final int SOLID = 1;
+	public static final int WALL = 1;
+	public static final int OPEN = 0;
 	public final int PF_GRID_PASSES = 15;
 	public final int GRID_UPDATE_PERIOD = 30;
 	public final int TARGET_OFFSET_X = 30;
@@ -89,6 +92,31 @@ public class Pathfind {
 		
 	}
 	
+	private int cellMarkedNeighborsAmount( boolean[][] grid, int gridX, int gridY) {
+		int acc = 0;
+				acc += cellExistsAndGTOne(grid,   gridX-1, gridY -1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX-1, gridY   ) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX-1, gridY +1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX,   gridY -1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX,   gridY +1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX+1, gridY -1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX+1, gridY   ) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX+1, gridY +1) ? 1 : 0;
+				
+			return acc;
+		
+	}
+	private int cellMarkedNeighborsAmount4W( boolean[][] grid, int gridX, int gridY) {
+		int acc = 0;
+				acc += cellExistsAndGTOne(grid,   gridX-1, gridY   ) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX,   gridY -1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX,   gridY +1) ? 1 : 0;
+				acc += cellExistsAndGTOne(grid,   gridX+1, gridY   ) ? 1 : 0;
+				
+			return acc;
+		
+	}
+	
 	private boolean cellHasMarkedCardinalNeighbor( boolean[][] grid, int gridX, int gridY) {
 		if(
 				
@@ -114,6 +142,75 @@ public class Pathfind {
 		}catch(Exception e) {
 			return false;
 		}
+	}
+	
+public char getDirectionTowardsPlayer(EntityUnit eunit) {
+		
+		//int screenX = (int) worldP.getX() - game.cameraX;
+		//int screenY = (int) worldP.getY() - game.cameraY;
+		int ENTITY_OFFSET_X = 0;
+		int ENTITY_OFFSET_Y = 0;
+		int entityGX =  (eunit.worldX+eunit.width/2+ENTITY_OFFSET_X) / Game.COLL_GRID_SIZE;
+		int entityGY =  ( eunit.worldY+eunit.height/2+ENTITY_OFFSET_Y) / Game.COLL_GRID_SIZE;
+		int test, max;
+		boolean isWall=false;
+		int solid = game.collision.SOLID;
+		
+		max = 0;
+		char dir = 'n';
+		try {// none
+			test = pfGrid[entityGY][entityGX];
+			isWall = solid==this.game.collision.grid[entityGY][entityGX];
+			if  (test>max && !isWall) {
+				max = test;
+				dir = 'n';
+			}
+		}catch(Exception e) {}
+		
+		try {// left
+			test = pfGrid[entityGY][entityGX-1];
+			//System.out.println("LT "+L);
+			isWall = solid==this.game.collision.grid[entityGY][entityGX-1];
+			if  (test>max && !isWall) {
+				max = test;
+				dir = 'l';
+			}
+		}catch(Exception e) {}
+		
+		try {//right
+			test = pfGrid[entityGY][entityGX+1];
+			//System.out.println("RT "+R);
+			isWall = solid==this.game.collision.grid[entityGY][entityGX+1];
+			if  (test>max && !isWall) {
+				max = test;
+				dir = 'r';
+			}
+		}catch(Exception e) {}
+		
+		try {//up
+			test = pfGrid[entityGY-1][entityGX];
+			
+			isWall = solid==this.game.collision.grid[entityGY-1][entityGX];
+			//System.out.println("UP "+test+ " wall "+isWall);
+			if  (test>max && !isWall) {
+				max = test;
+				dir = 'u';
+			}
+		}catch(Exception e) {}
+		
+		try {
+			test = pfGrid[entityGY+1][entityGX];
+			isWall = this.wallgrid[entityGY+1][entityGX];
+			if  (test>max && !isWall) {
+				max = test;
+				dir = 'd';
+			}
+		}catch(Exception e) {}
+		//System.out.println("DIR "+dir+ " max "+max );
+		return dir;
+				
+		
+		
 	}
 	
 	public char getDirectionTowardsPlayer(int entityWX, int entityWY) {
@@ -240,6 +337,7 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 		for(int i = 0; i< PF_GRID_PASSES ; i++) {
 		//for(int i = PF_GRID_PASSES; i >=0 ; i--) {
 			pfPass(i);
+		
 		}
 		
 	}
@@ -262,8 +360,9 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 				if (tileIsWall) {
 					continue; // don't mark walls
 				}else {
-					if(cellHasMarkedCardinalNeighbor(checkGrid,x,y)) {
-						pfGrid[y][x]+=amountToAdd;
+					int acc;
+					if(( acc = cellMarkedNeighborsAmount(checkGrid,x,y))!=0) {
+						pfGrid[y][x]+=(acc+amountToAdd);
 					}
 				}
 			}
@@ -293,7 +392,7 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 		if(DRAW_PF_NUMBERS) {
 			for (int y = 0; y < rows; y++) {
 				for (int x = 0; x < cols; x++) {
-					if (this.pfGrid[y][x] > 16) {
+					if (this.pfGrid[y][x] != SOLID) {
 						int w = Game.COLL_GRID_SIZE;
 						int h = Game.COLL_GRID_SIZE;
 

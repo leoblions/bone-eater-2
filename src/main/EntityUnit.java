@@ -26,6 +26,13 @@ public class EntityUnit {
 	public static final char STAND = 's';
 	public static final char DEAD = 'd';
 	public static final char HIT = 'h';
+	
+	
+	public static final int EK_GUARD = 0;
+	public static final int EK_KNIGHT = 1;
+	public static final int EK_SPIDER = 2;
+	public static final int EK_LIZARD = 3;
+	public static final int EK_BEAR = 4;
 
 	
 
@@ -33,10 +40,10 @@ public class EntityUnit {
 	
 	int startGX, startGY, kind, UID;
 	int tileX,tileY;
+	int widthS,heightS,widthA,heightA;
 	
 	int currentImageIndex = 0;
 	int currentSpeed = 5;
-	
 	int velX = 0;
 	int velY = 0;
 	int worldX = 0;
@@ -49,7 +56,6 @@ public class EntityUnit {
 	int gridX,gridY;
 	int locationOffsetX = 25;
 	int locationOffsetY  =35;
-	
 	boolean alive = true;
 	int screenX,screenY;
 	int frame = 0;
@@ -60,7 +66,7 @@ public class EntityUnit {
 	int rightTurnDebounceWait = 0; // prevent making too many right turns in quick succession
 	boolean foundWall = false;
 	public boolean enemy = false;
-	public boolean chasePlayer = false;
+	//public boolean chasePlayer = false;
 	public boolean playerPressToActivate = false;
 	public int[] lastTile;
 	public boolean tileChanged;
@@ -109,9 +115,14 @@ public class EntityUnit {
 		direction = 'n';
 		direction8w = 8;
 		switch(kind) {
-		case 0:// basic guard
+		case EK_GUARD:// basic guard
 			this.width = 40;
 			this.height = 80;
+			this.widthS=40;
+			this.heightS=80;
+			this.widthA=80;
+			this.heightA=90;
+			this.enemy=true;
 			this.state = 's';
 			if (UID==1) {
 				this.direction='u';

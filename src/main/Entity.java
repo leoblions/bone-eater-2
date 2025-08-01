@@ -23,7 +23,7 @@ public class Entity {
 	final int PFWORLDW = 2;
 	final int PFWORLDH = 3;
 	final int WALL_COLLIDE_WIGGLEROOM = 10;
-	final int ENTITY_FOLLOW_PLAYER_MIN_DISTANCE = 80;
+	final int ENTITY_FOLLOW_PLAYER_MIN_DISTANCE = 40;
 	final char DOWN = 'd';
 	final int UP = 'u';
 	final int LEFT = 'l';
@@ -38,7 +38,7 @@ public class Entity {
 	final int VISUAL_RANGE = 5; // how far entities can see
 
 	final int ENTITY_PLAYER_COLLIDE_RANGE = 40;
-
+	final boolean CHECK_COLLISIONS = false;
 	final int EK_GUARD = 0;
 
 	final boolean DRAW_COLLRECT = true;
@@ -48,6 +48,10 @@ public class Entity {
 
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
 	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
+	public static final int ENTITY_ATTACK_DISTANCE = 5; // tiles
+	public static final int EP_DISTANCE_START_PATHFIND = 500;
+	public static final int EP_DISTANCE_START_BEELINE = 100;
+	public static final int ENTITY_GIVEUP_DISTANCE = 25; //tiles
 	private static final String DATA_FILE_PREFIX = "entity";
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	final int ATTACK_FRAMES=4;
@@ -237,6 +241,7 @@ public class Entity {
 				updateState(eunit);
 				updatePosition(eunit);
 				updateColliderUnit(eunit);
+				//System.out.println("Entity state "+eunit.state);
 
 			}
 
@@ -288,12 +293,15 @@ public class Entity {
 	}
 	
 	public void updateState(EntityUnit eunit) {
-		// for sensing player
-		if (eunit.state==ES_WANDER||eunit.state==ES_STAND) {
-			int deltaX=0;
-			int deltaY=0;
-			
-			 deltaY = (eunit.direction=='d')?1:0;
+		int deltaX=0;
+		int deltaY=0;
+		int playerPos[] = null;
+		int dX,dY;
+		switch(eunit.state) {
+		case ES_WANDER:
+		case ES_STAND:
+			// pick direction to use for beam and animation
+			deltaY = (eunit.direction=='d')?1:0;
 			 deltaY = (eunit.direction=='u')?-1:0;
 			 deltaX = (eunit.direction=='l')?-1:0;
 			 deltaX = (eunit.direction=='r')?1:0;
@@ -302,14 +310,37 @@ public class Entity {
 			 if(playerSpotted) {
 				 eunit.state=ES_FOLLOW;
 			 }
+			 break;
+		case ES_FOLLOW:
+			eunit.width=eunit.widthS;
+			playerPos = this.game.player.getGridPosition();
+			dX = Math.abs(eunit.tileX-playerPos[0]);
+			dY = Math.abs(eunit.tileY-playerPos[1]);
 			
-		}else if(eunit.state==ES_FOLLOW){
-			int playerPos[] = this.game.player.getGridPosition();
-			if(eunit.tileX==playerPos[0]&& eunit.tileY==playerPos[1]) {
-				eunit.direction=ES_ATTACK;
+			if(dX<ENTITY_ATTACK_DISTANCE&&dY<ENTITY_ATTACK_DISTANCE) {
+				eunit.state=ES_ATTACK;
+			}else if(dX>ENTITY_GIVEUP_DISTANCE||dY>ENTITY_GIVEUP_DISTANCE) {
+				eunit.state=ES_WANDER;
+				//System.out.printf("player %d, %d entity: %d, %d \n",playerPos[0],playerPos[1],eunit.tileX,eunit.tileY);
+			}
+			break;
+		case ES_ATTACK:
+			eunit.width=eunit.widthA;
+			playerPos = this.game.player.getGridPosition();
+			dX = Math.abs(eunit.tileX-playerPos[0]);
+			dY = Math.abs(eunit.tileY-playerPos[1]);
+			//String st = "attack "+dX+ " "+ dY;
+			//System.out.println(st);
+			 if(dX>ENTITY_ATTACK_DISTANCE||dY>ENTITY_ATTACK_DISTANCE) {
+				eunit.state=ES_FOLLOW;
+				//System.out.printf("player %d, %d entity: %d, %d \n",playerPos[0],playerPos[1],eunit.tileX,eunit.tileY);
 			}
 			
+			break;
+			
+			
 		}
+		
 		
 		 
 		
@@ -385,73 +416,74 @@ public class Entity {
 	}
 
 	public void updatePosition(EntityUnit eunit) {
-
+		int[] deltaXY4 = {0,0};
+		int BOUNCE = 0;
 		eunit.tileY = eunit.worldY / Game.TILE_SIZE;
 		eunit.tileX = eunit.worldX / Game.TILE_SIZE;
 		if (game.entity.frozen) {
 			return;
 		}
-		if (eunit.alive && (eunit.chasePlayer||eunit.state=='f')) {
-			eunit.state = 'f';
+		boolean chase = (eunit.state==ES_ATTACK||eunit.state==ES_ATTACK);
+		if (eunit.alive && chase) {
+			
 			eunit.entityPlayerDistance = this.entityPlayerDistance(eunit);
-			if(eunit.entityPlayerDistance>110) {
+			if(eunit.entityPlayerDistance>=EP_DISTANCE_START_PATHFIND) {
+				// don't move
+			}else if(eunit.entityPlayerDistance>=EP_DISTANCE_START_BEELINE) {
 				this.setDirectionByPathFind(eunit);
-			}else {
+				deltaXY4 = calculateMoveFromDirection4W(eunit);
+				int testX = eunit.worldX + deltaXY4[0];
+				int testY = eunit.worldY + deltaXY4[1];
+				//boolean moveCollideWall = moveEntityCollideWall(eunit, testX, testY);
+				if(CHECK_COLLISIONS) {
+					boolean[] collisions = this.game.collision.collideTileTestWXY( testX, testY,  eunit.width,  eunit.height);
+					if(collisions[0]&&deltaXY4[1]<0) {
+						deltaXY4[1] = BOUNCE ;
+						
+					}
+					if(collisions[1]&&deltaXY4[1]>0) {
+						deltaXY4[1] =-BOUNCE ;
+						
+					}
+					if(collisions[2]&&deltaXY4[0]<0) {
+						deltaXY4[0] =BOUNCE ;
+						
+					}
+					if(collisions[3]&&deltaXY4[0]>0) {
+						deltaXY4[0] =-BOUNCE ;
+						
+					}else {
+						 
+					}
+				}
+				
+			}else if(eunit.entityPlayerDistance<EP_DISTANCE_START_BEELINE){
+				int[] dir2W =this.setDirectionByBeeline(eunit);
+				deltaXY4 = this.calculateMoveBeeline(eunit,dir2W);
 				//eunit.direction = 'n';
 			}
 			
 			//eunit.direction=UP;
 
 		} else if (!eunit.alive) {
-			// update image
+			return;
 		}
-		int[] deltaXY = calculateMoveFromDirection8W(eunit);
-		int[] deltaXY4 = calculateMoveFromDirection4W(eunit);
+		//int[] deltaXY8 = calculateMoveFromDirection8W(eunit);
+		
 		boolean collideOtherUnit = moveOverlapsOtherEntityUnit(eunit);
-		int testX = eunit.worldX + deltaXY4[0];
-		int testY = eunit.worldY + deltaXY4[1];
-		//boolean moveCollideWall = moveEntityCollideWall(eunit, testX, testY);
-		int BOUNCE = 0;
-		boolean[] collisions = this.game.collision.collideTileTestWXY( testX, testY,  eunit.width,  eunit.height);
-		if(collisions[0]&&deltaXY4[1]<0) {
-			deltaXY4[1] = BOUNCE ;
-			if (eunit.direction==UP) {
-				eunit.direction=DOWN;
-			}
-		}
-		if(collisions[1]&&deltaXY4[1]>0) {
-			deltaXY4[1] =-BOUNCE ;
-			if (eunit.direction==DOWN) {
-				eunit.direction=UP;
-			}
-		}
-		if(collisions[2]&&deltaXY4[0]<0) {
-			deltaXY4[0] =BOUNCE ;
-			if (eunit.direction==LEFT) {
-				eunit.direction=RIGHT;
-			}
-		}
-		if(collisions[3]&&deltaXY4[0]>0) {
-			deltaXY4[0] =-BOUNCE ;
-			if (eunit.direction==RIGHT) {
-				eunit.direction=LEFT;
-			}
-		}else {
-			 
-		}
+		
 		
 		
 		
 		if (!collideOtherUnit ) {
 			if(eunit.entityPlayerDistance>ENTITY_FOLLOW_PLAYER_MIN_DISTANCE) {
+				// stop entity from pacing if too close to player
 				//System.out.println("moving "+deltaXY[0]+ " " + deltaXY[1]);
 				moveEntityFromDeltas(eunit, deltaXY4[0], deltaXY4[1]);
 				
 			}
 
 			
-		} else {
-			eunit.state = 's';
 		}
 		cycleSprite(eunit);
 		playerMeleeEnemy(eunit);
@@ -478,23 +510,6 @@ public class Entity {
 
 	}
 	
-//	public boolean moveEntityCollideWall(EntityUnit eunit, int testX, int testY) {
-//		// return true if move hits wall
-//		boolean[] collisions = this.game.collision.collideTileTestWXY( testX, testY,  eunit.width,  eunit.height);
-//		if(collisions[0]&&testY<0) {
-//			return true;
-//		}else if(collisions[1]&&testY>0) {
-//			return true;
-//		}else if(collisions[2]&&testX<0) {
-//			return true;
-//		}else if(collisions[3]&&testX>0) {
-//			return true;
-//		}else {
-//			return false;
-//		}
-//		
-//		
-//	}
 
 	public boolean moveOverlapsOtherEntityUnit(EntityUnit eunitA) {
 		// stop enemies and NPCs from overlapping
@@ -832,13 +847,18 @@ public class Entity {
 	
 	public int[] calculateMoveFromDirection4W(EntityUnit eunit) {
 		int[] deltaXY = {0,0};
-		if (eunit.state == 'w') {
-			eunit.currentSpeed = SPEED_WALK;
-		} else if(eunit.state == 'f') {
-			eunit.currentSpeed = SPEED_CHASE;
-		}else {
-			eunit.currentSpeed = 0;
+		switch(eunit.state) {
+		case ES_WANDER:
+			eunit.currentSpeed=SPEED_WALK;
+			break;
+		case ES_ATTACK:
+		case ES_FOLLOW:
+			eunit.currentSpeed=SPEED_CHASE;
+			break;
+		default:
+			eunit.currentSpeed=0;
 		}
+		
 		switch (eunit.direction) {
 		case 'n':
 			break;
@@ -859,6 +879,32 @@ public class Entity {
 			break;
 
 		}
+		return deltaXY;
+	}
+	
+	public int[] calculateMoveBeeline(EntityUnit eunit, int[] direction2W) {
+		int[] deltaXY = {0,0};
+		switch(eunit.state) {
+		case ES_WANDER:
+			eunit.currentSpeed=SPEED_WALK;
+			break;
+		case ES_ATTACK:
+		case ES_FOLLOW:
+			eunit.currentSpeed=SPEED_CHASE;
+			break;
+		default:
+			eunit.currentSpeed=0;
+		}
+		
+		int halfSpeed = eunit.currentSpeed / 2;
+		if(direction2W[0]==0) {
+			deltaXY[1] = direction2W[1] * halfSpeed;
+		}else if(direction2W[1]==0) {
+			deltaXY[0] = direction2W[0] * halfSpeed;
+		}
+		deltaXY[0] += direction2W[0]*halfSpeed;
+		deltaXY[1] += direction2W[1]*halfSpeed;
+		
 		return deltaXY;
 	}
 	
@@ -986,21 +1032,54 @@ public class Entity {
 	private void setDirectionByPathFind(EntityUnit eunit) {
 		
 		//Point worldPoint = new Point(eunit.worldX, eunit.worldY);
-		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit.worldX, eunit.worldY+eunit.height);
-		eunit.direction8w=game.pathfind.getDirectionTowardsPlayer8way(eunit.worldX, eunit.worldY);
-		int[] playerLoc = this.game.player.getGridPosition();
+		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit);
+		//eunit.direction8w=game.pathfind.getDirectionTowardsPlayer8way(eunit.worldX, eunit.worldY);
+//		int[] playerLoc = this.game.player.getGridPosition();
+//		
+//		if(playerLoc[1]==eunit.worldY-1) {
+//			eunit.direction='u';
+//		}else if(playerLoc[1]==eunit.worldY+1){
+//			eunit.direction='d';
+//		}else if(playerLoc[0]==eunit.worldX-1){
+//			eunit.direction='l';
+//		}else if(playerLoc[0]==eunit.worldY+1){
+//			eunit.direction='r';
+//		}else if(playerLoc[0]==eunit.worldX && playerLoc[1]==eunit.worldY ) {
+//			eunit.direction='n';
+//		}
+
+	}
+	
+	private int[] setDirectionByBeeline(EntityUnit eunit) {
 		
-		if(playerLoc[1]==eunit.worldY-1) {
-			eunit.direction='u';
-		}else if(playerLoc[1]==eunit.worldY+1){
-			eunit.direction='d';
-		}else if(playerLoc[0]==eunit.worldX-1){
+		
+		int[] playerLoc = this.game.player.getGridPosition();
+		int dX = playerLoc[0] - eunit.tileX;
+		int dY = playerLoc[1] - eunit.tileY; // negative means move up
+		int dir2W[] = {0,0}; // dx, dy
+		// direction is used for animation
+		
+		if(dX<0) {
 			eunit.direction='l';
-		}else if(playerLoc[0]==eunit.worldY+1){
+			dir2W[0]=-1;
+		}else if(dX>0){
 			eunit.direction='r';
-		}else if(playerLoc[0]==eunit.worldX && playerLoc[1]==eunit.worldY ) {
-			eunit.direction='n';
+			dir2W[0]=1;
+		}else {
+			dir2W[0]=0;
 		}
+			
+		if(dY<0) {
+			eunit.direction='u';
+			dir2W[1]=-1;
+		}else if(dY>0){
+			eunit.direction='d';
+			dir2W[1]=1;
+		}else {
+			dir2W[1]=0;
+		}
+		// used for motion
+		return dir2W;
 
 	}
 
