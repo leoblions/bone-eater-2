@@ -74,7 +74,7 @@ public class Editor {
 			System.out.println("paint collision " + gridXColl + " " + gridYColl + " " + assetID);
 			break;
 		case WALL:
-			this.game.wall.setTileXYK(gridX, gridY, assetID);
+			//this.game.wall.setTileXYK(gridX, gridY, assetID);
 			System.out.println("paint wall " + gridX + " " + gridY + " " + assetID);
 			break;
 		case TRIGGER:
@@ -145,9 +145,9 @@ public class Editor {
 			break;
 		case WALL:
 			if(save) {
-				this.game.wall.saveTilegrid();
+				//this.game.wall.saveTilegrid();
 			}else {
-				this.game.wall.loadTilegrid() ;
+				//this.game.wall.loadTilegrid() ;
 			}
 			break;
 			

@@ -130,7 +130,7 @@ public class Tilegrid {
         }
 		BufferedImage[] items1 = new Imageutils(game).spriteSheetCutter("/images/tileFloor.png", 4, 4,  Game.TILE_SIZE, Game.TILE_SIZE);
 
-		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter("/images/tileWall.png", 4, 4,  Game.TILE_SIZE,  Game.TILE_SIZE);
+		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter("/images/tileWall1.png", 4, 4,  Game.TILE_SIZE,  Game.TILE_SIZE);
 
 		BufferedImage[] itemImages = Imageutils.appendArray(items1, items2);
 		

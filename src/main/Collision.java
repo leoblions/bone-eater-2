@@ -58,19 +58,19 @@ public class Collision {
 
 	}
 
-	public int wallAtWorldCoord(int wx, int wy) {
-		return game.wall.getTileYX(wy / game.wall.tileSize, wx / game.wall.tileSize);
+//	public int wallAtWorldCoord(int wx, int wy) {
+//		return game.wall.getTileYX(wy / game.wall.tileSize, wx / game.wall.tileSize);
+//
+//	}
 
-	}
-
-	public static int wallAtWorldCoord(Game game, int wx, int wy) {
-		return game.wall.getTileYX(wy / game.wall.tileSize, wx / game.wall.tileSize);
-
-	}
-	public static int solidAtWorldCoord(Game game, int wx, int wy) {
-		return game.wall.getTileYX(wy / Game.COLL_GRID_SIZE, wx / Game.COLL_GRID_SIZE);
-
-	}
+//	public static int wallAtWorldCoord(Game game, int wx, int wy) {
+//		return game.wall.getTileYX(wy / game.wall.tileSize, wx / game.wall.tileSize);
+//
+//	}
+//	public static int solidAtWorldCoord(Game game, int wx, int wy) {
+//		return game.wall.getTileYX(wy / Game.COLL_GRID_SIZE, wx / Game.COLL_GRID_SIZE);
+//
+//	}
 	public boolean solidAtWorldCoord( int wx, int wy) {
 		return SOLID == this.getTileYX(wy / Game.COLL_GRID_SIZE, wx / Game.COLL_GRID_SIZE);
 
@@ -86,16 +86,16 @@ public class Collision {
 
 
 
-	public static boolean pointCollideWithSolidTile(Game game, int worldX, int worldY) {
-		
-		try {
-
-			return  tileIsSolid(solidAtWorldCoord(game, worldX, worldY));
-			 
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return true;
-		} 
-	}
+//	public static boolean pointCollideWithSolidTile(Game game, int worldX, int worldY) {
+//		
+//		try {
+//
+//			return  tileIsSolid(solidAtWorldCoord(game, worldX, worldY));
+//			 
+//		} catch (ArrayIndexOutOfBoundsException e) {
+//			return true;
+//		} 
+//	}
 
 	public boolean[] collideTileTestWXY(int testX, int testY, int width, int height) {
 
@@ -155,138 +155,138 @@ public class Collision {
 
 	}
 
-	/**
-	 * returns array of bools, any of which will be true if the rectangles collide
-	 * in that direction with a tile
-	 * 
-	 * @param r
-	 * @return
-	 */
-	public boolean[] collideTileRect(Rectangle r) {
+//	/**
+//	 * returns array of bools, any of which will be true if the rectangles collide
+//	 * in that direction with a tile
+//	 * 
+//	 * @param r
+//	 * @return
+//	 */
+//	public boolean[] collideTileRect(Rectangle r) {
+//
+//		boolean[] collisions = new boolean[] { false, false, false, false };
+//		// Player p = game.player;
+//
+//		// up coll
+//		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
+//		if (tileIsSolid(tmp)) {
+//			// System.out.println("collide up");
+//			collisions[0] = true;
+//		}
+//		// down coll
+//		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
+//		if (tileIsSolid(tmp)) {
+//			// System.out.println("collide dn");
+//			collisions[1] = true;
+//		}
+//		// left coll
+//		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp)) {
+//			// System.out.println("collide lt");
+//			collisions[2] = true;
+//		}
+//		// right coll
+//		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp)) {
+//			// System.out.println("collide rt");
+//			collisions[3] = true;
+//
+//		}
+//		return collisions;
+//
+//	}
 
-		boolean[] collisions = new boolean[] { false, false, false, false };
-		// Player p = game.player;
+//	public boolean collideTileRectDirection(Rectangle r, char direction) {
+//
+//		// up coll
+//		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
+//		if (tileIsSolid(tmp) && direction == 'u') {
+//			return true;
+//		}
+//		// down coll
+//		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
+//		if (tileIsSolid(tmp) && direction == 'd') {
+//			return true;
+//		}
+//		// left coll
+//		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp) && direction == 'l') {
+//			return true;
+//		}
+//		// right coll
+//		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp) && direction == 'r') {
+//			return true;
+//
+//		}
+//		return false;
+//
+//	}
 
-		// up coll
-		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
-		if (tileIsSolid(tmp)) {
-			// System.out.println("collide up");
-			collisions[0] = true;
-		}
-		// down coll
-		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
-		if (tileIsSolid(tmp)) {
-			// System.out.println("collide dn");
-			collisions[1] = true;
-		}
-		// left coll
-		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp)) {
-			// System.out.println("collide lt");
-			collisions[2] = true;
-		}
-		// right coll
-		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp)) {
-			// System.out.println("collide rt");
-			collisions[3] = true;
+//	public boolean collideTileRectDirection(Rectangle r, Direction4W direction) {
+//
+//		// up coll
+//		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
+//		if (tileIsSolid(tmp) && direction == Direction4W.UP) {
+//			// System.out.println("collide up");
+//			return true;
+//		}
+//		// down coll
+//		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
+//		if (tileIsSolid(tmp) && direction == Direction4W.DOWN) {
+//			// System.out.println("collide dn");
+//			return true;
+//		}
+//		// left coll
+//		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp) && direction == Direction4W.LEFT) {
+//			// System.out.println("collide lt");
+//			return true;
+//		}
+//		// right coll
+//		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
+//		if (tileIsSolid(tmp) && direction == Direction4W.RIGHT) {
+//			// System.out.println("collide rt");
+//			return true;
+//
+//		}
+//		return false;
+//
+//	}
 
-		}
-		return collisions;
-
-	}
-
-	public boolean collideTileRectDirection(Rectangle r, char direction) {
-
-		// up coll
-		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
-		if (tileIsSolid(tmp) && direction == 'u') {
-			return true;
-		}
-		// down coll
-		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
-		if (tileIsSolid(tmp) && direction == 'd') {
-			return true;
-		}
-		// left coll
-		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp) && direction == 'l') {
-			return true;
-		}
-		// right coll
-		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp) && direction == 'r') {
-			return true;
-
-		}
-		return false;
-
-	}
-
-	public boolean collideTileRectDirection(Rectangle r, Direction4W direction) {
-
-		// up coll
-		int tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y - BUFFER_ZONE);
-		if (tileIsSolid(tmp) && direction == Direction4W.UP) {
-			// System.out.println("collide up");
-			return true;
-		}
-		// down coll
-		tmp = wallAtWorldCoord(r.x + (r.width / 2), r.y + (r.height) + BUFFER_ZONE);
-		if (tileIsSolid(tmp) && direction == Direction4W.DOWN) {
-			// System.out.println("collide dn");
-			return true;
-		}
-		// left coll
-		tmp = wallAtWorldCoord(r.x - BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp) && direction == Direction4W.LEFT) {
-			// System.out.println("collide lt");
-			return true;
-		}
-		// right coll
-		tmp = wallAtWorldCoord(r.x + r.width + BUFFER_ZONE, r.y + r.height / 2);
-		if (tileIsSolid(tmp) && direction == Direction4W.RIGHT) {
-			// System.out.println("collide rt");
-			return true;
-
-		}
-		return false;
-
-	}
-
-	public boolean collideTileRectAny(Rectangle r) {
-
-		// boolean[] collisions = new boolean[] {false,false,false,false};
-		// Player p = game.player;
-
-		// up coll
-		int tmp = wallAtWorldCoord(r.x, r.y);
-		if (tileIsSolid(tmp)) {
-			System.out.println("collide up");
-			return true;
-		}
-		// down coll
-		tmp = wallAtWorldCoord(r.x, r.y);
-		if (tileIsSolid(tmp)) {
-			System.out.println("collide dn");
-			return true;
-		}
-		// left coll
-		tmp = wallAtWorldCoord(r.x, r.y);
-		if (tileIsSolid(tmp)) {
-			System.out.println("collide lt");
-			return true;
-		}
-		// right coll
-		tmp = wallAtWorldCoord(r.x, r.y);
-		if (tileIsSolid(tmp)) {
-			System.out.println("collide rt");
-			return true;
-
-		}
-		return false;
-
-	}
+//	public boolean collideTileRectAny(Rectangle r) {
+//
+//		// boolean[] collisions = new boolean[] {false,false,false,false};
+//		// Player p = game.player;
+//
+//		// up coll
+//		int tmp = wallAtWorldCoord(r.x, r.y);
+//		if (tileIsSolid(tmp)) {
+//			System.out.println("collide up");
+//			return true;
+//		}
+//		// down coll
+//		tmp = wallAtWorldCoord(r.x, r.y);
+//		if (tileIsSolid(tmp)) {
+//			System.out.println("collide dn");
+//			return true;
+//		}
+//		// left coll
+//		tmp = wallAtWorldCoord(r.x, r.y);
+//		if (tileIsSolid(tmp)) {
+//			System.out.println("collide lt");
+//			return true;
+//		}
+//		// right coll
+//		tmp = wallAtWorldCoord(r.x, r.y);
+//		if (tileIsSolid(tmp)) {
+//			System.out.println("collide rt");
+//			return true;
+//
+//		}
+//		return false;
+//
+//	}
 
 	public void initGrid() {
 		this.grid = new int[ROWS][COLS];

@@ -21,7 +21,7 @@ public class Pathfind {
 	public final int TARGET_OFFSET_X = 30;
 	public final int TARGET_OFFSET_Y = 30;
 	private boolean DRAW_WALL_GRID = false;
-	private boolean DRAW_PF_NUMBERS = true;
+	private boolean DRAW_PF_NUMBERS = false;
 	private final boolean SUPPRESS_OOBE = true;
 	private final int [] modifiersX = {0,1,1,1,0,-1,-1,-1,0};
 	private final int [] modifiersY = {-1,-1,0,1,1,1,0,-1,0};

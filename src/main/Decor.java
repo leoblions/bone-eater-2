@@ -23,6 +23,9 @@ public class Decor {
 	final int SAFHEIGHT = 3;
 
 	// image data
+	//doors and windows, corners
+	private static final String SPRITE_WALL_OVERLAY = "/images/wallOverlay.png";
+	
 	// 100x100 outdoor
 	private static final String SPRITE_URL_OUTDOOR1 = "/images/decor_100_100_1.png";
 	// 100x200 outdoor
@@ -365,13 +368,16 @@ public class Decor {
 	}
 
 	private void initDecorImages() throws IOException {
+		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x
 		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR1, 4, 4, 100, 100); // 16x
 																													// 100x100
 		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR2, 4, 2, 100, 200);// 8x
 																														// 100x200
 		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_INDOOR1, 4, 4, 100, 100);// 16x
-																													// 100x100
-		this.images = Imageutils.appendArray(decorOutdoor, decorOutdoorTall);
+		this.images = Imageutils.appendArray(decorOverlay, decorOutdoor);
+		this.images = Imageutils.appendArray(images, decorOutdoor);
+		this.images = Imageutils.appendArray(images, decorOutdoorTall);// 100x100
+		
 		this.images = Imageutils.appendArray(images, common2Decor);
 
 	}

@@ -33,7 +33,7 @@ public class Game extends JPanel implements Runnable {
 	public Graphics g;
 	public Utils utils;
 	public Trigger trigger;
-	public Wall wall;
+	//public Wall wall;
 	public Hud hud;
 	public Player player;
 	public Editor editor;
@@ -49,6 +49,7 @@ public class Game extends JPanel implements Runnable {
 	public Pathfind pathfind;
 	public Console console;
 	public Decor decor;
+	public Decal decal;
 	
 	public static  int width=600; 
 	public static  int height=600;
@@ -101,7 +102,7 @@ public class Game extends JPanel implements Runnable {
 		this.editor=new Editor(this);
 		this.input = new Input(this);
 		this.tilegrid = new Tilegrid(this);
-		this.wall = new Wall(this);
+		//this.wall = new Wall(this);
 		this.collision=new Collision(this);
 		this.pathfind = new Pathfind(this);
 		this.background =new Background(this);
@@ -110,7 +111,8 @@ public class Game extends JPanel implements Runnable {
 		this.console = new Console(this);
 		this.brain=new Brain(this);
 		this.camera = new Camera(this);
-		this.decor=new Decor(this);
+		this.decor = new Decor(this);
+		this.decal = new Decal(this);
 		
 		
 		setFocusable(true);
@@ -148,7 +150,7 @@ public class Game extends JPanel implements Runnable {
 		
 		if(LOAD_FIRST_LEVEL) {
 			this.tilegrid.loadTilegrid();
-			this.wall.loadTilegrid();
+			//this.wall.loadTilegrid();
 			this.collision.loadTilegrid();
 		}
 		
@@ -187,9 +189,10 @@ public class Game extends JPanel implements Runnable {
 	void draw() {
 		this.background.draw();
 		this.tilegrid.draw();
-		this.wall.draw();
+		//this.wall.draw();
 		this.collision.draw();
 		this.decor.draw();
+		this.decal.draw();
 		this.player.draw();
 		this.entity.draw();
 		this.trigger.draw();
@@ -210,10 +213,11 @@ public class Game extends JPanel implements Runnable {
 			;
 		}else {
 			this.tilegrid.update();
-			this.wall.update();
+			//this.wall.update();
 			this.collision.update();
 			this.entity.update();
 			this.decor.update();
+			this.decal.draw();
 			this.background.update();
 			this.editor.update();
 			this.player.update();

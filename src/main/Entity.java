@@ -1025,9 +1025,9 @@ public class Entity {
 	 * 
 	 * @return
 	 */
-	public boolean tileAhead(EntityUnit eunit) {
-		return game.collision.collideTileRectDirection(eunit.colliderTest, eunit.direction);
-	}
+//	public boolean tileAhead(EntityUnit eunit) {
+//		return game.collision.collideTileRectDirection(eunit.colliderTest, eunit.direction);
+//	}
 
 	private void setDirectionByPathFind(EntityUnit eunit) {
 		
