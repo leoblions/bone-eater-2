@@ -187,7 +187,7 @@ public class Game extends JPanel implements Runnable {
 
 	
 	void draw() {
-		this.background.draw();
+		//this.background.draw();
 		this.tilegrid.draw();
 		//this.wall.draw();
 		this.collision.draw();
