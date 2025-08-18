@@ -11,13 +11,15 @@ public class Hud {
 	final int HEALTHBAR_SCREENX = 25;
 	final int HEALTHBAR_SCREENY = 25;
 	final Color HEALTH_BAR_FG  = new Color(255,10,10,255);
+	final int MAX_HEALTHBAR_WIDTH = 150;
+	final int START_HEALTH_WIDTH = 150;
 
 	Game game;
 	BufferedImage healthbar;
 	final int INTERACT_SCREENX = 470;
 	final int INTERACT_SCREENY = 470;
-	int healthwidth = 150;
-	int healthFilled = 120;
+	private int healthwidth = 150;
+	private int healthFilled = START_HEALTH_WIDTH;
 	BufferedImage interact;
 	BufferedImage[] icons;
 	boolean showInteract = true;
@@ -61,6 +63,14 @@ public class Hud {
 	public void update() {
 		showActionPromptDelay = showActionPromptDelay > 0 ? showActionPromptDelay - 1 : showActionPromptDelay;
 
+	}
+
+	public void updateHealthbar(int health) { 
+		float filledPercent = (float)health / 100f;
+		int newWidth = (int)(filledPercent * (float)MAX_HEALTHBAR_WIDTH);
+		this.healthFilled = newWidth; 
+		
+		
 	}
 
 }

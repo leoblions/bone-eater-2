@@ -10,12 +10,18 @@ import java.util.Random;
 
 
 public class Decal {
+	/*
+	 * Temporary images like blood splatters, gibs, and debris
+	 */
 	
 
 	
 	
 	final int DECALS_AMOUNT = 10;
 	final int DECAL_KINDS = 10;
+	public static final int DK_BLOOD = 0;
+	public static final int DK_GIBS = 1;
+	public static final int DK_DEBRIS = 2;
 
 	private static final String SPRITE1 = "/images/blood50.png";
 
@@ -41,6 +47,7 @@ public class Decal {
 		this.decalRecords = new DecalRecord[DECALS_AMOUNT];
 		this.widths = new int[DECAL_KINDS];
 		this.heights = new int[DECAL_KINDS];
+		this.random = new Random();
 		for (int i = 0; i< DECAL_KINDS;i++) {
 			this.widths[i]=50;
 			this.heights[i]=50;
@@ -61,15 +68,39 @@ public class Decal {
 			this.decalRecords[i] = null;
 		}
 	}
+	
+	
 
-	public void putDecalAtTile(int worldX, int worldY, int kind) {
-		DecalRecord dr = new DecalRecord(worldX,worldY,kind);
-		this.decalRecords[this.nextDecalSlot] = dr;
-		if(this.nextDecalSlot<this.decalRecords.length) {
+	public void putDecalAtTile(int worldX, int worldY, int decalKind) {
+		int imagekind = 0;
+		int min = 0;
+		int max = 1;
+		switch (decalKind) {
+		case DK_BLOOD:
+			min = 0;
+			max = 3;
+			break;
+		case DK_GIBS:
+			min = 4;
+			max = 7;
+			break;
+		case DK_DEBRIS:
+			min = 8;
+			max = 11;
+			break;
+			
+			
+		}
+		int imageKind = random.nextInt(max - min + 1) + min;
+		DecalRecord dr = new DecalRecord(worldX,worldY,imageKind);
+		
+		if(this.nextDecalSlot<this.decalRecords.length-1) {
 			this.nextDecalSlot+=1;
 		}else {
 			this.nextDecalSlot=0;
 		}
+		
+		this.decalRecords[this.nextDecalSlot] = dr;
 		
 	}
 

@@ -50,12 +50,13 @@ public class EntityUnit {
 	int worldY = 0;
 	int width = 100;
 	int height = 100;
-	int health = 100;
+	public int health = 100;
 	int offsetX = 0;
 	int offsetY = 0;
 	int gridX,gridY;
 	int locationOffsetX = 25;
 	int locationOffsetY  =35;
+	public int damageToPlayer = 15;
 	boolean alive = true;
 	int screenX,screenY;
 	int frame = 0;
@@ -76,6 +77,7 @@ public class EntityUnit {
 	//char currDirection = 'n';
 	
 	public int[] gridXY, testGridXY, forwardGridXY;
+	public boolean damagePlayerOnTouch;
 
 
 

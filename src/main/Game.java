@@ -92,10 +92,14 @@ public class Game extends JPanel implements Runnable {
 //		g.fillRect(100, 100, 300, 300);
 //
 //		// Draw the image (20x20) overlapping the rectangle
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, width, height);
 		draw();
 	}
 
 	void init() {
+		this.setBackground(Color.BLACK);
+		
 		this.imageutils=new Imageutils(this);
 		this.player = new Player(this);
 		this.entity = new Entity(this);
@@ -200,6 +204,7 @@ public class Game extends JPanel implements Runnable {
 		this.pathfind.draw();
 		this.editor.draw();
 		this.console.draw();
+		
 	
 		
 		

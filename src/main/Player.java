@@ -27,7 +27,7 @@ public class Player {
 	final int STARTY = 300;
 	final int WALK_TIMEOUT = 20;
 	final int ATTACK_TIMEOUT = 100;
-
+	final int DAMAGE_COOLDOWN_MAX = 10;
 	Game game;
 	Image image;
 	Image[] images;
@@ -57,6 +57,8 @@ public class Player {
 	public Rectangle wpActivateArea;
 	public Rectangle collider; //wp cooridinates
 	public boolean invincible = false;
+	public int health = 100;
+	public int damageCooldown = 0;
 	
 	
 	
@@ -322,94 +324,31 @@ public class Player {
 			
 		}
 
-//		if (state == STAND || state==ATTACK) {
-//			if(state==ATTACK) {
-//				this.images=this.imagesAttack;
-//			}else {
-//				this.images=this.imagesWalk;
-//			}
-//			int directionIndexpart = 0;
-//			switch (direction) {
-//			case 'u':
-//				directionIndexpart = 0;
-//				break;
-//			case 'd':
-//				directionIndexpart = 4;
-//				break;
-//			case 'l':
-//				directionIndexpart = 8;
-//				break;
-//			case 'r':
-//				directionIndexpart = 12;
-//				break;
-//			}
-//			currentImageIndex = directionIndexpart;
-//			return;
-//		} else if (state =='p') {
-//			int directionIndexpart = 16;
-//			switch (direction) {
-//			case 'u':
-//				directionIndexpart = 16;
-//				break;
-//			case 'd':
-//				directionIndexpart = 20;
-//				break;
-//			case 'l':
-//				directionIndexpart = 24;
-//				break;
-//			case 'r':
-//				directionIndexpart = 28;
-//				break;
-//			}
-//			if (animationPacer.check()) {
-//				if (frame < 3) {
-//					frame++;
-//				} else {
-//					frame = 0;
-//				}
-//
-//			}
-//			currentImageIndex = frame + directionIndexpart;
-//			return;
-//		} else if (state == WALK||state==ATTACK) {
-//
-//			int directionIndexpart = 0;
-//
-//			switch (direction) {
-//			case 'u':
-//				directionIndexpart = 0;
-//				break;
-//			case 'd':
-//				directionIndexpart = 4;
-//				break;
-//			case 'l':
-//				directionIndexpart = 8;
-//				break;
-//			case 'r':
-//				directionIndexpart = 12;
-//				break;
-//			}
-//
-//			if (animationPacer.check()) {
-//				if (frame < 3) {
-//					frame++;
-//				} else {
-//					frame = 0;
-//				}
-//
-//			}
-//
-//			currentImageIndex = frame + directionIndexpart;
-//
-//		} else {
-//			currentImageIndex = 0;
-//		}
+
 
 	}
 	
 	
-	public void takeDamageFromEnemy(int dEF_DAMAGE_FROM_PLAYER) {
-		// TODO Auto-generated method stub
+	public void takeDamageFromEnemy(int damageFromEnemy) {
+		if (damageCooldown > 0) {
+			damageCooldown -= 1;
+			return;
+		}else {
+			damageCooldown = DAMAGE_COOLDOWN_MAX;
+		}
+		int newHealth = this.health - damageFromEnemy;
+		if (newHealth > 0) {
+			this.health = newHealth;
+		}else {
+			this.health = 0;
+		}
+		this.game.hud.updateHealthbar(this.health);
+		this.game.decal.putDecalAtTile(this.worldX, this.worldY, Decal.DK_BLOOD);
+		
+	}
+
+	public boolean pointCollidePlayer(int hitX, int hitY) {
+		return (hitX >= this.worldX && hitX <= this.worldX+this.width && hitY >= this.worldY && hitY <= this.worldY+this.height);
 		
 	}
 
