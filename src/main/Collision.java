@@ -151,7 +151,7 @@ public class Collision {
 		Player p = game.player;
 
 		
-		return  collideTileTestWXY(  p.worldX,   p.worldY,   p.width,   p.height) ;
+		return  collideTileTestWXY(  p.x,   p.y,   p.width,   p.height) ;
 
 	}
 

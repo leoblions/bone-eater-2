@@ -17,6 +17,7 @@ import java.util.LinkedList;
  * 
  */
 public class Entity {
+	
 	Pacer animationPacer, attackPacer;
 	Rectangle hitbox;
 	final int PFWORLDX = 0;
@@ -125,10 +126,10 @@ private boolean attackOnThisTick = false;
 	}
 
 	private boolean entityCheckChangedTile(EntityUnit eunit) {
-		if (eunit.worldX == eunit.lastTile[0] && eunit.worldY == eunit.lastTile[1]) {
+		if (eunit.x == eunit.lastTile[0] && eunit.y == eunit.lastTile[1]) {
 			eunit.tileChanged = true;
-			eunit.lastTile[0] = eunit.worldX;
-			eunit.lastTile[1] = eunit.worldY;
+			eunit.lastTile[0] = eunit.x;
+			eunit.lastTile[1] = eunit.y;
 			return true;
 
 		} else {
@@ -138,8 +139,8 @@ private boolean attackOnThisTick = false;
 	}
 
 	public int entityPlayerDistance(EntityUnit eunit) {
-		double deltaX = this.game.player.worldX - eunit.worldX;
-		double deltaY = this.game.player.worldY - eunit.worldY;
+		double deltaX = this.game.player.x - eunit.x;
+		double deltaY = this.game.player.y - eunit.y;
 		double Asquared = Math.pow(deltaX, 2);
 		double Bsquared = Math.pow(deltaY, 2);
 		double hypotenuse = Math.sqrt(Asquared + Bsquared);
@@ -209,9 +210,9 @@ private boolean attackOnThisTick = false;
 		game.g.setColor(Color.orange);
 
 		if (DRAW_COLLRECT)
-			game.g.drawRect(eunit.worldX - game.cameraX, eunit.worldY - game.cameraY, eunit.width, eunit.height);
-		eunit.screenX = (eunit.worldX - game.cameraX);
-		eunit.screenY = (eunit.worldY - game.cameraY);
+			game.g.drawRect(eunit.x - game.cameraX, eunit.y - game.cameraY, eunit.width, eunit.height);
+		eunit.screenX = (eunit.x - game.cameraX);
+		eunit.screenY = (eunit.y - game.cameraY);
 		BufferedImage image = null;
 		if (eunit.state == EntityUnit.ATTACK) {
 			image = this.attackImages[eunit.kind][eunit.currentImageIndex];
@@ -248,7 +249,7 @@ private boolean attackOnThisTick = false;
 				entityCheckChangedTile(eunit);
 				updateState(eunit);
 				updatePosition(eunit);
-				updateColliderUnit(eunit);
+				//updateColliderUnit(eunit);
 				if(attackOnThisTick && eunit.state==ES_ATTACK) {
 					if(checkEnemyAttackHitPlayer(eunit)) {
 						System.out.println("attack to player "+eunit.damageToPlayer);
@@ -429,8 +430,8 @@ private boolean attackOnThisTick = false;
 	public void updatePosition(EntityUnit eunit) {
 		int[] deltaXY4 = { 0, 0 };
 		int BOUNCE = 0;
-		eunit.tileY = eunit.worldY / Game.TILE_SIZE;
-		eunit.tileX = eunit.worldX / Game.TILE_SIZE;
+		eunit.tileY = eunit.y / Game.TILE_SIZE;
+		eunit.tileX = eunit.x / Game.TILE_SIZE;
 		if (game.entity.frozen) {
 			return;
 		}
@@ -443,8 +444,8 @@ private boolean attackOnThisTick = false;
 			} else if (eunit.entityPlayerDistance >= EP_DISTANCE_START_BEELINE) {
 				this.setDirectionByPathFind(eunit);
 				deltaXY4 = calculateMoveFromDirection4W(eunit);
-				int testX = eunit.worldX + deltaXY4[0];
-				int testY = eunit.worldY + deltaXY4[1];
+				int testX = eunit.x + deltaXY4[0];
+				int testY = eunit.y + deltaXY4[1];
 				// boolean moveCollideWall = moveEntityCollideWall(eunit, testX, testY);
 				if (CHECK_COLLISIONS) {
 					boolean[] collisions = this.game.collision.collideTileTestWXY(testX, testY, eunit.width,
@@ -521,8 +522,8 @@ private boolean attackOnThisTick = false;
 	public boolean moveOverlapsOtherEntityUnit(EntityUnit eunitA) {
 		// stop enemies and NPCs from overlapping
 		// eunitA is unit current unit being moved, eunitB is other unit
-		eunitA.colliderTest.x = eunitA.worldX;
-		eunitA.colliderTest.y = eunitA.worldY;
+		eunitA.colliderTest.x = eunitA.x;
+		eunitA.colliderTest.y = eunitA.y;
 
 		switch (eunitA.direction) {
 		case UP:
@@ -549,10 +550,10 @@ private boolean attackOnThisTick = false;
 			break;
 
 		}
-		eunitA.colliderTest.x = eunitA.worldX;
-		eunitA.colliderTest.y = eunitA.worldY;
+		eunitA.colliderTest.x = eunitA.x;
+		eunitA.colliderTest.y = eunitA.y;
 		for (EntityUnit eunitB : game.entity.entityUnits) {
-			if (eunitA.colliderTest.intersects(eunitB.collider) && !(eunitB == eunitA)) {
+			if (eunitA.colliderTest.intersects(eunitB) && !(eunitB == eunitA)) {
 
 				return true;
 			}
@@ -689,9 +690,9 @@ private boolean attackOnThisTick = false;
 	private void playerMeleeEnemy(EntityUnit eunit) {
 
 		if (game.entity.playerMelee) {
-			if (game.entity.playerCollider.intersects(eunit.collider)) {
+			if (game.entity.playerCollider.intersects(eunit)) {
 				takeDamageFromPlayer(eunit, DEF_DAMAGE_FROM_PLAYER);
-				game.particle.addParticle(eunit.worldX, eunit.worldY, 1);
+				game.particle.addParticle(eunit.x, eunit.y, 1);
 			}
 		}
 
@@ -710,7 +711,7 @@ private boolean attackOnThisTick = false;
 
 	public void entityCollidePlayer(EntityUnit eunit) {
 		// drawSolidArea( game.player.wpActivateArea) ;
-		if (eunit.collider.intersects(game.player.collider)) {
+		if (eunit.intersects(game.player)) {
 
 			if (eunit.enemy && eunit.alive && eunit.damagePlayerOnTouch) {
 				// game.player.health -= ENEMY_DAMAGE;
@@ -817,8 +818,8 @@ private boolean attackOnThisTick = false;
 	}
 	
 	private boolean checkEnemyAttackHitPlayer(EntityUnit eunit) {
-		int hitX = eunit.worldX + eunit.width/2;
-		int hitY = eunit.worldY + eunit.height/2;
+		int hitX = eunit.x + eunit.width/2;
+		int hitY = eunit.y + eunit.height/2;
 		
 		switch (eunit.direction) {
 
@@ -847,11 +848,12 @@ private boolean attackOnThisTick = false;
 	}
 
 	public void moveEntityFromDeltas(EntityUnit eunit, int deltaX, int deltaY) {
-		eunit.worldX += deltaX;
-		eunit.worldY += deltaY;
+		eunit.x += deltaX;
+		eunit.y += deltaY;
 	}
 
 	public void moveDirection4W(EntityUnit eunit) {
+		
 
 		if (eunit.state == 'w') {
 			eunit.currentSpeed = SPEED_WALK;
@@ -864,17 +866,17 @@ private boolean attackOnThisTick = false;
 		case 'n':
 			break;
 		case UP:
-			eunit.worldY += -eunit.currentSpeed;
+			eunit.y += -eunit.currentSpeed;
 
 			break;
 		case DOWN:
-			eunit.worldY += eunit.currentSpeed;
+			eunit.y += eunit.currentSpeed;
 			break;
 		case LEFT:
-			eunit.worldX += -eunit.currentSpeed;
+			eunit.x += -eunit.currentSpeed;
 			break;
 		case RIGHT:
-			eunit.worldX += eunit.currentSpeed;
+			eunit.x += eunit.currentSpeed;
 			break;
 		default:
 			break;
@@ -1009,8 +1011,8 @@ private boolean attackOnThisTick = false;
 
 	public boolean inbounds(EntityUnit eunit) {
 
-		if (eunit.worldX >= 0 && eunit.worldX + eunit.width < game.worldSizePxX && eunit.worldY >= 0
-				&& eunit.worldY + eunit.height < game.worldSizePxY) {
+		if (eunit.x >= 0 && eunit.x + eunit.width < game.worldSizePxX && eunit.y >= 0
+				&& eunit.y + eunit.height < game.worldSizePxY) {
 			return true;
 		} else {
 			return false;
@@ -1027,24 +1029,24 @@ private boolean attackOnThisTick = false;
 		int velXLocal = 0;
 		int velYLocal = 0;
 
-		if (eunit.worldX < 0) {
+		if (eunit.x < 0) {
 			velXLocal = eunit.currentSpeed;
 
-		} else if (eunit.worldX + eunit.width >= game.worldSizePxX) {
+		} else if (eunit.x + eunit.width >= game.worldSizePxX) {
 			velXLocal = -eunit.currentSpeed;
 
-		} else if (eunit.worldY < 0) {
+		} else if (eunit.y < 0) {
 			velYLocal = eunit.currentSpeed;
 
-		} else if (eunit.worldY + eunit.height >= game.worldSizePxY) {
+		} else if (eunit.y + eunit.height >= game.worldSizePxY) {
 			velYLocal = -eunit.currentSpeed;
 
 		} else {
 			return false;
 		}
 
-		eunit.worldX += velXLocal;
-		eunit.worldY += velYLocal;
+		eunit.x += velXLocal;
+		eunit.y += velYLocal;
 
 		return true;
 	}
@@ -1113,10 +1115,10 @@ private boolean attackOnThisTick = false;
 	}
 
 	private void updateColliderUnit(EntityUnit eunit) {
-		eunit.collider.x = eunit.worldX + WALL_COLLIDE_WIGGLEROOM;
-		eunit.collider.y = eunit.worldY + WALL_COLLIDE_WIGGLEROOM;
-		eunit.collider.width = eunit.width - WALL_COLLIDE_WIGGLEROOM;
-		eunit.collider.height = eunit.height - WALL_COLLIDE_WIGGLEROOM;
+		eunit.x = eunit.x + WALL_COLLIDE_WIGGLEROOM;
+		eunit.y = eunit.y + WALL_COLLIDE_WIGGLEROOM;
+		eunit.width = eunit.width - WALL_COLLIDE_WIGGLEROOM;
+		eunit.height = eunit.height - WALL_COLLIDE_WIGGLEROOM;
 
 	}
 

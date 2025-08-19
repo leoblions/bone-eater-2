@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Player {
+public class Player extends Rectangle{
 	public static final char ATTACK = 'a';
 	public static final char WALK = 'w';
 	public static final char STAND = 's';
@@ -23,8 +23,10 @@ public class Player {
 	final int SPEED_WALK = 2;
 	final int SPEED_RUN=4;
 	boolean run = false;
-	final int STARTX = 200;
-	final int STARTY = 300;
+	final static int STARTX = 200;
+	final static int STARTY = 300;
+	final static int STARTW = 40;
+	final static int STARTH = 80;
 	final int WALK_TIMEOUT = 20;
 	final int ATTACK_TIMEOUT = 100;
 	final int DAMAGE_COOLDOWN_MAX = 10;
@@ -33,14 +35,14 @@ public class Player {
 	Image[] images;
 	Image[] imagesAttack;
 	Image[] imagesWalk;
-	
-	public int worldX,worldY,screenX,screenY;
-	public int width = 50;
-	public int height = 50;
+
+	//public Rectangle collider;
+	private int screenX,screenY;
+
 	public int spriteOffsetX =-0;
 	public int spriteOffsetY =-25;
-	public int spriteWidth =40;
-	public int spriteHeight=80;
+	public int spritewidth =40;
+	public int spriteheight=80;
 	public char state = Player.WALK;// w=walk, a=attack, h=hit, d=dead, s=stand
 	public char direction = DOWN;
 	public int frame = 0;
@@ -55,7 +57,6 @@ public class Player {
 	int speed =SPEED_WALK;
 	public boolean[] directions = {false,false,false,false};
 	public Rectangle wpActivateArea;
-	public Rectangle collider; //wp cooridinates
 	public boolean invincible = false;
 	public int health = 100;
 	public int damageCooldown = 0;
@@ -63,22 +64,21 @@ public class Player {
 	
 	
 	public Player(Game game) {
-		
+		super(STARTX,STARTY,STARTW,STARTH);
 		this.game = game;
-		this.worldX = STARTX;
-		this.worldY = STARTY;
+	
 		this.animationPacer = new Pacer(9);
-		maxY =game.getHeight() - height;
-		maxX = game.getWidth() - width;
-		this.collider = new Rectangle(this.worldX,this.worldY,this.width,this.height);
+		//maxY = game.getheight() - collider.height;
+		//maxX = game.getwidth() - collider.width;
+		
 		this.initImages();
 		
 	}
 	
 	public int[] getGridPosition() {
 		return new int [] {
-				this.worldX / this.game.TILE_SIZE,
-				this.worldY / this.game.TILE_SIZE
+				this.x / this.game.TILE_SIZE,
+				this.y / this.game.TILE_SIZE
 		};
 	}
 	private void initImages() {
@@ -104,14 +104,14 @@ public class Player {
 	public void draw() {
 		if (image != null) {
 		
-            this.game.g.drawImage(image, screenX+spriteOffsetX, screenY+spriteOffsetY, spriteWidth, spriteHeight, null);
+            this.game.g.drawImage(image, screenX+spriteOffsetX, screenY+spriteOffsetY, spritewidth, spriteheight, null);
         }
 		
 	}
 	
 	public void calculateTileForward() {
-		int tx = this.worldX / game.tilegrid.tileSize;
-		int ty = this.worldY / game.tilegrid.tileSize;
+		int tx = this.x / game.tilegrid.tileSize;
+		int ty = this.y / game.tilegrid.tileSize;
 		int fx = tx;
 		int fy = ty;
 		switch (direction) {
@@ -152,15 +152,16 @@ public class Player {
 		if (this.walkTimeout >0)walkTimeout  --;
 		if (this.attackTimeout >0)attackTimeout  --;
 		this.updateCollider();
+		if(this.state == ATTACK) {
+			
+		}
 		
 	}
 	
 	private void updateCollider() {
-		this.collider.x = this.worldX;
-		this.collider.y = this.worldY;
-		this.collider.width = this.width;
-		this.collider.height = 
-				this.height;
+		this.x = this.x;
+		this.y = this.y;
+	
 		
 	}
 	
@@ -200,19 +201,19 @@ public class Player {
 			velX = 0;
 		}
 
-		int testWX = worldX+velX;
-		int testWY = worldY+velY;
+		int testWX = this.x+velX;
+		int testWY = this.y+velY;
 		boolean collisions[] = this.game.collision.collideTilePlayerTestWXY( testWX, testWY);
 		if(collisions[0]&&velY<0)velY=0;
 		if(collisions[1]&&velY>0)velY=0;
 		if(collisions[2]&&velX<0)velX=0;
 		if(collisions[3]&&velX>0)velX=0;
 		
-		this.worldX+=velX;
-		this.worldY+=velY;
+		this.x+=velX;
+		this.y+=velY;
 		
-		this.screenX=worldX-game.cameraX;
-		this.screenY=worldY-game.cameraY;
+		this.screenX=this.x-game.cameraX;
+		this.screenY=this.y-game.cameraY;
 		
 	}
 	
@@ -222,8 +223,8 @@ public class Player {
 		velX = 0;
 		velY = 0;
 
-		this.worldX =gridX * this.game.tilegrid.tileSize;
-		this.worldY =gridY * this.game.tilegrid.tileSize;
+		this.x =gridX * this.game.tilegrid.tileSize;
+		this.y =gridY * this.game.tilegrid.tileSize;
 
 
 	}
@@ -343,12 +344,12 @@ public class Player {
 			this.health = 0;
 		}
 		this.game.hud.updateHealthbar(this.health);
-		this.game.decal.putDecalAtTile(this.worldX, this.worldY, Decal.DK_BLOOD);
+		this.game.decal.putDecalAtTile(this.x, this.y, Decal.DK_BLOOD);
 		
 	}
 
 	public boolean pointCollidePlayer(int hitX, int hitY) {
-		return (hitX >= this.worldX && hitX <= this.worldX+this.width && hitY >= this.worldY && hitY <= this.worldY+this.height);
+		return (hitX >= this.x && hitX <= this.x+this.width && hitY >= this.y && hitY <= this.y+this.height);
 		
 	}
 

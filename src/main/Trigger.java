@@ -202,8 +202,8 @@ public class Trigger {
 	}
 
 	public void update() {
-		int pgx = (this.game.player.worldX + 50) / this.game.tilegrid.tileSize;
-		int pgy = (this.game.player.worldY + 50) / this.game.tilegrid.tileSize;
+		int pgx = (this.game.player.x + 50) / this.game.tilegrid.tileSize;
+		int pgy = (this.game.player.y + 50) / this.game.tilegrid.tileSize;
 		this.game.hud.showInteract = false;
 		for (int[] trecord : this.currentRecords) {
 			int tgx1 = trecord[TFGRIDX];

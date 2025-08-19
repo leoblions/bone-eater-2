@@ -150,8 +150,8 @@ public char getDirectionTowardsPlayer(EntityUnit eunit) {
 		//int screenY = (int) worldP.getY() - game.cameraY;
 		int ENTITY_OFFSET_X = 0;
 		int ENTITY_OFFSET_Y = 0;
-		int entityGX =  (eunit.worldX+eunit.width/2+ENTITY_OFFSET_X) / Game.COLL_GRID_SIZE;
-		int entityGY =  ( eunit.worldY+eunit.height/2+ENTITY_OFFSET_Y) / Game.COLL_GRID_SIZE;
+		int entityGX =  (eunit.x+eunit.width/2+ENTITY_OFFSET_X) / Game.COLL_GRID_SIZE;
+		int entityGY =  ( eunit.y+eunit.height/2+ENTITY_OFFSET_Y) / Game.COLL_GRID_SIZE;
 		int test, max;
 		boolean isWall=false;
 		int solid = game.collision.SOLID;
@@ -324,8 +324,8 @@ public int getDirectionTowardsPlayer8way(int entityWX, int entityWY) {
 	public void updatePFGrid() {
 		this.checkGrid = new boolean[rows][cols];
 		this.pfGrid = new int[rows][cols];
-		int pgX = (game.player.worldX +TARGET_OFFSET_X )/ Game.COLL_GRID_SIZE;
-		int pgY = (game.player.worldY +TARGET_OFFSET_Y )/ Game.COLL_GRID_SIZE;
+		int pgX = (game.player.x +TARGET_OFFSET_X )/ Game.COLL_GRID_SIZE;
+		int pgY = (game.player.y +TARGET_OFFSET_Y )/ Game.COLL_GRID_SIZE;
 		try {
 
 			checkGrid[pgY][pgX]= true; 

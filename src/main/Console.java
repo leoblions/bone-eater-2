@@ -203,8 +203,8 @@ public class Console {
 				break;
 			case "LOC":
 			case "LOCATION":
-				String locationStringM = String.format("Player worldX: %d, worldY: %d\n", game.player.worldX,
-						game.player.worldY);
+				String locationStringM = String.format("Player worldX: %d, worldY: %d\n", game.player.x,
+						game.player.y);
 				String levelString = String.format("Current level is: %d\n", game.level);
 				System.out.println(levelString);
 				System.out.println(locationStringM);

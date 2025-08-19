@@ -37,15 +37,15 @@ public class Camera {
 	}
 	
 	public void recenterCamera() {
-		game.cameraY =  game.player.worldY - (Game.HEIGHT/2);
-		game.cameraX =  game.player.worldX - (Game.WIDTH/2);
+		game.cameraY =  game.player.y - (Game.HEIGHT/2);
+		game.cameraX =  game.player.x - (Game.WIDTH/2);
 	}
 	
 	
 	public void update() {
 		//if(true)return;
-		int screenX = game.player.worldX - game.cameraX;
-		int screenY = game.player.worldY - game.cameraY;
+		int screenX = game.player.x - game.cameraX;
+		int screenY = game.player.y - game.cameraY;
 		int cameraSpeed = this.game.player.speed;
 		
 		//move camera up

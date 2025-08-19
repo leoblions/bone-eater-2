@@ -126,8 +126,8 @@ public class Pickup {
 	 
 		public void updateCullRegion(int[] cullRegion, int radiusGrid) {
 			//int[] visible = getVisibleArea();
-			int pgX = game.player.worldX / Game.TILE_SIZE;
-			int pgY = game.player.worldY / Game.TILE_SIZE;
+			int pgX = game.player.x / Game.TILE_SIZE;
+			int pgY = game.player.y / Game.TILE_SIZE;
 			int cullRectX = pgX - radiusGrid;
 			int cullRectY = pgY - radiusGrid;
 			int startgx = cullRectX;
@@ -211,8 +211,8 @@ public class Pickup {
 		//Rectangle playerRect = game.player.wpSolidArea;
 		
 		// check items n unculled area
-		int pgX = game.player.worldX / Game.TILE_SIZE;
-		int pgY = game.player.worldY/ Game.TILE_SIZE;
+		int pgX = game.player.x / Game.TILE_SIZE;
+		int pgY = game.player.y/ Game.TILE_SIZE;
 		int kind = itemGrid[pgY][pgX];
 		if (kind!=BLANK_ITEM_TYPE) {
 			itemGrid[pgY][pgX] = BLANK_ITEM_TYPE;

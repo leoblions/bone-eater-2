@@ -11,9 +11,14 @@ import javax.imageio.ImageIO;
 
 ;
 
-public class EntityUnit {
+public class EntityUnit extends Rectangle {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/**
 	 * EntityUnit class stores position and state data for entities.
+	 * Superclass Rectangle is used for world position and collision.
 	 */
 
 	
@@ -36,7 +41,8 @@ public class EntityUnit {
 
 	
 
-	public Rectangle collider, colliderTest;
+	public Rectangle  colliderTest;
+	private Rectangle collider;
 	
 	int startGX, startGY, kind, UID;
 	int tileX,tileY;
@@ -46,8 +52,8 @@ public class EntityUnit {
 	int currentSpeed = 5;
 	int velX = 0;
 	int velY = 0;
-	int worldX = 0;
-	int worldY = 0;
+	//int worldX = 0;
+	//int worldY = 0;
 	int width = 100;
 	int height = 100;
 	public int health = 100;
@@ -91,23 +97,23 @@ public class EntityUnit {
 	 * @param UID
 	 */
 	public EntityUnit(Game game, int startGX, int startGY, int kind, int UID) {
-	 
+		super(0,0,40,80);
 		this.game = game;
 		this.startGX = startGX;
 		this.startGY = startGY;
 		this.kind = kind;
 		this.UID = UID;
 		this.entityPlayerDistance = 500;
-		this.worldX = startGX * Game.TILE_SIZE;
-		this.worldY = startGY * Game.TILE_SIZE;
-		this.gridX = worldX / Game.TILE_SIZE;
-		this.gridY = worldY / Game.TILE_SIZE;
+		this.x = startGX * Game.TILE_SIZE;
+		this.y = startGY * Game.TILE_SIZE;
+		this.gridX = x / Game.TILE_SIZE;
+		this.gridY = y / Game.TILE_SIZE;
 		
 		this.lastTile = new int[] {this.gridX,this.gridY};
 		this.tileChanged=false;
 	
 
-		this.collider = new Rectangle(0, 0, width, height); //WP coordinates
+		//this.collider = new Rectangle(0, 0, width, height); //WP coordinates
 		this.colliderTest = new Rectangle(0, 0, width, height); //WP coordinates
 	
 	
