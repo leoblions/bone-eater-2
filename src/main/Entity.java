@@ -34,6 +34,7 @@ public class Entity {
 	final char ES_FOLLOW = 'f';
 	final char ES_STAND = 's';
 	final char ES_WANDER = 'w';
+	final char ES_WALK = 'w';
 	final char ES_DEAD = 'd';
 	final char ES_ATTACK = 'a';
 
@@ -63,6 +64,8 @@ public class Entity {
 	final int IMAGES_PER_ENTITY = 16;
 	private BufferedImage[][] entityImages;
 	private BufferedImage[][] attackImages;
+	private BufferedImage[][] deathImages;
+	private BufferedImage[] shadows;
 	Game game;
 	final int ENTITY_KINDS = 10;
 	final int FIELDS = 4;
@@ -102,9 +105,11 @@ private boolean attackOnThisTick = false;
 		this.addEntity(5, 5, 0, 1);
 	}
 
-	public void initImages() {
+	private void initImages() {
 		this.entityImages = new BufferedImage[ENTITY_KINDS][IMAGES_PER_ENTITY];
 		this.attackImages = new BufferedImage[ENTITY_KINDS][IMAGES_PER_ENTITY];
+		this.deathImages = new BufferedImage[ENTITY_KINDS][IMAGES_PER_ENTITY];
+		this.shadows = new BufferedImage[2];
 		BufferedImage[] tempBI, tempBIL, tempBIR = null;
 		String URL = null;
 		try {
@@ -117,6 +122,16 @@ private boolean attackOnThisTick = false;
 			tempBI = this.game.imageutils.characterSheetUDL4(URL, 200, 200);
 
 			this.attackImages[EK_GUARD] = tempBI;
+			
+			URL = "/images/guard_gr_fall.png";
+			tempBI = this.game.imageutils.spriteSheetCutter(URL, 2, 4, 300, 200);
+
+			this.deathImages[EK_GUARD] = tempBI;
+			
+			URL = "/images/shadow.png";
+			tempBI = this.game.imageutils.spriteSheetCutter(URL, 1, 1, 100, 100);
+
+			this.shadows = tempBI;
 
 		} catch (Exception e) {
 			System.err.println("EntityUnit Failed to open the resource: " + URL);
@@ -213,14 +228,12 @@ private boolean attackOnThisTick = false;
 			game.g.drawRect(eunit.x - game.cameraX, eunit.y - game.cameraY, eunit.width, eunit.height);
 		eunit.screenX = (eunit.x - game.cameraX);
 		eunit.screenY = (eunit.y - game.cameraY);
-		BufferedImage image = null;
-		if (eunit.state == EntityUnit.ATTACK) {
-			image = this.attackImages[eunit.kind][eunit.currentImageIndex];
-		} else {
-			image = this.entityImages[eunit.kind][eunit.currentImageIndex];
-		}
 
-		game.g.drawImage(image, eunit.screenX + eunit.offsetX,
+		game.g.drawImage(shadows[0], eunit.screenX + eunit.offsetX,
+
+				eunit.screenY + eunit.offsetY, eunit.width, eunit.height, null);
+
+		game.g.drawImage(eunit.image, eunit.screenX + eunit.offsetX,
 
 				eunit.screenY + eunit.offsetY, eunit.width, eunit.height, null);
 
@@ -249,10 +262,11 @@ private boolean attackOnThisTick = false;
 				entityCheckChangedTile(eunit);
 				updateState(eunit);
 				updatePosition(eunit);
+				selectUnitImage(eunit);
 				//updateColliderUnit(eunit);
 				if(attackOnThisTick && eunit.state==ES_ATTACK) {
 					if(checkEnemyAttackHitPlayer(eunit)) {
-						System.out.println("attack to player "+eunit.damageToPlayer);
+						
 						this.game.player.takeDamageFromEnemy(eunit.damageToPlayer);
 						eunit.damagePlayerOnTouch = true;
 						attackOnThisTick = false;
@@ -271,6 +285,29 @@ private boolean attackOnThisTick = false;
 		}
 		playerMelee = false;
 
+	}
+
+	private void selectUnitImage(EntityUnit eunit) {
+		// assigns image to entity unit
+		switch (eunit.state) {
+		case ES_ATTACK:
+			
+			eunit.image = this.attackImages[eunit.kind][eunit.currentImageIndex];
+			break;
+		case ES_WALK:
+			eunit.image = this.entityImages[eunit.kind][eunit.currentImageIndex];
+			break;
+		case ES_DEAD:
+			if( eunit.currentImageIndex >=8){
+				eunit.currentImageIndex=0;
+			}
+			eunit.image = this.deathImages[eunit.kind][eunit.currentImageIndex];
+			break;
+		default:
+		
+			eunit.image = this.entityImages[eunit.kind][eunit.currentImageIndex];
+		}
+		
 	}
 
 	/**
@@ -315,6 +352,10 @@ private boolean attackOnThisTick = false;
 		int deltaY = 0;
 		int playerPos[] = null;
 		int dX, dY;
+		if(eunit.health <= 0 && eunit.state != ES_DEAD) {
+			eunit.state = ES_DEAD;
+			eunit.currentImageIndex = 0;
+		}
 		switch (eunit.state) {
 		case ES_WANDER:
 		case ES_STAND:
@@ -357,6 +398,10 @@ private boolean attackOnThisTick = false;
 			}
 
 			break;
+		case ES_DEAD:
+			eunit.width = eunit.widthA;
+			break;
+			
 
 		}
 
@@ -746,7 +791,7 @@ private boolean attackOnThisTick = false;
 		}
 	}
 
-	public void cycleSpriteAttack(EntityUnit eunit) {
+	private void cycleSpriteAttack(EntityUnit eunit) {
 		int directionIndexpart = 0;
 		switch (eunit.direction) {
 
@@ -767,7 +812,7 @@ private boolean attackOnThisTick = false;
 		}
 	}
 
-	public void cycleSprite(EntityUnit eunit) {
+	private void cycleSprite(EntityUnit eunit) {
 //		if (eunit.state=='a') {
 //			cycleSpriteAttack(eunit);
 //			return;
@@ -794,25 +839,42 @@ private boolean attackOnThisTick = false;
 			directionIndexpart = 4;
 		}
 		var changeFrame = animationPacer.check();
-		if (eunit.state == 's' && changeFrame) {
-
-			if (eunit.frame == 0) {
-				eunit.frame = 2;
-			} else {
-				eunit.frame = 0;
-			}
-
-		} else if ((eunit.state == 'w' || eunit.state == 'f' || eunit.state == 'a') && changeFrame) {
-
-			if (eunit.frame < 3) {
-				eunit.frame++;
-			} else {
-				eunit.frame = 0;
-			}
-
-		} else if (eunit.state == 'd' || !eunit.alive) {
-			eunit.frame = 0;
+		if(!eunit.alive && eunit.state!=ES_DEAD) {
+			eunit.state=ES_DEAD;
+			eunit.currentImageIndex = 0;
 		}
+		if(changeFrame) {
+			switch(eunit.state) {
+			case ES_STAND:
+				if (eunit.frame == 0) {
+					eunit.frame = 2;
+				} else {
+					eunit.frame = 0;
+				}
+				break;
+			case ES_WALK:
+			case ES_FOLLOW:
+			case ES_ATTACK:
+				if (eunit.frame < 3) {
+					eunit.frame++;
+				} else {
+					eunit.frame = 0;
+				}
+				break;
+			case ES_DEAD:
+				if (eunit.frame < eunit.frameMax) {
+					eunit.frame++;
+				}
+				break;
+			default:
+				eunit.frame = 0;
+				break;
+				
+				
+				
+			}
+		}
+		
 		eunit.currentImageIndex = eunit.frame + directionIndexpart;
 
 	}
@@ -847,12 +909,12 @@ private boolean attackOnThisTick = false;
 		}
 	}
 
-	public void moveEntityFromDeltas(EntityUnit eunit, int deltaX, int deltaY) {
+	private void moveEntityFromDeltas(EntityUnit eunit, int deltaX, int deltaY) {
 		eunit.x += deltaX;
 		eunit.y += deltaY;
 	}
 
-	public void moveDirection4W(EntityUnit eunit) {
+	private void moveDirection4W(EntityUnit eunit) {
 		
 
 		if (eunit.state == 'w') {
@@ -884,7 +946,7 @@ private boolean attackOnThisTick = false;
 		}
 	}
 
-	public int[] calculateMoveFromDirection4W(EntityUnit eunit) {
+	private int[] calculateMoveFromDirection4W(EntityUnit eunit) {
 		int[] deltaXY = { 0, 0 };
 		switch (eunit.state) {
 		case ES_WANDER:
@@ -921,7 +983,7 @@ private boolean attackOnThisTick = false;
 		return deltaXY;
 	}
 
-	public int[] calculateMoveBeeline(EntityUnit eunit, int[] direction2W) {
+	private int[] calculateMoveBeeline(EntityUnit eunit, int[] direction2W) {
 		int[] deltaXY = { 0, 0 };
 		switch (eunit.state) {
 		case ES_WANDER:
@@ -947,7 +1009,7 @@ private boolean attackOnThisTick = false;
 		return deltaXY;
 	}
 
-	public int[] calculateMoveFromDirection8W(EntityUnit eunit) {
+	private int[] calculateMoveFromDirection8W(EntityUnit eunit) {
 		// returns change in X and change in Y for entity in World Coords
 		// does not move the entity
 
@@ -1009,7 +1071,7 @@ private boolean attackOnThisTick = false;
 		return deltaXY;
 	}
 
-	public boolean inbounds(EntityUnit eunit) {
+	private boolean inbounds(EntityUnit eunit) {
 
 		if (eunit.x >= 0 && eunit.x + eunit.width < game.worldSizePxX && eunit.y >= 0
 				&& eunit.y + eunit.height < game.worldSizePxY) {
@@ -1024,7 +1086,7 @@ private boolean attackOnThisTick = false;
 	 * 
 	 * @return
 	 */
-	public boolean borderBump(EntityUnit eunit) {
+	private boolean borderBump(EntityUnit eunit) {
 
 		int velXLocal = 0;
 		int velYLocal = 0;

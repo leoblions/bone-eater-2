@@ -43,15 +43,20 @@ public class EntityUnit extends Rectangle {
 
 	public Rectangle  colliderTest;
 	private Rectangle collider;
-	
+	public BufferedImage image;
 	int startGX, startGY, kind, UID;
 	int tileX,tileY;
 	int widthS,heightS,widthA,heightA;
+	
+	public int damageToPlayer = 15;
 	
 	int currentImageIndex = 0;
 	int currentSpeed = 5;
 	int velX = 0;
 	int velY = 0;
+	int deathCount = 0;
+	int deathCountMax = 100;
+	int frameMax = 7;
 	//int worldX = 0;
 	//int worldY = 0;
 	int width = 100;
@@ -62,7 +67,7 @@ public class EntityUnit extends Rectangle {
 	int gridX,gridY;
 	int locationOffsetX = 25;
 	int locationOffsetY  =35;
-	public int damageToPlayer = 15;
+	
 	boolean alive = true;
 	int screenX,screenY;
 	int frame = 0;
@@ -137,7 +142,20 @@ public class EntityUnit extends Rectangle {
 			}
 		}
 	}
-
+	
+	public void takeDamage(int damageAmount) {
+		
+		
+		int newHealth = this.health - damageAmount;
+		if (newHealth > 0) {
+			this.health = newHealth;
+		}else {
+			this.health = 0;
+		}
+		//this.game.hud.updateHealthbar(this.health);
+		this.game.decal.putDecalAtTile(this.x, this.y, Decal.DK_BLOOD);
+		
+	}
 	
 
 	

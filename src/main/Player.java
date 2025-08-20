@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -19,6 +20,9 @@ public class Player extends Rectangle{
 	public static final char RIGHT = 'r';
 	public static final char NONE = 'n';
 	
+	public final int ATTACK_PERIOD = 10;
+	private final int PLAYER_DAMAGE_TO_ENEMY = 100;
+	
 	final int MOVE_DISTANCE = 2;
 	final int SPEED_WALK = 2;
 	final int SPEED_RUN=4;
@@ -30,6 +34,7 @@ public class Player extends Rectangle{
 	final int WALK_TIMEOUT = 20;
 	final int ATTACK_TIMEOUT = 100;
 	final int DAMAGE_COOLDOWN_MAX = 10;
+	Pacer attackPacer;
 	Game game;
 	Image image;
 	Image[] images;
@@ -60,13 +65,14 @@ public class Player extends Rectangle{
 	public boolean invincible = false;
 	public int health = 100;
 	public int damageCooldown = 0;
+	BufferedImage shadow;
 	
 	
 	
 	public Player(Game game) {
 		super(STARTX,STARTY,STARTW,STARTH);
 		this.game = game;
-	
+		this.attackPacer = new Pacer(ATTACK_PERIOD);
 		this.animationPacer = new Pacer(9);
 		//maxY = game.getheight() - collider.height;
 		//maxX = game.getwidth() - collider.width;
@@ -99,10 +105,21 @@ public class Player extends Rectangle{
 			e.printStackTrace();
 		}
 		
+		String URL = "/images/shadow.png";
+		try {
+			this.shadow = this.game.imageutils.spriteSheetCutter(URL, 1, 1, 100, 100)[0];
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
 	}
 	
 	public void draw() {
 		if (image != null) {
+			game.g.drawImage(shadow, screenX+spriteOffsetX,
+
+					screenY+spriteOffsetY, spritewidth, spriteheight, null);
 		
             this.game.g.drawImage(image, screenX+spriteOffsetX, screenY+spriteOffsetY, spritewidth, spriteheight, null);
         }
@@ -151,20 +168,20 @@ public class Player extends Rectangle{
 		motion();
 		if (this.walkTimeout >0)walkTimeout  --;
 		if (this.attackTimeout >0)attackTimeout  --;
-		this.updateCollider();
+		//this.updateCollider();
 		if(this.state == ATTACK) {
+			for(EntityUnit eunit: this.game.entity.entityUnits) {
+				if(eunit.enemy&& eunit.intersects(this)) {
+					eunit.takeDamage(PLAYER_DAMAGE_TO_ENEMY);
+					this.state = WALK;
+					break;
+				}
 			
-		}
+			}}
 		
 	}
 	
-	private void updateCollider() {
-		this.x = this.x;
-		this.y = this.y;
-	
-		
-	}
-	
+
 	
 	
 	private void motion() {

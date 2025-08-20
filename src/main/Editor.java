@@ -82,7 +82,7 @@ public class Editor {
 			this.game.trigger.setTileGXY(gridX,gridY,delete);
 			break;
 		case DECOR:
-			 delete = assetID==0;
+			 delete = assetID==-1;
 			 System.out.println("paint decor " + gridX + " " + gridY + " " + assetID);
 			 this.game.decor.setTileXYK(gridX, gridY, assetID);
 			break;

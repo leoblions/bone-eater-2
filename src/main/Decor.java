@@ -52,7 +52,7 @@ public class Decor {
 	// public Dictionary<int, Integer> kindMap;
 	int drawableRange;
 	final int MAX_KIND = 32;
-	public final int WALL_TILE_TYPE = 1;
+	//public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
 	private boolean modified = false;
 	private int xstart, xend, ystart, yend, yCutoff;
@@ -130,7 +130,7 @@ public class Decor {
 	public void setTileXYK(int gridX, int gridY, int kind) {
 		int x = Utils.clamp(0, cols - 1, gridX);
 		int y = Utils.clamp(0, rows - 1, gridY);
-		this.grid[y][x] = Utils.clamp(0, MAX_KIND, kind);
+		this.grid[y][x] = Utils.clamp(BLANK_DECOR_TYPE, MAX_KIND, kind);
 	}
 
 	private void adjustSizesAndOffsets() {
@@ -147,7 +147,7 @@ public class Decor {
 				sizeArray[i][SAFOFFSETX] = 0;
 				sizeArray[i][SAFOFFSETY] = 0;
 				sizeArray[i][SAFWIDTH] = 100;
-				sizeArray[i][SAFHEIGHT] = 200;
+				sizeArray[i][SAFHEIGHT] = 100;
 			}
 			if (i > 23 && i <= 39) {
 				sizeArray[i][SAFOFFSETX] = 0;
@@ -155,7 +155,7 @@ public class Decor {
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
 			} else {
-				if (i > 0 && i < 16) {
+				{
 					sizeArray[i][SAFOFFSETX] = 0;
 					sizeArray[i][SAFOFFSETY] = 0;
 					sizeArray[i][SAFWIDTH] = 100;
@@ -189,21 +189,7 @@ public class Decor {
 
 	}
 
-	public void putDecorOnTileType(int kind, int decorKind) {
-		// int kind;
-		for (int y = 0; y < game.ROWS - 1; y++) {
-			for (int x = 0; x < game.COLS; x++) {
-				// place shadows on wall tiles
-				kind = game.tilegrid.getTileYX(y, x);
-				if (kind == WALL_TILE_TYPE && game.tilegrid.getTileYX(y + 1, x) != WALL_TILE_TYPE) {
-
-					grid[y][x] = kind;
-				}
-
-			}
-		}
-
-	}
+	
 
 	public int clamp(int minval, int maxval, int test) {
 		if (test < minval)
@@ -213,44 +199,7 @@ public class Decor {
 		return test;
 	}
 
-	/**
-	 * xmin, ymin, xmax, ymax visible on decor gred
-	 * 
-	 * @return
-	 */
-//	public int[] gridRange() {
-//		
-//		int[] range = new int[4];
-//		range[0] = game.cameraX / game.TILE_SIZE; // x1
-//		range[1] = game.cameraY / game.TILE_SIZE; //y1
-//		range[2] = (game.WIDTH + game.cameraX) / game.TILE_SIZE; //x2
-//		range[3] = (game.HEIGHT + game.cameraY) / game.TILE_SIZE; //y2
-//		int[] playerGP = this.game.player.getGridPosition();
-//		
-//		
-//		
-//		return range;
-//	}
 
-//	private void updateDrawRange_0() {
-//		int[] drawableRange = gridRange();
-//
-//		// sprite culling distances
-//		xstart = drawableRange[0] - 4;
-//		ystart = drawableRange[1] - 4;
-//		xend = drawableRange[2] + 4;
-//		yend = drawableRange[3] + 4;
-//
-//		if (ystart < 0)
-//			ystart = 0;
-//		if (xstart < 0)
-//			xstart = 0;
-//		if (xend > game.COLS)
-//			xend = game.COLS;
-//		if (yend > game.ROWS)
-//			yend = game.ROWS;
-//		
-//	}
 
 	private void updateDrawRange() {
 		int playerGP[] = this.game.player.getGridPosition();
@@ -276,15 +225,7 @@ public class Decor {
 		// Sprites on top
 
 		int screenX, screenY;
-//		clamp(0, Game.COLS, xend);
-//		clamp(0, Game.ROWS, yend);
-//		yCutoff = (game.player.worldY+Y_CUTOFF_OFFSET)/Game.TILE_SIZE;
-//
-//		clamp(0, Game.ROWS, yCutoff);
-//		
-//		xstart = 0;
-//		ystart = 0;
-//		xend = 25;
+
 		yCutoff = 25;
 
 		for (int x = xstart; x < xend; x++) {
@@ -399,7 +340,7 @@ public class Decor {
 	public void paintDecor(int gridX, int gridY, int kind) {
 		modified = true;
 		if (game.editor.delete) {
-			kind = -1;
+			kind = BLANK_DECOR_TYPE;
 		}
 		try {
 			kind = clampKind(kind);
