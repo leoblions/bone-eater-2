@@ -24,7 +24,8 @@ public class Decor {
 
 	// image data
 	//doors and windows, corners
-	private static final String SPRITE_WALL_OVERLAY = "/images/wallOverlay.png";
+	private static final String SPRITE_WALL_OVERLAY = "/images/tileWallOverlay1.png";
+	private static final String SPRITE_WALL_OVERLAY2 = "/images/tileWallOverlay2.png";
 	
 	// 100x100 outdoor
 	private static final String SPRITE_URL_OUTDOOR1 = "/images/decor_100_100_1.png";
@@ -49,9 +50,10 @@ public class Decor {
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int MINIMUM_RANDOM_GRIDX = 300;
 	public final int Y_CUTOFF_OFFSET = 40;
+	public int maxKind = 0;
 	// public Dictionary<int, Integer> kindMap;
 	int drawableRange;
-	final int MAX_KIND = 32;
+	//final int MAX_KIND = 32;
 	//public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
 	private boolean modified = false;
@@ -130,7 +132,7 @@ public class Decor {
 	public void setTileXYK(int gridX, int gridY, int kind) {
 		int x = Utils.clamp(0, cols - 1, gridX);
 		int y = Utils.clamp(0, rows - 1, gridY);
-		this.grid[y][x] = Utils.clamp(BLANK_DECOR_TYPE, MAX_KIND, kind);
+		this.grid[y][x] = Utils.clamp(BLANK_DECOR_TYPE, this.maxKind, kind);
 	}
 
 	private void adjustSizesAndOffsets() {
@@ -310,22 +312,25 @@ public class Decor {
 
 	private void initDecorImages() throws IOException {
 		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x
+		BufferedImage[] decorOverlay2 = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY2, 2, 4, 100, 100); // 8x
 		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR1, 4, 4, 100, 100); // 16x
 																													// 100x100
 		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR2, 4, 2, 100, 200);// 8x
 																														// 100x200
 		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_INDOOR1, 4, 4, 100, 100);// 16x
-		this.images = Imageutils.appendArray(decorOverlay, decorOutdoor);
+		this.images = Imageutils.appendArray(decorOverlay, decorOverlay2);
+		this.images = Imageutils.appendArray(images, decorOutdoor);
 		this.images = Imageutils.appendArray(images, decorOutdoor);
 		this.images = Imageutils.appendArray(images, decorOutdoorTall);// 100x100
 		
 		this.images = Imageutils.appendArray(images, common2Decor);
+		this.maxKind = this.images.length;
 
 	}
 
 	public int clampKind(int kind) {
-		if (kind > MAX_KIND) {
-			kind = MAX_KIND;
+		if (kind > this.maxKind) {
+			kind = this.maxKind;
 			System.out.println("Decor kind clamped to max. " + kind);
 			return kind;
 		} else if (kind < BLANK_DECOR_TYPE) {

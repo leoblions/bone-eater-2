@@ -524,6 +524,7 @@ private boolean attackOnThisTick = false;
 			// eunit.direction=UP;
 
 		} else if (!eunit.alive) {
+		
 			return;
 		}
 		// int[] deltaXY8 = calculateMoveFromDirection8W(eunit);
@@ -788,7 +789,7 @@ private boolean attackOnThisTick = false;
 		if (eunit.health <= 0) {
 			eunit.alive = false;
 			eunit.state = 'd';
-		}
+			eunit.frame = 0;		}
 	}
 
 	private void cycleSpriteAttack(EntityUnit eunit) {
@@ -851,6 +852,7 @@ private boolean attackOnThisTick = false;
 				} else {
 					eunit.frame = 0;
 				}
+				eunit.currentImageIndex = eunit.frame + directionIndexpart;
 				break;
 			case ES_WALK:
 			case ES_FOLLOW:
@@ -860,10 +862,12 @@ private boolean attackOnThisTick = false;
 				} else {
 					eunit.frame = 0;
 				}
+				eunit.currentImageIndex = eunit.frame + directionIndexpart;
 				break;
 			case ES_DEAD:
 				if (eunit.frame < eunit.frameMax) {
 					eunit.frame++;
+					eunit.currentImageIndex = eunit.frame ;
 				}
 				break;
 			default:
@@ -875,7 +879,6 @@ private boolean attackOnThisTick = false;
 			}
 		}
 		
-		eunit.currentImageIndex = eunit.frame + directionIndexpart;
 
 	}
 	

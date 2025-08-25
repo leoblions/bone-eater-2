@@ -54,7 +54,8 @@ public class Game extends JPanel implements Runnable {
 	public static  int width=600; 
 	public static  int height=600;
 	private Thread gameThread;
-	private long lastTime;
+	private long lastTimeDraw;
+	private long lastTimeUpdate;
 	private boolean run = true;
 	public int cameraX,cameraY;
 	public int mouseX,mouseY;
@@ -69,7 +70,8 @@ public class Game extends JPanel implements Runnable {
 	
 
 	public Game() {
-		lastTime = System.currentTimeMillis();
+		lastTimeDraw = System.currentTimeMillis();
+		lastTimeUpdate = System.currentTimeMillis();
 		setPreferredSize(new Dimension(width, height));
 		this.width = getWidth();
 		this.height = getHeight();
@@ -278,11 +280,16 @@ public class Game extends JPanel implements Runnable {
 	public void run() {
 		while(run) {
 			long nowMillis = System.currentTimeMillis();
-			long difference = nowMillis - lastTime;
-			repaint();
+			long differenceU = nowMillis - lastTimeUpdate;
+			long differenceD = nowMillis - lastTimeDraw;
+			//repaint();
 			
-			if(difference>frameIntervalMilliseconds) {
-				lastTime = nowMillis;
+			if(differenceD>frameIntervalMilliseconds) {
+				lastTimeDraw = nowMillis;
+				repaint();
+			}
+			if(differenceU>frameIntervalMilliseconds) {
+				lastTimeUpdate = nowMillis;
 				update();
 			}
 			
