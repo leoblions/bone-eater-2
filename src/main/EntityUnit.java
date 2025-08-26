@@ -49,7 +49,7 @@ public class EntityUnit extends Rectangle {
 	int widthS,heightS,widthA,heightA;
 	
 	public int damageToPlayer = 15;
-	
+	int halfWidth,halfHeight;
 	int currentImageIndex = 0;
 	int currentSpeed = 5;
 	int velX = 0;
@@ -136,6 +136,8 @@ public class EntityUnit extends Rectangle {
 			this.widthA=80;
 			this.heightA=90;
 			this.enemy=true;
+			this.halfWidth = width/2;
+			this.halfHeight=height/2;
 			this.state = 's';
 			if (UID==1) {
 				this.direction='u';

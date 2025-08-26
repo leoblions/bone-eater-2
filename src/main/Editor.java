@@ -32,7 +32,7 @@ public class Editor {
 
 	public Editor(Game game) {
 		this.game = game;
-		arial16 = new Font("Arial", Font.PLAIN, 16);
+		arial16 = new Font("Arial", Font.BOLD, 16);
 		this.editMode = NORMAL;
 		editModeString = String.valueOf(this.editMode);
 		assetIDstring = getAssetIDString();
@@ -92,8 +92,9 @@ public class Editor {
 	}
 
 	public void draw() {
-		game.g.setColor(Color.white);
+		game.g.setColor(Color.red);
 		game.g.setFont(arial16);
+		game.g.drawString(String.format("Player wx:%d wy:%d", this.game.player.x,this.game.player.y), 10, 50);
 		game.g.drawString(editModeString, 10, 70);
 		game.g.drawString(assetIDstring, 10, 90);
 		game.g.drawString(latchString, 10, 110);

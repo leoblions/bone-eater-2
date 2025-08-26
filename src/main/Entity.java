@@ -17,7 +17,7 @@ import java.util.LinkedList;
  * 
  */
 public class Entity {
-	
+
 	Pacer animationPacer, attackPacer;
 	Rectangle hitbox;
 	final int PFWORLDX = 0;
@@ -26,10 +26,12 @@ public class Entity {
 	final int PFWORLDH = 3;
 	final int WALL_COLLIDE_WIGGLEROOM = 10;
 	final int ENTITY_FOLLOW_PLAYER_MIN_DISTANCE = 40;
+
 	final char DOWN = 'd';
-	final int UP = 'u';
-	final int LEFT = 'l';
-	final int RIGHT = 'r';
+	final char UP = 'u';
+	final char LEFT = 'l';
+	final char RIGHT = 'r';
+	final char NONE = 'n';
 
 	final char ES_FOLLOW = 'f';
 	final char ES_STAND = 's';
@@ -46,7 +48,7 @@ public class Entity {
 
 	final boolean DRAW_COLLRECT = true;
 
-	final int SPEED_WALK = 2;
+	final int SPEED_WALK = 1;
 	final int SPEED_CHASE = 5;
 	final int TICKS_PER_FRAME = 10;
 	final int ATTACK_HIT_TICK_PERIOD = 10;
@@ -84,7 +86,7 @@ public class Entity {
 	public final int HITBOX_SIZE_INC = 15;
 	public final int HITBOX_OFFSET = -25;
 	public boolean playerMelee = false;
-private boolean attackOnThisTick = false;
+	private boolean attackOnThisTick = false;
 	public boolean frozen = false;
 	public boolean drawHitbox = true;
 	public boolean activateEntityUnitFlag;
@@ -93,7 +95,7 @@ private boolean attackOnThisTick = false;
 		this.game = game;
 		entityUnits = new ArrayList<>();
 		entityTouchedList = new ArrayList<>();
-		this.hitbox = new Rectangle(10,10,10,10);
+		this.hitbox = new Rectangle(10, 10, 10, 10);
 
 		// this.addEntity(5, 5, 0, 0);
 		entityActivateDalay = new Delay();
@@ -102,7 +104,9 @@ private boolean attackOnThisTick = false;
 		this.initImages();
 
 		playerCollider = new Rectangle();
+
 		this.addEntity(5, 5, 0, 1);
+		this.addEntity(10, 4, 0, 'w', 1);
 	}
 
 	private void initImages() {
@@ -122,12 +126,12 @@ private boolean attackOnThisTick = false;
 			tempBI = this.game.imageutils.characterSheetUDL4(URL, 200, 200);
 
 			this.attackImages[EK_GUARD] = tempBI;
-			
+
 			URL = "/images/guard_gr_fall.png";
 			tempBI = this.game.imageutils.spriteSheetCutter(URL, 2, 4, 300, 200);
 
 			this.deathImages[EK_GUARD] = tempBI;
-			
+
 			URL = "/images/shadow.png";
 			tempBI = this.game.imageutils.spriteSheetCutter(URL, 1, 1, 100, 100);
 
@@ -198,15 +202,20 @@ private boolean attackOnThisTick = false;
 		this.entityUnits.add(eunit);
 	}
 
+	public void addEntity(int startGX, int startGY, int kind, char state, int UID) {
+		EntityUnit eunit = new EntityUnit(this.game, startGX, startGY, kind, UID);
+		eunit.state = state;
+		this.entityUnits.add(eunit);
+	}
+
 	public void draw() {
 		if (drawHitbox) {
 
 			game.g.setColor(Color.red);
 //			game.g.drawRect(playerCollider.x - game.cameraX, playerCollider.y - game.cameraY, playerCollider.width,
 //					playerCollider.height);
-			
-			game.g.drawRect(hitbox.x - game.cameraX, hitbox.y - game.cameraY, hitbox.width,
-					hitbox.height);
+
+			game.g.drawRect(hitbox.x - game.cameraX, hitbox.y - game.cameraY, hitbox.width, hitbox.height);
 		}
 		// int[] visible = game.visibleArea;
 
@@ -263,15 +272,15 @@ private boolean attackOnThisTick = false;
 				updateState(eunit);
 				updatePosition(eunit);
 				selectUnitImage(eunit);
-				//updateColliderUnit(eunit);
-				if(attackOnThisTick && eunit.state==ES_ATTACK) {
-					if(checkEnemyAttackHitPlayer(eunit)) {
-						
+				// updateColliderUnit(eunit);
+				if (attackOnThisTick && eunit.state == ES_ATTACK) {
+					if (checkEnemyAttackHitPlayer(eunit)) {
+
 						this.game.player.takeDamageFromEnemy(eunit.damageToPlayer);
 						eunit.damagePlayerOnTouch = true;
 						attackOnThisTick = false;
 					}
-				}else {
+				} else {
 					eunit.damagePlayerOnTouch = false;
 				}
 				// System.out.println("Entity state "+eunit.state);
@@ -291,23 +300,23 @@ private boolean attackOnThisTick = false;
 		// assigns image to entity unit
 		switch (eunit.state) {
 		case ES_ATTACK:
-			
+
 			eunit.image = this.attackImages[eunit.kind][eunit.currentImageIndex];
 			break;
 		case ES_WALK:
 			eunit.image = this.entityImages[eunit.kind][eunit.currentImageIndex];
 			break;
 		case ES_DEAD:
-			if( eunit.currentImageIndex >=8){
-				eunit.currentImageIndex=0;
+			if (eunit.currentImageIndex >= 8) {
+				eunit.currentImageIndex = 0;
 			}
 			eunit.image = this.deathImages[eunit.kind][eunit.currentImageIndex];
 			break;
 		default:
-		
+
 			eunit.image = this.entityImages[eunit.kind][eunit.currentImageIndex];
 		}
-		
+
 	}
 
 	/**
@@ -352,7 +361,7 @@ private boolean attackOnThisTick = false;
 		int deltaY = 0;
 		int playerPos[] = null;
 		int dX, dY;
-		if(eunit.health <= 0 && eunit.state != ES_DEAD) {
+		if (eunit.health <= 0 && eunit.state != ES_DEAD) {
 			eunit.state = ES_DEAD;
 			eunit.currentImageIndex = 0;
 		}
@@ -371,6 +380,7 @@ private boolean attackOnThisTick = false;
 			}
 			break;
 		case ES_FOLLOW:
+
 			eunit.width = eunit.widthS;
 			playerPos = this.game.player.getGridPosition();
 			dX = Math.abs(eunit.tileX - playerPos[0]);
@@ -401,7 +411,6 @@ private boolean attackOnThisTick = false;
 		case ES_DEAD:
 			eunit.width = eunit.widthA;
 			break;
-			
 
 		}
 
@@ -472,61 +481,109 @@ private boolean attackOnThisTick = false;
 
 	}
 
-	public void updatePosition(EntityUnit eunit) {
+	private int[] attackMotion(EntityUnit eunit) {
 		int[] deltaXY4 = { 0, 0 };
 		int BOUNCE = 0;
+		eunit.entityPlayerDistance = this.entityPlayerDistance(eunit);
+		if (eunit.entityPlayerDistance >= EP_DISTANCE_START_PATHFIND) {
+			// don't move
+		} else if (eunit.entityPlayerDistance >= EP_DISTANCE_START_BEELINE) {
+			this.setDirectionByPathFind(eunit);
+			deltaXY4 = calculateMoveFromDirection4W(eunit);
+			int testX = eunit.x + deltaXY4[0];
+			int testY = eunit.y + deltaXY4[1];
+			// boolean moveCollideWall = moveEntityCollideWall(eunit, testX, testY);
+
+			if (CHECK_COLLISIONS) {
+				boolean[] collisions = this.game.collision.collideTileTestWXY(testX, testY, eunit.width, eunit.height);
+				if (collisions[0] && deltaXY4[1] < 0) {
+					deltaXY4[1] = BOUNCE;
+
+				}
+				if (collisions[1] && deltaXY4[1] > 0) {
+					deltaXY4[1] = -BOUNCE;
+
+				}
+				if (collisions[2] && deltaXY4[0] < 0) {
+					deltaXY4[0] = BOUNCE;
+
+				}
+				if (collisions[3] && deltaXY4[0] > 0) {
+					deltaXY4[0] = -BOUNCE;
+
+				}
+			}
+		}
+		return deltaXY4;
+
+	}
+
+	private int[] wanderMotion(EntityUnit eunit) {
+		int[] deltaXY4 = { 0, 0 };
+		int BOUNCE = 0;
+		setDirectionByCollision(eunit);
+
+		deltaXY4 = calculateMoveFromDirection4W(eunit);
+		int testX = eunit.x + deltaXY4[0];
+		int testY = eunit.y + deltaXY4[1];
+
+		if (CHECK_COLLISIONS) {
+			boolean[] collisions = this.game.collision.collideTileTestWXY(testX, testY, eunit.width, eunit.height);
+			if (collisions[0] && deltaXY4[1] < 0) {
+				deltaXY4[1] = BOUNCE;
+
+			}
+			if (collisions[1] && deltaXY4[1] > 0) {
+				deltaXY4[1] = -BOUNCE;
+
+			}
+			if (collisions[2] && deltaXY4[0] < 0) {
+				deltaXY4[0] = BOUNCE;
+
+			}
+			if (collisions[3] && deltaXY4[0] > 0) {
+				deltaXY4[0] = -BOUNCE;
+
+			}
+		}
+		return deltaXY4;
+
+	}
+
+	public void updatePosition(EntityUnit eunit) {
+		int[] deltaXY4 = { 0, 0 };
+
 		eunit.tileY = eunit.y / Game.TILE_SIZE;
 		eunit.tileX = eunit.x / Game.TILE_SIZE;
 		if (game.entity.frozen) {
 			return;
 		}
-		boolean chase = (eunit.state == ES_ATTACK || eunit.state == ES_ATTACK);
-		if (eunit.alive && chase) {
-
-			eunit.entityPlayerDistance = this.entityPlayerDistance(eunit);
-			if (eunit.entityPlayerDistance >= EP_DISTANCE_START_PATHFIND) {
-				// don't move
-			} else if (eunit.entityPlayerDistance >= EP_DISTANCE_START_BEELINE) {
-				this.setDirectionByPathFind(eunit);
-				deltaXY4 = calculateMoveFromDirection4W(eunit);
-				int testX = eunit.x + deltaXY4[0];
-				int testY = eunit.y + deltaXY4[1];
-				// boolean moveCollideWall = moveEntityCollideWall(eunit, testX, testY);
-				if (CHECK_COLLISIONS) {
-					boolean[] collisions = this.game.collision.collideTileTestWXY(testX, testY, eunit.width,
-							eunit.height);
-					if (collisions[0] && deltaXY4[1] < 0) {
-						deltaXY4[1] = BOUNCE;
-
-					}
-					if (collisions[1] && deltaXY4[1] > 0) {
-						deltaXY4[1] = -BOUNCE;
-
-					}
-					if (collisions[2] && deltaXY4[0] < 0) {
-						deltaXY4[0] = BOUNCE;
-
-					}
-					if (collisions[3] && deltaXY4[0] > 0) {
-						deltaXY4[0] = -BOUNCE;
-
-					} else {
-
-					}
-				}
-
-			} else if (eunit.entityPlayerDistance < EP_DISTANCE_START_BEELINE) {
-				int[] dir2W = this.setDirectionByBeeline(eunit);
-				deltaXY4 = this.calculateMoveBeeline(eunit, dir2W);
-				// eunit.direction = 'n';
-			}
-
-			// eunit.direction=UP;
-
-		} else if (!eunit.alive) {
-		
-			return;
+		if (eunit.alive == false) {
+			eunit.state = ES_DEAD;
 		}
+		switch (eunit.state) {
+		case ES_ATTACK:
+			deltaXY4 = attackMotion(eunit);
+			break;
+		case ES_WANDER:
+			deltaXY4 = wanderMotion(eunit);
+			break;
+		case ES_FOLLOW:
+			deltaXY4 = wanderMotion(eunit);
+			break;
+
+		}
+
+		if (eunit.alive) {
+
+		} else if (eunit.entityPlayerDistance < EP_DISTANCE_START_BEELINE) {
+			int[] dir2W = this.setDirectionByBeeline(eunit);
+			deltaXY4 = this.calculateMoveBeeline(eunit, dir2W);
+			// eunit.direction = 'n';
+		}
+
+		// eunit.direction=UP;
+
 		// int[] deltaXY8 = calculateMoveFromDirection8W(eunit);
 
 		boolean collideOtherUnit = moveOverlapsOtherEntityUnit(eunit);
@@ -789,7 +846,8 @@ private boolean attackOnThisTick = false;
 		if (eunit.health <= 0) {
 			eunit.alive = false;
 			eunit.state = 'd';
-			eunit.frame = 0;		}
+			eunit.frame = 0;
+		}
 	}
 
 	private void cycleSpriteAttack(EntityUnit eunit) {
@@ -840,12 +898,12 @@ private boolean attackOnThisTick = false;
 			directionIndexpart = 4;
 		}
 		var changeFrame = animationPacer.check();
-		if(!eunit.alive && eunit.state!=ES_DEAD) {
-			eunit.state=ES_DEAD;
+		if (!eunit.alive && eunit.state != ES_DEAD) {
+			eunit.state = ES_DEAD;
 			eunit.currentImageIndex = 0;
 		}
-		if(changeFrame) {
-			switch(eunit.state) {
+		if (changeFrame) {
+			switch (eunit.state) {
 			case ES_STAND:
 				if (eunit.frame == 0) {
 					eunit.frame = 2;
@@ -867,47 +925,44 @@ private boolean attackOnThisTick = false;
 			case ES_DEAD:
 				if (eunit.frame < eunit.frameMax) {
 					eunit.frame++;
-					eunit.currentImageIndex = eunit.frame ;
+					eunit.currentImageIndex = eunit.frame;
 				}
 				break;
 			default:
 				eunit.frame = 0;
 				break;
-				
-				
-				
+
 			}
 		}
-		
 
 	}
-	
+
 	private boolean checkEnemyAttackHitPlayer(EntityUnit eunit) {
-		int hitX = eunit.x + eunit.width/2;
-		int hitY = eunit.y + eunit.height/2;
-		
+		int hitX = eunit.x + eunit.width / 2;
+		int hitY = eunit.y + eunit.height / 2;
+
 		switch (eunit.direction) {
 
 		case UP:
-			hitY  -= eunit.height;
+			hitY -= eunit.height;
 			break;
 		case DOWN:
-			hitY +=eunit.height;
+			hitY += eunit.height;
 			break;
 		case LEFT:
 			hitX -= eunit.width;
 			break;
 		case RIGHT:
-			hitX +=eunit.width;
+			hitX += eunit.width;
 			break;
 		default:
 		}
 		this.hitbox.x = hitX;
 		this.hitbox.y = hitY;
-		if( this.game.player.pointCollidePlayer(hitX,hitY)) {
+		if (this.game.player.pointCollidePlayer(hitX, hitY)) {
 			return true;
-			
-		}else {
+
+		} else {
 			return false;
 		}
 	}
@@ -918,7 +973,6 @@ private boolean attackOnThisTick = false;
 	}
 
 	private void moveDirection4W(EntityUnit eunit) {
-		
 
 		if (eunit.state == 'w') {
 			eunit.currentSpeed = SPEED_WALK;
@@ -953,6 +1007,7 @@ private boolean attackOnThisTick = false;
 		int[] deltaXY = { 0, 0 };
 		switch (eunit.state) {
 		case ES_WANDER:
+
 			eunit.currentSpeed = SPEED_WALK;
 			break;
 		case ES_ATTACK:
@@ -1116,34 +1171,58 @@ private boolean attackOnThisTick = false;
 		return true;
 	}
 
-	/**
-	 * true if a tile is blocking the path ahead
-	 * 
-	 * @return
-	 */
-//	public boolean tileAhead(EntityUnit eunit) {
-//		return game.collision.collideTileRectDirection(eunit.colliderTest, eunit.direction);
-//	}
-
 	private void setDirectionByPathFind(EntityUnit eunit) {
 
-		// Point worldPoint = new Point(eunit.worldX, eunit.worldY);
 		eunit.direction = game.pathfind.getDirectionTowardsPlayer(eunit);
-		// eunit.direction8w=game.pathfind.getDirectionTowardsPlayer8way(eunit.worldX,
-		// eunit.worldY);
-//		int[] playerLoc = this.game.player.getGridPosition();
-//		
-//		if(playerLoc[1]==eunit.worldY-1) {
-//			eunit.direction='u';
-//		}else if(playerLoc[1]==eunit.worldY+1){
-//			eunit.direction='d';
-//		}else if(playerLoc[0]==eunit.worldX-1){
-//			eunit.direction='l';
-//		}else if(playerLoc[0]==eunit.worldY+1){
-//			eunit.direction='r';
-//		}else if(playerLoc[0]==eunit.worldX && playerLoc[1]==eunit.worldY ) {
-//			eunit.direction='n';
-//		}
+
+	}
+
+	private void setDirectionByCollision(EntityUnit eunit) {
+		int centerX = eunit.x + eunit.halfWidth;
+		int centerY = eunit.y + eunit.halfHeight;
+
+		int collGridValue = game.collision.getGridValueXY(centerX, centerY);
+		switch (collGridValue) {
+		case 0:
+			// do nothing, continue same direction
+			break;
+		case -1:
+		case -2:
+			// stop
+			eunit.direction = NONE;
+		case 1:
+			switch (eunit.direction){
+			case UP:
+				eunit.direction = DOWN;
+				break;
+			case DOWN:
+				eunit.direction = UP;
+				break;
+			case LEFT:
+				eunit.direction= RIGHT;
+				break;
+			case RIGHT:
+				eunit.direction = LEFT;
+				break;
+				
+			
+			}
+			break;
+		case 2:
+			eunit.direction = UP;
+			break;
+		case 3:
+			eunit.direction = DOWN;
+			break;
+		case 4:
+			eunit.direction = LEFT;
+			break;
+		case 5:
+			eunit.direction = RIGHT;
+			break;
+		default:
+			break;
+		}
 
 	}
 

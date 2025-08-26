@@ -127,6 +127,28 @@ public class Collision {
 		return collideTileTestWXY(testX, testY, p.width, p.height);
 
 	}
+	
+	/**
+	 * 
+	 * @param worldX center of character x direction
+	 * @param worldY
+	 * @return -2 for error, -0 for open, 1 for wall
+	 * 2 - 5 for move direction
+	 * 
+	 */
+	public int getGridValueXY(int worldX,int worldY) {
+		int gridX =  worldX / Game.COLL_GRID_SIZE;
+		int gridY =   worldY   / Game.COLL_GRID_SIZE;
+		int value =-2;
+		try {
+			value = this.grid[gridY][gridX];
+			
+		}catch(Exception e) {
+			
+		}
+		return value;
+		
+	}
 
 	public boolean[] collideTilePlayer() {
 
