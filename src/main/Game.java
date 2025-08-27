@@ -33,7 +33,7 @@ public class Game extends JPanel implements Runnable {
 	public Graphics g;
 	public Utils utils;
 	public Trigger trigger;
-	//public Wall wall;
+	public Sound sound;
 	public Hud hud;
 	public Player player;
 	public Editor editor;
@@ -50,6 +50,7 @@ public class Game extends JPanel implements Runnable {
 	public Console console;
 	public Decor decor;
 	public Decal decal;
+	public Pickup pickup;
 	
 	public static  int width=600; 
 	public static  int height=600;
@@ -108,7 +109,7 @@ public class Game extends JPanel implements Runnable {
 		this.editor=new Editor(this);
 		this.input = new Input(this);
 		this.tilegrid = new Tilegrid(this);
-		//this.wall = new Wall(this);
+		this.sound = new Sound(this);
 		this.collision=new Collision(this);
 		this.pathfind = new Pathfind(this);
 		this.background =new Background(this);
@@ -119,7 +120,7 @@ public class Game extends JPanel implements Runnable {
 		this.camera = new Camera(this);
 		this.decor = new Decor(this);
 		this.decal = new Decal(this);
-		
+		this.pickup = new Pickup(this);
 		
 		setFocusable(true);
         requestFocusInWindow();
@@ -202,6 +203,7 @@ public class Game extends JPanel implements Runnable {
 		this.player.draw();
 		this.entity.draw();
 		this.trigger.draw();
+		this.pickup.draw();
 		this.hud.draw();
 		this.pathfind.draw();
 		this.editor.draw();
@@ -215,6 +217,7 @@ public class Game extends JPanel implements Runnable {
 
 	void update() {
 		//System.out.println("test");
+		this.sound.update();
 		if (this.gameState=='c') {
 			this.console.update();
 			;
@@ -232,6 +235,7 @@ public class Game extends JPanel implements Runnable {
 			this.pathfind.update();
 			this.hud.update();
 			this.camera.update();
+			this.pickup.update();
 			
 		}
 		

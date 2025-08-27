@@ -16,6 +16,7 @@ public class Editor {
 	public static final char DECOR = 'd';
 	public static final char WALL = 'w';
 	public static final char COLLISION = 'c';
+	public static final char PICKUP = 'p';
 	private final int MIN_ASSET_ID = -1;
 	
 	Color smBorder = new Color(50, 50, 50, 50);
@@ -81,6 +82,10 @@ public class Editor {
 			 delete = assetID==0;
 			this.game.trigger.setTileGXY(gridX,gridY,delete);
 			break;
+		case PICKUP:
+			 delete = assetID==0;
+			this.game.pickup.setTileGXY(gridX,gridY,delete);
+			break;
 		case DECOR:
 			 delete = assetID==-1;
 			 System.out.println("paint decor " + gridX + " " + gridY + " " + assetID);
@@ -121,6 +126,13 @@ public class Editor {
 				this.game.tilegrid.saveTilegrid();
 			}else {
 				this.game.tilegrid.loadTilegrid() ;
+			}
+			break;
+		case PICKUP: 
+			if(save) {
+				this.game.pickup.saveRecordsToFile();
+			}else {
+				this.game.pickup.loadRecordsFromFile() ;
 			}
 			break;
 		case COLLISION: 

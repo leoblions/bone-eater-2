@@ -27,8 +27,8 @@ public class Pickup {
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int ITEM_DEFAULT_W = 50;
 	public final int ITEM_DEFAULT_H = 50;
-	private final static String SPRITE_SHEET_ITEMS1 = "/images/itemA.png";
-	private final static String SPRITE_SHEET_ITEMS2 = "/images/itemB.png";
+	private final static String SPRITE_SHEET_ITEMS1 = "/images/pickups1.png";
+	private final static String SPRITE_SHEET_ITEMS2 = "/images/pickups1.png";
 	public final int BLANK_ITEM_TYPE = -1;
 	private boolean modified = false;
 	private int bobPixels = 0;
@@ -230,15 +230,16 @@ public class Pickup {
 	 * draws the items on screen, also adds onscreen items to a list
 	 */
 	public void draw() {
-		int[] visible = game.visibleArea;
+		//int[] visible = game.visibleArea;
 		int TopLeftCornerX = game.cameraX;
 		int TopLeftCornerY = game.cameraY;
 		int maxy = itemGrid.length;
 		int maxx = itemGrid[0].length;
-		int startx = clamp(0,maxx,visible[0]-50);
-		int starty = clamp(0,maxy,visible[1]-50);
-		int endx = clamp(0,maxx,visible[2]+50);
-		int endy = clamp(0,maxy,visible[3]+50);
+		int playerPos[] = this.game.player.getGridPosition();
+		int startx = clamp(0,maxx,playerPos[0]-10);
+		int starty = clamp(0,maxy,playerPos[0]+10);
+		int endx = clamp(0,maxx,playerPos[1]-10);
+		int endy = clamp(0,maxy,playerPos[1]+10);
 		int screenX,screenY;
 		int tmp;
 		
@@ -316,6 +317,21 @@ public class Pickup {
 			e.printStackTrace();
 		} 
 	
+	}
+
+	public void saveRecordsToFile() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void loadRecordsFromFile() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setTileGXY(int gridX, int gridY, boolean delete) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

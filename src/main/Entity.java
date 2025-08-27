@@ -18,8 +18,9 @@ import java.util.LinkedList;
  */
 public class Entity {
 
-	Pacer animationPacer, attackPacer;
+	Pacer animationPacer, attackPacer, updateEntityTilePacer;
 	Rectangle hitbox;
+	Rectangle senseRectangle;
 	final int PFWORLDX = 0;
 	final int PFWORLDY = 1;
 	final int PFWORLDW = 2;
@@ -32,15 +33,44 @@ public class Entity {
 	final char LEFT = 'l';
 	final char RIGHT = 'r';
 	final char NONE = 'n';
+	
+	final int m = 0;
+	final int u = 1;
+	final int d = 2;
+	final int l = 3;
+	final int r = 4;
 
-	final char ES_FOLLOW = 'f';
-	final char ES_STAND = 's';
-	final char ES_WANDER = 'w';
-	final char ES_WALK = 'w';
-	final char ES_DEAD = 'd';
-	final char ES_ATTACK = 'a';
+	public static final char ES_FOLLOW = 'f';
+	public static final char ES_STAND = 's';
+	public static final char ES_WANDER = 'w';
+	public static final char ES_WALK = 'w';
+	public static final char ES_DEAD = 'd';
+	public static final char ES_ATTACK = 'a';
 
 	final int VISUAL_RANGE = 5; // how far entities can see
+	final int[][] blockOffset = {
+			{0,0},//middle
+			{0,-1},//up x,y
+			{0,1},//down
+			{-1,0},//left
+			{1,0}//right
+	};
+	
+	final int[][] blockOffsetLeft = {
+			{0,0},//middle
+			{-1,-1},//up x,y
+			{1,1},//down
+			{-1,-1},//left
+			{1,1}//right
+	};
+	
+	final int[][] blockOffsetRight = {
+			{0,0},//middle
+			{1,-1},//up x,y
+			{-1,1},//down
+			{-1,1},//left
+			{1,-1}//right
+	};
 
 	final int ENTITY_PLAYER_COLLIDE_RANGE = 40;
 	final boolean CHECK_COLLISIONS = false;
@@ -83,8 +113,8 @@ public class Entity {
 	public boolean activateEntityFlag = false;
 	public Delay entityActivateDalay;
 	public Rectangle playerCollider;
-	public final int HITBOX_SIZE_INC = 15;
-	public final int HITBOX_OFFSET = -25;
+	public final int HITBOX_SIZE_INC = 50;
+	public final int HITBOX_OFFSET = -50;
 	public boolean playerMelee = false;
 	private boolean attackOnThisTick = false;
 	public boolean frozen = false;
@@ -101,12 +131,19 @@ public class Entity {
 		entityActivateDalay = new Delay();
 		animationPacer = new Pacer(TICKS_PER_FRAME);
 		attackPacer = new Pacer(ATTACK_HIT_TICK_PERIOD);
+		updateEntityTilePacer = new Pacer(ATTACK_HIT_TICK_PERIOD);
 		this.initImages();
 
 		playerCollider = new Rectangle();
+		senseRectangle = new Rectangle();
 
-		this.addEntity(5, 5, 0, 1);
-		this.addEntity(10, 4, 0, 'w', 1);
+		this.addEntityGrid(5, 5, 0, 's', 1);
+		this.addEntityGrid(10, 4, 0, 'w', 1);
+		this.addEntityGrid(24, 8, 0, 'w', 1);
+		this.addEntityWorld(1800, 810, 0, 'w', 1);
+		this.addEntityWorld(240, 1200, 0, 'w', 1);
+		this.addEntityWorld(2100, 1700, 0, 'w', 1);
+		this.addEntityWorld(1400, 2300, 0, 'w', 1);
 	}
 
 	private void initImages() {
@@ -202,8 +239,17 @@ public class Entity {
 		this.entityUnits.add(eunit);
 	}
 
-	public void addEntity(int startGX, int startGY, int kind, char state, int UID) {
+	public void addEntityGrid(int startGX, int startGY, int kind, char state, int UID) {
 		EntityUnit eunit = new EntityUnit(this.game, startGX, startGY, kind, UID);
+		eunit.state = state;
+		this.entityUnits.add(eunit);
+	}
+	
+	public void addEntityWorld(int startX, int startY, int kind, char state, int UID) {
+		
+		EntityUnit eunit = new EntityUnit(this.game, startX / Game.TILE_SIZE, startY / Game.TILE_SIZE, kind, UID);
+		eunit.x = startX;
+		eunit.y = startY;
 		eunit.state = state;
 		this.entityUnits.add(eunit);
 	}
@@ -265,9 +311,14 @@ public class Entity {
 		playerTouchedActorSincelastTick = false;
 		entityActivateDalay.reduce();
 		attackOnThisTick = attackPacer.check();
+		boolean updateEunitTile = updateEntityTilePacer.check();
 		for (int i = 0; i < entityUnits.size(); i++) {
 			EntityUnit eunit = entityUnits.get(i);
 			if (null != eunit) {
+				if(updateEunitTile) {
+					eunit.tileX = eunit.x / Game.TILE_SIZE;
+					eunit.tileY = eunit.y / Game.TILE_SIZE;
+				}
 				entityCheckChangedTile(eunit);
 				updateState(eunit);
 				updatePosition(eunit);
@@ -328,39 +379,118 @@ public class Entity {
 	 * @param iterations distance of entity's vision
 	 * @return
 	 */
-	public boolean senseBeam(int startGridX, int startGridY, int deltaX, int deltaY, int iterations) {
+	private boolean detectPlayer(EntityUnit eunit, int deltaX, int deltaY, int iterations) {
 		// allows entity to see player in a given direction
 		// true if player spotted
-		int currGridX = startGridX;
-		int currGridY = startGridY;
+		int currGridX = eunit.tileX ;
+		int currGridY = eunit.tileY ;
+		int playerPos[] = this.game.player.getGridPosition();
 		boolean isWall = false;
 		boolean isPlayer = false;
+		//String dbgString = "";
+		//System.out.println("Player "+playerPos[0] + " "+playerPos[1]);
 		for (int i = 0; i < iterations; i++) {
+			//dbgString += String.format("x:%dy:%d  ", currGridX,currGridY);
 			try {
-				isWall = this.game.pathfind.wallgrid[startGridY][startGridX];
+				isWall = this.game.pathfind.wallgrid[currGridY][currGridX];
 			} catch (Exception e) {
 				isWall = true;
 			}
-			int playerPos[] = this.game.player.getGridPosition();
+			if(null!=this.game.g) {
+				this.game.g.setColor(Color.cyan);
+				this.game.g.fillRect(currGridX*this.game.TILE_SIZE-this.game.cameraX, currGridY*this.game.TILE_SIZE-this.game.cameraY, 3, 3);
+			}
+			
+			
 			isPlayer = (playerPos[0] == currGridX && playerPos[1] == currGridY);
+			
 			if (isPlayer && !isWall) {
+				//System.out.println(dbgString);
 				return true;
 			} else if (!isPlayer && isWall) {
+				//System.out.println(dbgString);
 				return false;
 			}
 			currGridX += deltaX;
 			currGridY += deltaY;
 
 		}
+		//System.out.println(dbgString);
+		return false;
+
+	}
+	
+	private boolean detectPlayerBeam(int startX, int startY, int range) {
+		
+		// true if unobstructed line between point and player.
+		int iterations = 10;
+		int deltaPEWX = ( this.game.player.x-startX);
+		int deltaPEWY = ( this.game.player.y-startY);
+		int deltaWX,deltaWY;
+		if (deltaPEWX==0) {
+			deltaPEWX = -1;
+		}
+		if (deltaPEWY==0) {
+			deltaPEWY = -1;
+		}
+		if(deltaPEWX>deltaPEWY) {
+			deltaWX = this.game.COLL_GRID_SIZE;
+			deltaWY = deltaPEWY / deltaPEWX;
+		}else {
+			deltaWY = this.game.COLL_GRID_SIZE;
+			deltaWX = deltaPEWX / deltaPEWY;
+		}
+		
+		int currGridX = startX/ Game.COLL_GRID_SIZE;
+		int currGridY = startY/ Game.COLL_GRID_SIZE;
+		int currWorldX = startX + deltaWX;
+		int currWorldY = startY + deltaWY;
+		boolean isWall = false;
+		boolean isPlayer = false;
+		int startGridX = startX / Game.COLL_GRID_SIZE;
+		int startGridY = startY / Game.COLL_GRID_SIZE;
+		
+		for (int i = 0; i < iterations; i++) {
+			currGridX = currWorldX/ Game.COLL_GRID_SIZE;
+			currGridY = currWorldY/ Game.COLL_GRID_SIZE;
+			if(null!=this.game.g) {
+				this.game.g.fillRect(currGridX, currGridY, 3, 3);
+			}
+			
+			try {
+				isWall = this.game.pathfind.wallgrid[currGridY][currGridX];
+			} catch (Exception e) {
+				isWall = true;
+			}
+			
+			int playerGridPos[] = this.game.player.getGridPosition();
+			
+			isPlayer = (playerGridPos[0] == currGridX && playerGridPos[1] == currGridY);
+			
+			if (isPlayer && !isWall) {
+				return true;
+			} else if (!isPlayer && isWall) {
+				return false;
+			}
+			currWorldX += deltaWX;
+			currWorldY += deltaWY;
+
+		}
 		return false;
 
 	}
 
-	public void updateState(EntityUnit eunit) {
+	private void updateState(EntityUnit eunit) {
 		int deltaX = 0;
 		int deltaY = 0;
 		int playerPos[] = null;
 		int dX, dY;
+		senseRectangle.width = eunit.width;
+		senseRectangle.height= eunit.height;
+		senseRectangle.x = eunit.x;
+		senseRectangle.y=eunit.y;
+		int SENSE_RECT_OFFSET = 25;
+		
 		if (eunit.health <= 0 && eunit.state != ES_DEAD) {
 			eunit.state = ES_DEAD;
 			eunit.currentImageIndex = 0;
@@ -368,16 +498,56 @@ public class Entity {
 		switch (eunit.state) {
 		case ES_WANDER:
 		case ES_STAND:
+			
 			// pick direction to use for beam and animation
-			deltaY = (eunit.direction == 'd') ? 1 : 0;
-			deltaY = (eunit.direction == 'u') ? -1 : 0;
-			deltaX = (eunit.direction == 'l') ? -1 : 0;
-			deltaX = (eunit.direction == 'r') ? 1 : 0;
-			boolean playerSpotted = senseBeam(eunit.tileX, eunit.tileY, deltaX, deltaY, VISUAL_RANGE);
-			// System.out.println("playerSpotted "+playerSpotted);
-			if (playerSpotted) {
-				eunit.state = ES_FOLLOW;
+			switch(eunit.direction) {
+			case 'u':
+				deltaX = 0;
+				deltaY = -1;
+				senseRectangle.x -= 0;
+				senseRectangle.y -= SENSE_RECT_OFFSET;
+				break;
+			case 'd':
+				deltaX = 0;
+				deltaY = 1;
+				senseRectangle.x -= 0;
+				senseRectangle.y += SENSE_RECT_OFFSET;
+				break;
+			case 'l':
+				deltaX = -1;
+				deltaY = 0;
+				senseRectangle.x -= SENSE_RECT_OFFSET;
+				senseRectangle.y -= 0;
+				break;
+			case 'r':
+				deltaX = 1;
+				deltaY = 0;
+				senseRectangle.x += SENSE_RECT_OFFSET;
+				senseRectangle.y -= 0;
+				break;
 			}
+//			deltaY = (eunit.direction == 'd') ? 1 : 0;
+//			deltaY = (eunit.direction == 'u') ? -1 : 0;
+//			deltaX = (eunit.direction == 'l') ? -1 : 0;
+//			deltaX = (eunit.direction == 'r') ? 1 : 0;
+			if(eunit.epDistance<EP_DISTANCE_START_PATHFIND) {
+				//boolean playerSpotted = detectPlayerBeam(eunit.x, eunit.y, VISUAL_RANGE);
+				
+				boolean touchPlayer = senseRectangle.intersects(this.game.player);
+				boolean playerSpotted = touchPlayer || detectPlayer(eunit, deltaX, deltaY, VISUAL_RANGE);
+				if (playerSpotted) {
+					//System.out.println("playerSpotted "+playerSpotted);
+					eunit.state = ES_FOLLOW;
+					//System.out.println("playerSpotted "+playerSpotted);
+					this.game.sound.playSE(Sound.S_HEY);
+				}
+			}else {
+				//System.out.println("too far");
+			}
+			
+			
+			// System.out.println("playerSpotted "+playerSpotted);
+			
 			break;
 		case ES_FOLLOW:
 
@@ -388,8 +558,10 @@ public class Entity {
 
 			if (dX < ENTITY_ATTACK_DISTANCE && dY < ENTITY_ATTACK_DISTANCE) {
 				eunit.state = ES_ATTACK;
+				this.game.sound.playSE(Sound.S_SLASH);
 			} else if (dX > ENTITY_GIVEUP_DISTANCE || dY > ENTITY_GIVEUP_DISTANCE) {
 				eunit.state = ES_WANDER;
+				this.game.sound.playSE(Sound.S_SLASH);
 				// System.out.printf("player %d, %d entity: %d, %d
 				// \n",playerPos[0],playerPos[1],eunit.tileX,eunit.tileY);
 			}
@@ -416,7 +588,7 @@ public class Entity {
 
 	}
 
-	public void updateState8w(EntityUnit eunit) {
+	private void updateState8w(EntityUnit eunit) {
 		// for sensing player
 		if (eunit.state == ES_WANDER || eunit.state == ES_STAND) {
 			int deltaX = 0;
@@ -465,7 +637,7 @@ public class Entity {
 				deltaY = 0;
 				break;
 			}
-			boolean playerSpotted = senseBeam(eunit.tileX, eunit.tileY, deltaX, deltaY, VISUAL_RANGE);
+			boolean playerSpotted = detectPlayer(eunit , deltaX, deltaY, VISUAL_RANGE);
 			// System.out.println("playerSpotted "+playerSpotted);
 			if (playerSpotted) {
 				eunit.state = ES_FOLLOW;
@@ -552,6 +724,7 @@ public class Entity {
 
 	public void updatePosition(EntityUnit eunit) {
 		int[] deltaXY4 = { 0, 0 };
+		eunit.epDistance = entityPlayerDistance(eunit);
 
 		eunit.tileY = eunit.y / Game.TILE_SIZE;
 		eunit.tileX = eunit.x / Game.TILE_SIZE;
@@ -627,6 +800,7 @@ public class Entity {
 		// eunitA is unit current unit being moved, eunitB is other unit
 		eunitA.colliderTest.x = eunitA.x;
 		eunitA.colliderTest.y = eunitA.y;
+		
 
 		switch (eunitA.direction) {
 		case UP:
@@ -656,7 +830,7 @@ public class Entity {
 		eunitA.colliderTest.x = eunitA.x;
 		eunitA.colliderTest.y = eunitA.y;
 		for (EntityUnit eunitB : game.entity.entityUnits) {
-			if (eunitA.colliderTest.intersects(eunitB) && !(eunitB == eunitA)) {
+			if (eunitB.state!=ES_DEAD&&eunitA.colliderTest.intersects(eunitB) && !(eunitB == eunitA) ) {
 
 				return true;
 			}
@@ -1191,7 +1365,7 @@ public class Entity {
 			// stop
 			eunit.direction = NONE;
 		case 1:
-			switch (eunit.direction){
+			switch (eunit.direction) {
 			case UP:
 				eunit.direction = DOWN;
 				break;
@@ -1199,13 +1373,12 @@ public class Entity {
 				eunit.direction = UP;
 				break;
 			case LEFT:
-				eunit.direction= RIGHT;
+				eunit.direction = RIGHT;
 				break;
 			case RIGHT:
 				eunit.direction = LEFT;
 				break;
-				
-			
+
 			}
 			break;
 		case 2:

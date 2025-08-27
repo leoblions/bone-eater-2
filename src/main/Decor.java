@@ -28,11 +28,11 @@ public class Decor {
 	private static final String SPRITE_WALL_OVERLAY2 = "/images/tileWallOverlay2.png";
 	
 	// 100x100 outdoor
-	private static final String SPRITE_URL_OUTDOOR1 = "/images/decor_100_100_1.png";
+	//private static final String SPRITE_URL_OUTDOOR1 = "/images/decor_outdoor_furniture.png"; //16
 	// 100x200 outdoor
-	private static final String SPRITE_URL_OUTDOOR2 = "/images/decor_100_200_1.png";
+	//private static final String SPRITE_URL_OUTDOOR2 = "/images/decor_tall_plants.png"; //x8
 	// 100x100
-	private static final String SPRITE_URL_INDOOR1 = "/images/decor_100_100_2.png";
+	//private static final String SPRITE_URL_INDOOR1 = "/images/decor_100_100_2.png";
 	// private static int[] sizeArray;
 	Game game;
 	BufferedImage[] images;
@@ -50,6 +50,7 @@ public class Decor {
 	public final int RANDOM_ITEM_DENSITY = 50;
 	public final int MINIMUM_RANDOM_GRIDX = 300;
 	public final int Y_CUTOFF_OFFSET = 40;
+	public final int MAX_KIND = 100;
 	public int maxKind = 0;
 	// public Dictionary<int, Integer> kindMap;
 	int drawableRange;
@@ -138,7 +139,7 @@ public class Decor {
 	private void adjustSizesAndOffsets() {
 		// offsetX, offsetY, width, height
 		int colsSA = 4;
-		sizeArray = new int[images.length][colsSA];
+		sizeArray = new int[MAX_KIND][colsSA];
 		for (int i = 0; i < sizeArray.length; i++) {
 			if (i > 0 && i <= 15) {
 				sizeArray[i][SAFOFFSETX] = 0;
@@ -151,18 +152,23 @@ public class Decor {
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
 			}
-			if (i > 23 && i <= 39) {
+			else if (i > 23 && i <= 39) {
 				sizeArray[i][SAFOFFSETX] = 0;
 				sizeArray[i][SAFOFFSETY] = -50;
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
-			} else {
+			} else if(i> 47 && i< 56){
 				{
 					sizeArray[i][SAFOFFSETX] = 0;
-					sizeArray[i][SAFOFFSETY] = 0;
+					sizeArray[i][SAFOFFSETY] = -100;
 					sizeArray[i][SAFWIDTH] = 100;
-					sizeArray[i][SAFHEIGHT] = 100;
+					sizeArray[i][SAFHEIGHT] = 200;
 				}
+			}else {
+				sizeArray[i][SAFOFFSETX] = 0;
+				sizeArray[i][SAFOFFSETY] = 0;
+				sizeArray[i][SAFWIDTH] = 100;
+				sizeArray[i][SAFHEIGHT] = 100;
 			}
 		}
 
@@ -247,9 +253,12 @@ public class Decor {
 					screenX = worldX - game.cameraX;
 					screenY = worldY - game.cameraY;
 					int size[] = sizeArray[kind];
-
+					try {
 					game.g.drawImage(images[kind], screenX + size[SAFOFFSETX], screenY + size[SAFOFFSETY],
 							size[SAFWIDTH], size[SAFHEIGHT], null);
+					}catch(Exception e) {
+						
+					}
 
 				}
 
@@ -311,16 +320,16 @@ public class Decor {
 	}
 
 	private void initDecorImages() throws IOException {
-		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x
-		BufferedImage[] decorOverlay2 = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY2, 2, 4, 100, 100); // 8x
-		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR1, 4, 4, 100, 100); // 16x
-																													// 100x100
-		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter(SPRITE_URL_OUTDOOR2, 4, 2, 100, 200);// 8x
-																														// 100x200
-		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter(SPRITE_URL_INDOOR1, 4, 4, 100, 100);// 16x
+		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x 0-15
+		BufferedImage[] decorOverlay2 = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY2, 2, 4, 100, 100); // 8x 16-23
+		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter("/images/decor_outdoor_furniture.png", 4, 4, 100, 100); // 16x
+																													// 100x100 24-47
+		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter("/images/decor_tall_plants.png", 4, 2, 100, 200);// 8x
+																														// 100x200 48 - 55 
+		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter("/images/decor_100_100_2.png", 4, 4, 100, 100);// 16x 48 - 63
 		this.images = Imageutils.appendArray(decorOverlay, decorOverlay2);
 		this.images = Imageutils.appendArray(images, decorOutdoor);
-		this.images = Imageutils.appendArray(images, decorOutdoor);
+		//this.images = Imageutils.appendArray(images, decorOutdoor);
 		this.images = Imageutils.appendArray(images, decorOutdoorTall);// 100x100
 		
 		this.images = Imageutils.appendArray(images, common2Decor);

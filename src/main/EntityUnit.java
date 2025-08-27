@@ -67,6 +67,7 @@ public class EntityUnit extends Rectangle {
 	int gridX,gridY;
 	int locationOffsetX = 25;
 	int locationOffsetY  =35;
+	public int epDistance = 1000;
 	
 	boolean alive = true;
 	int screenX,screenY;
@@ -157,6 +158,18 @@ public class EntityUnit extends Rectangle {
 		//this.game.hud.updateHealthbar(this.health);
 		this.game.decal.putDecalAtTile(this.x, this.y, Decal.DK_BLOOD);
 		
+	}
+	
+	public void takeDamageFromPlayer(int damageAmount) {
+		if (this.state==Entity.ES_ATTACK ||this.state==Entity.ES_FOLLOW) {
+			damageAmount /=3;
+
+		}else {
+		
+		}
+		System.out.println("entity state "+this.state);
+		System.out.println("damage amt "+damageAmount);
+		takeDamage(  damageAmount) ;
 	}
 	
 

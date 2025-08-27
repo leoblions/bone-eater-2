@@ -130,6 +130,7 @@ public class Console {
 					}
 				game.editor.setAssetID(kind);
 				break;
+			
 			case "COLLISION":
 			case "COLL":
 				game.editor.editMode = Editor.COLLISION;
@@ -190,6 +191,13 @@ public class Console {
 				break;
 			case "ENTITY":
 				game.editor.editMode = 'e';
+				if (wordAmount != 2)
+					break;
+				kind = Integer.parseInt(splitCommand[1]);
+				game.editor.setAssetID(kind);
+				break;
+			case "PICKUP":
+				game.editor.editMode = 'p';
 				if (wordAmount != 2)
 					break;
 				kind = Integer.parseInt(splitCommand[1]);
@@ -294,15 +302,7 @@ public class Console {
 		}
 	}
 
-//	public void requestActivate() {
-//	if(!active && isReset) {
-//
-//		game.gameState=GameState.PAUSED;
-//		active = true;
-//	}else {
-//		game.gameState=GameState.PLAY;
-//	}
-//	}
+
 
 	public void update() {
 		// isReset = true;
@@ -314,14 +314,6 @@ public class Console {
 
 	}
 
-//	public void toggleDevConsole() {
-//		if(!active) {
-//			game.gameState=GameState.PAUSED;
-//			this.active = true;
-//		}else {
-//			game.gameState=GameState.PLAY;
-//		}
-//		
-//	}
+
 
 }

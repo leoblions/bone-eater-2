@@ -157,6 +157,7 @@ public class Player extends Rectangle{
 
 		this.state=ATTACK;
 		this.attackTimeout=ATTACK_TIMEOUT;
+		this.game.sound.playSE(Sound.S_SLASH);
 		
 	}
 	
@@ -172,7 +173,8 @@ public class Player extends Rectangle{
 		if(this.state == ATTACK) {
 			for(EntityUnit eunit: this.game.entity.entityUnits) {
 				if(eunit.enemy&& eunit.intersects(this)) {
-					eunit.takeDamage(PLAYER_DAMAGE_TO_ENEMY);
+					eunit.takeDamageFromPlayer(PLAYER_DAMAGE_TO_ENEMY);
+					this.game.sound.playSE(Sound.S_ROAR);
 					this.state = WALK;
 					break;
 				}

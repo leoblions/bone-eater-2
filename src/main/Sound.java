@@ -31,6 +31,14 @@ public class Sound {
 	boolean clipPlayFlags[];
 	boolean inputListenerAdded = false;
 	Delay soundDelay = new Delay();
+	private final boolean NO_DELAY = true;
+	public static final int S_ROAR = 0;
+	public static final int S_SLASH = 1;
+	public static final int S_STEPGRASS = 2;
+	public static final int S_STEPFLOOR = 3;
+	public static final int S_HEY = 4;
+	public static final int S_HIT = 5;
+	public static final int S_DIE = 6;
 	
 	public Sound(Game gp) {
 		this.gp=gp;
@@ -50,11 +58,11 @@ public class Sound {
 	
 	private void initFiles() {
 		this.soundURL = new URL[TOTAL_CLIPS];
-		soundURL[0]=getClass().getResource("/sound/aah.wav");
-		soundURL[1]=getClass().getResource("/sound/mmm.wav");
-		soundURL[2]=getClass().getResource("/sound/boing.wav");
-		soundURL[3]=getClass().getResource("/sound/coo.wav");
-		soundURL[4]=getClass().getResource("/sound/plop.wav");
+		soundURL[0]=getClass().getResource("/sound/roar.wav");
+		soundURL[1]=getClass().getResource("/sound/slash.wav");
+		soundURL[2]=getClass().getResource("/sound/stepgrass.wav");
+		soundURL[3]=getClass().getResource("/sound/stepfloor.wav");
+		soundURL[4]=getClass().getResource("/sound/hey.wav");
 	}
 	
 	private void initClips() {
@@ -99,7 +107,7 @@ public class Sound {
 	}
 	
 	public void playSE(int i) {
-		if (soundDelay.delayExpired()) {
+		if (soundDelay.delayExpired() ||NO_DELAY) {
 			if(soundEnabled) {
 				//System.out.println("playse");
 				setFile(i);
