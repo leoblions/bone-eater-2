@@ -83,7 +83,7 @@ public class Editor {
 			this.game.trigger.setTileGXY(gridX,gridY,delete);
 			break;
 		case PICKUP:
-			 delete = assetID==0;
+			 delete = assetID==-1;
 			this.game.pickup.setTileGXY(gridX,gridY,delete);
 			break;
 		case DECOR:
@@ -128,11 +128,11 @@ public class Editor {
 				this.game.tilegrid.loadTilegrid() ;
 			}
 			break;
-		case PICKUP: 
+		case PICKUP:  
 			if(save) {
-				this.game.pickup.saveRecordsToFile();
+				this.game.pickup.saveCurrentData();
 			}else {
-				this.game.pickup.loadRecordsFromFile() ;
+				this.game.pickup.loadCurrentData();
 			}
 			break;
 		case COLLISION: 

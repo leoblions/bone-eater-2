@@ -3,6 +3,7 @@ package main;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -39,6 +40,8 @@ public class Sound {
 	public static final int S_HEY = 4;
 	public static final int S_HIT = 5;
 	public static final int S_DIE = 6;
+	public static final int S_PICKUP = 7;
+	private LinkedList<Clip> clipsToClose;
 	
 	public Sound(Game gp) {
 		this.gp=gp;
@@ -47,6 +50,7 @@ public class Sound {
 		clipPlayFlags=new boolean[TOTAL_CLIPS];
 		soundPlayList = new ArrayList<Integer>();
 		splIterator = soundPlayList.iterator();
+		clipsToClose = new LinkedList<>();
 		//soundThread.start();
 		
 		
@@ -63,6 +67,9 @@ public class Sound {
 		soundURL[2]=getClass().getResource("/sound/stepgrass.wav");
 		soundURL[3]=getClass().getResource("/sound/stepfloor.wav");
 		soundURL[4]=getClass().getResource("/sound/hey.wav");
+		soundURL[5]=getClass().getResource("/sound/hit.wav");
+		soundURL[6]=getClass().getResource("/sound/die.wav");
+		soundURL[7]=getClass().getResource("/sound/pickup.wav");
 	}
 	
 	private void initClips() {
@@ -83,8 +90,8 @@ public class Sound {
 		
 	}
 	
-	public void setFile(int i) {
-		//ethod selects a sound file and creates objects needed to play it
+	public Clip setFile(int i) {
+		//method selects a sound file and creates objects needed to play it
 		try {
 			AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[i]); //create AIS from URL
 			clip = AudioSystem.getClip(); //get clip object for playing AIS object
@@ -92,8 +99,11 @@ public class Sound {
 		}catch (Exception e) {
 			
 		}
+		return clip;
 		
 	}
+	
+
 	
 	public void play() {
 		if(true) {
@@ -110,28 +120,43 @@ public class Sound {
 		if (soundDelay.delayExpired() ||NO_DELAY) {
 			if(soundEnabled) {
 				//System.out.println("playse");
-				setFile(i);
+				clip = setFile(i);
 				play();
 				soundDelay.setDelay(DELAY_TICKS);
+				///clip.close();
+				clipsToClose.add(clip);
 			}
 		}
 		
 		
 	}
-	
+ 
 	
 	
 	public void playClipSE(int i) {
 		if(soundEnabled) {
 			//System.out.println("playclipse");
 			clips[i].start();
-			clips[i].stop();
+			//clips[i].stop();
 		}
 		
 	}
 	
 	public void update() {
 		soundDelay.reduce();
+		if(soundDelay.delayExpired()) {
+			try {
+				for (Clip clip:clipsToClose) {
+					
+					if(clip!=null) clip.close();
+					
+				}
+				clipsToClose.clear();
+				
+			}catch(Exception e) {};
+			
+			
+		}
 		
 	}
 	

@@ -227,6 +227,7 @@ public class Console {
 			default:
 				System.err.printf("M No command found: %s\n", command);
 			}
+			this.game.editor.updateStrings();
 		}
 
 	}

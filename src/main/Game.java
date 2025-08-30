@@ -71,6 +71,7 @@ public class Game extends JPanel implements Runnable {
 	
 
 	public Game() {
+		level = 0;
 		lastTimeDraw = System.currentTimeMillis();
 		lastTimeUpdate = System.currentTimeMillis();
 		setPreferredSize(new Dimension(width, height));
@@ -159,6 +160,7 @@ public class Game extends JPanel implements Runnable {
 			this.tilegrid.loadTilegrid();
 			//this.wall.loadTilegrid();
 			this.collision.loadTilegrid();
+			this.pickup.loadCurrentData();
 		}
 		
 		

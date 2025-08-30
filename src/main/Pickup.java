@@ -4,6 +4,7 @@ package main;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -14,19 +15,36 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class Pickup {
-	private static final String DATA_FILE_PREFIX = "item";
-	private static final String DATA_FILE_SUFFIX = ".csv";
+	// statuses
+	public static final int VISIBLE = 1;
+	public static final int HIDDEN = 0;
+	public static final int COLLECTED = 1;
+	public static final int ACTIVE = 0;
+	public static final int INACTIVE = 1;
+	//level Data Fields
+	//
+	public static final int F_GRIDX = 0;
+	public static final int F_GRIDY = 1;
+	public static final int F_KIND = 2;
+	public static final int F_VISIBLE = 3;
+	public static final int F_COLLECTED = 4;
+	
+
+	private final int CHECK_TOUCHED_ITEM_PERIOD = 100;
+	
 	public final int ITEM_SCALE_PX = 25;
 	public final int ITEM_TLC_OFFSET= Game.TILE_SIZE/2;
 	public final float ITEM_DRAWSIZE_FACTOR = 0.5f;
 	public final int BOB_PIXELS_MAX = 10;
 	public final int BOB_RATE = 10;
 	final int MAX_KIND = 32;
-	public final int MINIMUM_RANDOM_GRIDX = 10;
-	public final int MINIMUM_RANDOM_GRIDY = 10;
-	public final int RANDOM_ITEM_DENSITY = 50;
-	public final int ITEM_DEFAULT_W = 50;
-	public final int ITEM_DEFAULT_H = 50;
+	private final int MINIMUM_RANDOM_GRIDX = 10;
+	private final int MINIMUM_RANDOM_GRIDY = 10;
+	private final static int RANDOM_ITEM_DENSITY = 50;
+	private final static int SPRITE_WIDTH = 100;
+	private static final int SPRITE_HEIGHT = 100;
+	private final int DRAW_WIDTH = 50;
+	private final int DRAW_HEIGHT = 50;
 	private final static String SPRITE_SHEET_ITEMS1 = "/images/pickups1.png";
 	private final static String SPRITE_SHEET_ITEMS2 = "/images/pickups1.png";
 	public final int BLANK_ITEM_TYPE = -1;
@@ -34,24 +52,28 @@ public class Pickup {
 	private int bobPixels = 0;
 	private int bobDelta = 1;
 	private int[] cullRegion;
+	Rectangle testRect;
 	
 	public BufferedImage[] itemImages;
 	static Game game;
-	int[][] itemGrid;
+	public ArrayList<int[]> levelData; // level data stored as ALOI
+	//Fields: gridX, gridY, kind, culled-state, ready/collected
 	Random random;
+	Pacer checkToucheditemPacer;
 	
 	Rectangle testRectangle;
 	Pickup(Game game) {
-		this.game=game;;
+		this.game=game;
+		checkToucheditemPacer = new Pacer(CHECK_TOUCHED_ITEM_PERIOD);
 		//this.itemGrid = new int[game.ROWS][game.COLS];
-		itemGrid = Utils.initBlankGrid(game.ROWS, game.COLS, BLANK_ITEM_TYPE);
+		levelData = new ArrayList<int[]>();
 		cullRegion = new int[4];
-		
+		testRect = new Rectangle(0,0,50,50);
 		testRectangle = new Rectangle(
 				0,
 				0,
-				ITEM_DEFAULT_W,
-				ITEM_DEFAULT_H);
+				DRAW_WIDTH,
+				DRAW_HEIGHT);
 		
 		try {
 			this.itemImages = getImages() ;
@@ -70,6 +92,27 @@ public class Pickup {
 			bobPixels += bobDelta;
 		}
 	}
+	
+	private void addPickup(int gridX,int gridY, int kind) {
+		int[] pickup = {gridX,gridY, kind, VISIBLE, ACTIVE};
+		this.levelData.add(pickup);
+	}
+	
+	public void saveCurrentData() {
+		String filename = this.game.pickup.getDataFileString();
+		Utils.saveRecordsToFile(filename,  levelData);
+	}
+	
+	public void loadCurrentData() {
+		String filename =  getDataFileString();
+		try {
+			 levelData = Utils.loadRecordsFromFile(filename) ;
+		} catch (FileNotFoundException e) {
+			System.err.println("Editor failed to load Pickup data");
+			e.printStackTrace();
+		}
+	}
+	
 	
 	
 	public void randomPlacePickup(int amount, int kind) {
@@ -91,7 +134,7 @@ public class Pickup {
 						continue;
 					}
 					try {
-						itemGrid[y][x] = kind;
+						addPickup(x,y,kind);
 					}catch(Exception e) {
 						
 					}
@@ -106,11 +149,22 @@ public class Pickup {
 	
 	
 	
-	public void pickupPickup(int item) {
-		System.out.println("Picked up item "+ item);
-		//game.inventory.addPickup(item, 1);
-		
-		//game.sound.clipPlayFlags[2]=true;
+	public void checkPickupTouchedPlayer() {
+		for(int[] pickup: levelData) {
+			if (pickup!=null && pickup[F_COLLECTED]==ACTIVE&&pickup[F_VISIBLE]==VISIBLE) {
+				int kind=pickup[F_KIND];
+				testRect.x = pickup[F_GRIDX] * Game.TILE_SIZE;
+				testRect.y = pickup[F_GRIDY] * Game.TILE_SIZE;
+				if(game.player.intersects(testRect)) {
+					System.out.println("Player pickup item "+kind);
+					pickup[F_COLLECTED]=COLLECTED;
+					pickup[F_VISIBLE]=HIDDEN;
+					this.game.sound.playSE(Sound.S_PICKUP);
+				}
+				
+				
+			}
+		}
 	
 		
 	}
@@ -146,28 +200,19 @@ public class Pickup {
 		}
 	
 	
-	public void update() {
-		updateCullRegion(cullRegion, 15);
-		calculateBob();
-		try {
-			itemsTouchedByPlayer();
-		}catch(Exception e) {
-			
-		}
+	public void update() { 
 		
-//		for (int item: itemsTouchedByPlayer) {
-//			if(item!=null) {
-//				
-//			}
-//			
-//		}
+		calculateBob();
+		if(checkToucheditemPacer.check()) {
+			checkPickupTouchedPlayer();
+		}
 		
 	}
 	
 	public static BufferedImage[] getImages() throws IOException {
-		BufferedImage[] items1 = new Imageutils(game).spriteSheetCutter(SPRITE_SHEET_ITEMS1, 4, 4, 50, 50);
+		BufferedImage[] items1 = new Imageutils(game).spriteSheetCutter(SPRITE_SHEET_ITEMS1, 4, 4, SPRITE_WIDTH, SPRITE_HEIGHT);
 
-		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter(SPRITE_SHEET_ITEMS2, 4, 4, 50, 50);
+		BufferedImage[] items2 = new Imageutils(game).spriteSheetCutter(SPRITE_SHEET_ITEMS2, 4, 4, SPRITE_WIDTH, SPRITE_HEIGHT);
 
 		BufferedImage[] itemImages = Imageutils.appendArray(items1, items2);
 		
@@ -201,86 +246,47 @@ public class Pickup {
 			return test;
 		}
 	}
-	/**
-	 * adds items that collide with player to a list
-	 */
-	public void itemsTouchedByPlayer() {
-		
-		//Rectangle itemRect;
-		
-		//Rectangle playerRect = game.player.wpSolidArea;
-		
-		// check items n unculled area
-		int pgX = game.player.x / Game.TILE_SIZE;
-		int pgY = game.player.y/ Game.TILE_SIZE;
-		int kind = itemGrid[pgY][pgX];
-		if (kind!=BLANK_ITEM_TYPE) {
-			itemGrid[pgY][pgX] = BLANK_ITEM_TYPE;
-			//System.out.println("Got item "+kind);
-			pickupPickup(kind);
-		}
-
-		
-		
-		
-		
-				
-	}
+	
 	/**
 	 * draws the items on screen, also adds onscreen items to a list
 	 */
 	public void draw() {
-		//int[] visible = game.visibleArea;
+		
 		int TopLeftCornerX = game.cameraX;
 		int TopLeftCornerY = game.cameraY;
-		int maxy = itemGrid.length;
-		int maxx = itemGrid[0].length;
-		int playerPos[] = this.game.player.getGridPosition();
-		int startx = clamp(0,maxx,playerPos[0]-10);
-		int starty = clamp(0,maxy,playerPos[0]+10);
-		int endx = clamp(0,maxx,playerPos[1]-10);
-		int endy = clamp(0,maxy,playerPos[1]+10);
+
+
 		int screenX,screenY;
-		int tmp;
+	
 		
 		
-		
-		for (int y = starty; y < endy; y++) {
-			
-			for (int x = startx; x < endx; x++) {
-				if (itemGrid[y][x]!=-1) {
-					
-					int kind=itemGrid[y][x];
-					int worldX = x * Game.TILE_SIZE;
-					int worldY = y * Game.TILE_SIZE;
-					screenX = worldX - TopLeftCornerX;
-					screenY = worldY - TopLeftCornerY;
-					
-					game.g.drawImage(
-							itemImages[kind],
-							screenX ,
-							screenY+bobPixels,
-							ITEM_DEFAULT_W,
-							ITEM_DEFAULT_H,
-							null);
-				} 
+		for (int[] pickup :this.levelData) {
+			if(pickup!=null&&pickup[F_VISIBLE]==VISIBLE&&pickup[F_COLLECTED]==ACTIVE) {
+				int kind=pickup[F_KIND];
+				int worldX = pickup[F_GRIDX] * Game.TILE_SIZE;
+				int worldY = pickup[F_GRIDY] * Game.TILE_SIZE;
+				screenX = worldX - TopLeftCornerX;
+				screenY = worldY - TopLeftCornerY;
+				
+				game.g.drawImage(
+						itemImages[kind],
+						screenX ,
+						screenY+bobPixels,
+						DRAW_WIDTH,
+						DRAW_HEIGHT,
+						null);
 				
 			}
+			
+			
+				
+				
+			
 			
 		}
 	}
 	
-	public void addPickup(int tileGridX, int tileGridY, int kind) {
-		modified = true;
-		try {
-			itemGrid[tileGridY][tileGridX] = kind;
-		}catch(Exception e) {
-			
-		}
-		
-		 
-		
-	}
+
 	
 	
 	public boolean validateAssetID(int testAssetID) {
@@ -302,11 +308,38 @@ public class Pickup {
 		
 		return true;
 	}
+	
+	private int getIndexLevelData(int gridX,int gridY) {
+		for (int i = 0;i< this.levelData.size();i++) {
+			int[] pickup = this.levelData.get(i);
+			if(pickup!=null&&pickup[F_VISIBLE]==VISIBLE&&pickup[F_COLLECTED]==ACTIVE) {
+				int kind=pickup[F_KIND];
+				int tgridX = pickup[F_GRIDX] ;
+				int tgridY = pickup[F_GRIDY] ;
+				if(tgridX==gridX&&tgridY==gridY) {
+					return i;
+				}
+				
+				
+			}
+
+		}
+		return-1;
+		
+	}
 
 
 	public void paintPickup(int gridX, int gridY, int kind) {
 		try {
-			this.itemGrid[gridY][gridX] = kind;
+			int existingItemIndex = getIndexLevelData(gridX, gridY);
+			if(-1==existingItemIndex) {
+				addPickup(gridX, gridY, kind);
+			}else {
+				int[] recordToModify = this.levelData.get(existingItemIndex);
+				recordToModify[F_KIND]=kind;
+				recordToModify[F_COLLECTED]=ACTIVE;
+				recordToModify[F_VISIBLE]= VISIBLE;
+			}
 			modified=true;
 			if(game.editor.delete) {
 				kind = -1;
@@ -318,19 +351,44 @@ public class Pickup {
 		} 
 	
 	}
-
-	public void saveRecordsToFile() {
-		// TODO Auto-generated method stub
-		
+	
+	public String getDataFileString() {
+		return  String.format("pickup %d.csv",game.level ) ;
 	}
 
-	public void loadRecordsFromFile() {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	public void setTileGXY(int gridX, int gridY, boolean delete) {
-		// TODO Auto-generated method stub
+		int kind = this.game.editor.assetID;
+		if (delete) {
+			kind = -1;
+		}
+		
+		try {
+			int existingItemIndex = getIndexLevelData(gridX, gridY);
+			if(-1==existingItemIndex && kind!=-1) {
+				addPickup(gridX, gridY, kind);
+			}else {
+				int[] recordToModify = this.levelData.get(existingItemIndex);
+				if(delete) {
+					this.levelData.remove(existingItemIndex);
+				}else {
+					recordToModify[F_KIND]=kind;
+					recordToModify[F_COLLECTED]=ACTIVE;
+					recordToModify[F_VISIBLE]= VISIBLE;
+				}
+				
+				
+			}
+			modified=true;
+			if(game.editor.delete) {
+				kind = -1;
+			}
+			System.err.println(kind);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		} 
 		
 	}
 

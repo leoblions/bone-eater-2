@@ -82,6 +82,7 @@ public class Entity {
 	final int SPEED_CHASE = 5;
 	final int TICKS_PER_FRAME = 10;
 	final int ATTACK_HIT_TICK_PERIOD = 10;
+	private final int HITBOX_SIZE = 30;
 
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
 	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
@@ -120,12 +121,13 @@ public class Entity {
 	public boolean frozen = false;
 	public boolean drawHitbox = true;
 	public boolean activateEntityUnitFlag;
+	
 
 	public Entity(Game game) {
 		this.game = game;
 		entityUnits = new ArrayList<>();
 		entityTouchedList = new ArrayList<>();
-		this.hitbox = new Rectangle(10, 10, 10, 10);
+		this.hitbox = new Rectangle(10, 10,HITBOX_SIZE, HITBOX_SIZE);
 
 		// this.addEntity(5, 5, 0, 0);
 		entityActivateDalay = new Delay();
@@ -396,10 +398,10 @@ public class Entity {
 			} catch (Exception e) {
 				isWall = true;
 			}
-			if(null!=this.game.g) {
+			try {
 				this.game.g.setColor(Color.cyan);
 				this.game.g.fillRect(currGridX*this.game.TILE_SIZE-this.game.cameraX, currGridY*this.game.TILE_SIZE-this.game.cameraY, 3, 3);
-			}
+			}catch (Exception e) {};
 			
 			
 			isPlayer = (playerPos[0] == currGridX && playerPos[1] == currGridY);
@@ -494,6 +496,7 @@ public class Entity {
 		if (eunit.health <= 0 && eunit.state != ES_DEAD) {
 			eunit.state = ES_DEAD;
 			eunit.currentImageIndex = 0;
+			game.sound.playSE(Sound.S_DIE);
 		}
 		switch (eunit.state) {
 		case ES_WANDER:
