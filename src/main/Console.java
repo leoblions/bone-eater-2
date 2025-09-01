@@ -3,6 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 
+import main.Game.GState;
+
 public class Console {
 	/*
 	 * Activate the dev console with ` parses single or multi part commands to
@@ -41,7 +43,7 @@ public class Console {
 	}
 
 	public void draw() {
-		if (game.gameState == 'c') {
+		if (game.gameState == GState.CONSOLE) {
 			game.g.setColor(background);
 			game.g.fillRect(screenX, screenY, width, height);
 			game.g.setColor(frame);
@@ -263,7 +265,7 @@ public class Console {
 	}
 
 	public void sendKeyEvent(KeyEvent e) {
-		if (!(game.gameState == 'c') || debounceCounter > 0) {
+		if (!(game.gameState == GState.CONSOLE) || debounceCounter > 0) {
 			return;
 		} else {
 			debounceCounter = DEBOUNCE_COUNTER;
@@ -307,7 +309,7 @@ public class Console {
 
 	public void update() {
 		// isReset = true;
-		if (game.gameState == 'c') {
+		if (game.gameState == GState.CONSOLE) {
 			if (debounceCounter > 0)
 				debounceCounter--;
 

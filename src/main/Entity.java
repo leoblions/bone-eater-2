@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import main.Game.GState;
+
 /**
  * Entity records 0=gx,1=gy,2=kind,3=uid Each room has its own records csv file,
  * that's loaded on entry. CSV data is converted into LOIA, which is used to
@@ -298,7 +300,7 @@ public class Entity {
 
 	private void updateFrozenState() {
 
-		if (game.gameState != 'p') {
+		if (game.gameState != GState.PLAY) {
 			frozen = true;
 		} else {
 			frozen = false;

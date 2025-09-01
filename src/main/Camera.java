@@ -3,6 +3,7 @@ package main;
 public class Camera {
 	//leash camera
 	Game game;
+	final int MOVE_BORDER = 150;
 	int screenCenterWorldX, screenCenterWorldY;
 	double playerCenterDistance;
 	public final double MOVE_CAMERA_THRESHOLD_DISTANCE = 100;
@@ -15,13 +16,18 @@ public class Camera {
 		 */
 		this.game=game;
 		System.out.println("camera created");
+		initBounds();
+		
+		
+	}
+	
+	public void initBounds() {
 		screenCenterWorldX=game.cameraX+(game.WIDTH/2);
 		screenCenterWorldY=game.cameraY+(game.HEIGHT/2);
-		thresholdX1 = 100;
-		thresholdX2 = 400;
-		thresholdY1= 100;
-		thresholdY2=400;
-		
+		thresholdX1 = MOVE_BORDER;
+		thresholdX2 = game.width - MOVE_BORDER;
+		thresholdY1= MOVE_BORDER;
+		thresholdY2=game.height-MOVE_BORDER;
 	}
 	
 	public double distance(int x1, int y1, int x2, int y2) {

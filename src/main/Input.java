@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import main.Game.GState;
+
 public class Input {
 	
 	Game game;
@@ -35,7 +37,7 @@ public class Input {
 			this.game.player.run=true;
 		}
 		
-		if(  this.game.gameState=='c') {
+		if(  this.game.gameState==GState.CONSOLE) {
 			this.game.console.sendKeyEvent(e);
 			return;
 		}
@@ -93,6 +95,9 @@ public class Input {
 		case KeyEvent.VK_BACK_QUOTE:
 			this.game.toggleConsole();
 			
+		case KeyEvent.VK_ESCAPE:
+			this.game.toggleState(GState.MENU,GState.PLAY);
+			System.out.println(this.game.gameState.toString());
 			
 
 			break;

@@ -61,7 +61,7 @@ public class Decor {
 	private int xstart, xend, ystart, yend, yCutoff;
 	int rows, cols;
 	int[][] grid;
-
+	
 	int[][] sizeArray; // offsetX, offsetY, width, height
 
 	public Decor(Game game) {
@@ -139,7 +139,7 @@ public class Decor {
 	private void adjustSizesAndOffsets() {
 		// offsetX, offsetY, width, height
 		int colsSA = 4;
-		sizeArray = new int[MAX_KIND][colsSA];
+		this.sizeArray = new int[MAX_KIND][colsSA];
 		for (int i = 0; i < sizeArray.length; i++) {
 			if (i > 0 && i <= 15) {
 				sizeArray[i][SAFOFFSETX] = 0;
@@ -154,10 +154,10 @@ public class Decor {
 			}
 			else if (i > 23 && i <= 39) {
 				sizeArray[i][SAFOFFSETX] = 0;
-				sizeArray[i][SAFOFFSETY] = -50;
+				sizeArray[i][SAFOFFSETY] = 0;
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
-			} else if(i> 47 && i< 56){
+			} else if(i> 40 && i< 50){
 				{
 					sizeArray[i][SAFOFFSETX] = 0;
 					sizeArray[i][SAFOFFSETY] = -100;
@@ -225,19 +225,41 @@ public class Decor {
 		ystart = y1;
 		xend = x2;
 		yend = y2;
+		yCutoff =  (game.player.y +50 )/ game.TILE_SIZE;
 
 	}
-
 	public void draw() {
-		// render tiles above yCutoff first, then render Actors, then render lower Decor
-		// Sprites on top
+		draw('d');
+		
+	}
+
+	public void draw(char plane) {
+/*
+ * 		 this function gets called twice per frame, so decor items appear in front or behind player.
+		 render tiles above yCutoff first, then render Actors, then render lower Decor
+		 Sprites on top are below player character, second call to this function.
+		 plane is b for background, f for foreground
+ */
 
 		int screenX, screenY;
+		int yStartModified, yEndModified;
 
-		yCutoff = 25;
+		
+		if(plane=='b') {
+			yStartModified = ystart;
+			yEndModified = yCutoff;
+			
+		}else if(plane=='f') {
+			yStartModified = yCutoff;
+			yEndModified = yend;
+			
+		}else {
+			yStartModified = ystart;
+			yEndModified = yend;
+		}
 
 		for (int x = xstart; x < xend; x++) {
-			for (int y = ystart; y < yCutoff; y++) {
+			for (int y = yStartModified; y < yEndModified; y++) {
 				int kind = -1;
 				try {
 					kind = grid[y][x];
@@ -366,5 +388,6 @@ public class Decor {
 		}
 
 	}
+	
 
 }
