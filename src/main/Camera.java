@@ -3,7 +3,7 @@ package main;
 public class Camera {
 	//leash camera
 	Game game;
-	final int MOVE_BORDER = 150;
+	final int MOVE_BORDER = 200;
 	int screenCenterWorldX, screenCenterWorldY;
 	double playerCenterDistance;
 	public final double MOVE_CAMERA_THRESHOLD_DISTANCE = 100;

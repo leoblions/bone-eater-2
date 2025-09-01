@@ -52,6 +52,7 @@ public class Decor {
 	public final int Y_CUTOFF_OFFSET = 40;
 	public final int MAX_KIND = 100;
 	public int maxKind = 0;
+	private int drawRangeTilesX, drawRangeTilesY;
 	// public Dictionary<int, Integer> kindMap;
 	int drawableRange;
 	//final int MAX_KIND = 32;
@@ -68,6 +69,7 @@ public class Decor {
 		this.game = game;
 		this.cols = Game.COLS;
 		this.rows = Game.ROWS;
+		
 
 		// grid = new int[game.ROWS][game.COLS];
 		grid = Utils.initBlankGrid(game.ROWS, game.COLS, BLANK_DECOR_TYPE);
@@ -84,7 +86,13 @@ public class Decor {
 		this.grid = Utils.initGrid(rows, cols, BLANK_DECOR_TYPE);
 		loadGridCurrentRoom();
 		adjustSizesAndOffsets();
+		setDrawDistance();
 
+	}
+	
+	public void setDrawDistance() {
+		this.drawRangeTilesX = this.game.getWidth() / this.game.TILE_SIZE;
+		this.drawRangeTilesY = this.game.getHeight() / this.game.TILE_SIZE;
 	}
 
 	public void loadGridCurrentRoom() {
@@ -211,10 +219,10 @@ public class Decor {
 
 	private void updateDrawRange() {
 		int playerGP[] = this.game.player.getGridPosition();
-		int x1 = playerGP[0] - DRAW_RANGE_TILES;
-		int x2 = playerGP[0] + DRAW_RANGE_TILES;
-		int y1 = playerGP[1] - DRAW_RANGE_TILES;
-		int y2 = playerGP[1] + DRAW_RANGE_TILES;
+		int x1 = playerGP[0] -  this.drawRangeTilesX;
+		int x2 = playerGP[0] +  this.drawRangeTilesX;
+		int y1 = playerGP[1] -  this.drawRangeTilesY;
+		int y2 = playerGP[1] +  this.drawRangeTilesY;
 		x1 = Math.max(0, x1);
 		y1 = Math.max(0, y1);
 		x2 = Math.max(x2, cols - 1);
@@ -325,7 +333,11 @@ public class Decor {
 	}
 
 	public void update() {
+		if(this.drawRangeTilesX<=0||this.drawRangeTilesY<=0) {
+			setDrawDistance();
+		}
 		updateDrawRange();
+		
 	}
 
 	public boolean visibleOnScreen(int worldX, int worldY) {

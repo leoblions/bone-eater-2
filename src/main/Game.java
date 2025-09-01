@@ -167,12 +167,17 @@ public class Game extends JPanel implements Runnable {
 		System.out.println(gameThread.isAlive());
 
 		if (LOAD_FIRST_LEVEL) {
-			this.tilegrid.loadTilegrid();
-			// this.wall.loadTilegrid();
-			this.collision.loadTilegrid();
-			this.pickup.loadCurrentData();
+			loadLevel(level);;
 		}
 
+	}
+	
+	public void loadLevel(int level) {
+		this.tilegrid.loadTilegrid();
+		// this.wall.loadTilegrid();
+		this.entity.startLevel(level);
+		this.collision.loadTilegrid();
+		this.pickup.loadCurrentData();
 	}
 
 	void myAddMouseListener() {
@@ -348,6 +353,7 @@ public class Game extends JPanel implements Runnable {
 
 	public void resizeWindow() {
 		this.camera.initBounds();
+		this.decor.setDrawDistance();
 		
 	}
 }

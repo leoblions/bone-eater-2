@@ -140,7 +140,14 @@ public class Entity {
 
 		playerCollider = new Rectangle();
 		senseRectangle = new Rectangle();
+		
+		//startLevel(this.game.level);
 
+		
+	}
+	
+	public void startLevel(int level) {
+		this.entityUnits.clear();
 		this.addEntityGrid(5, 5, 0, 's', 1);
 		this.addEntityGrid(10, 4, 0, 'w', 1);
 		this.addEntityGrid(24, 8, 0, 'w', 1);
@@ -389,11 +396,12 @@ public class Entity {
 		int currGridX = eunit.tileX ;
 		int currGridY = eunit.tileY ;
 		int playerPos[] = this.game.player.getGridPosition();
-		boolean isWall = false;
-		boolean isPlayer = false;
+		boolean isWall, isWallL, isWallR = false;
+		boolean isPlayer, isPlayerR, isPlayerL = false;
+		int tileLX,tileLY,tileRX,tileRY;
 		//String dbgString = "";
 		//System.out.println("Player "+playerPos[0] + " "+playerPos[1]);
-		for (int i = 0; i < iterations; i++) {
+		FWD_SENSE:for (int i = 0; i < iterations; i++) {
 			//dbgString += String.format("x:%dy:%d  ", currGridX,currGridY);
 			try {
 				isWall = this.game.pathfind.wallgrid[currGridY][currGridX];
@@ -413,11 +421,57 @@ public class Entity {
 				return true;
 			} else if (!isPlayer && isWall) {
 				//System.out.println(dbgString);
-				return false;
+				break FWD_SENSE;
 			}
 			currGridX += deltaX;
 			currGridY += deltaY;
 
+		}
+		switch(eunit.direction) {
+		case 'u':
+			tileLX = eunit.tileX -1;
+			tileLY = eunit.tileY -1;
+			tileRX = eunit.tileX +1;
+			tileRY = eunit.tileY -1;
+			break;
+		case 'd':
+			tileLX = eunit.tileX +1;
+			tileLY = eunit.tileY +1;
+			tileRX = eunit.tileX -1;
+			tileRY = eunit.tileY +1;
+			break;
+		case 'l':
+			tileLX = eunit.tileX -1;
+			tileLY = eunit.tileY +1;
+			tileRX = eunit.tileX -1;
+			tileRY = eunit.tileY -1;
+			break;
+		case 'r':
+			tileLX = eunit.tileX +1;
+			tileLY = eunit.tileY -1;
+			tileRX = eunit.tileX +1;
+			tileRY = eunit.tileY +1;
+			break;
+		case 'n':
+		default:
+			return false;
+		}
+		try {
+			isWallL = this.game.pathfind.wallgrid[currGridY][currGridX];
+			isWallR = this.game.pathfind.wallgrid[currGridY][currGridX];
+			isPlayerL = (playerPos[0] == tileLX && playerPos[1] == tileLY);
+			isPlayerR = (playerPos[0] == tileRX && playerPos[1] == tileRY);
+			
+		}catch(Exception e) {
+			isWallL = true;
+			isWallR = true;
+			isPlayerL = false;
+			isPlayerR = false;
+			
+			
+		}
+		if((!isWallL&&isPlayerL)||(!isWallR&&isPlayerR)) {
+			return true;
 		}
 		//System.out.println(dbgString);
 		return false;
@@ -593,70 +647,70 @@ public class Entity {
 
 	}
 
-	private void updateState8w(EntityUnit eunit) {
-		// for sensing player
-		if (eunit.state == ES_WANDER || eunit.state == ES_STAND) {
-			int deltaX = 0;
-			int deltaY = 0;
-			int d8 = eunit.direction8w;
-
-//			 deltaY = (eunit.direction=='d')?1:0;
-//			 deltaY = (eunit.direction=='u')?-1:0;
-//			 deltaX = (eunit.direction=='l')?-1:0;
-//			 deltaX = (eunit.direction=='r')?1:0;
-			switch (d8) {
-			case 0:
-				deltaX = 0;
-				deltaY = -1;
-				break;
-			case 1:
-				deltaX = 1;
-				deltaY = -1;
-				break;
-			case 2:
-				deltaX = 1;
-				deltaY = 0;
-				break;
-			case 3:
-				deltaX = 1;
-				deltaY = 1;
-				break;
-			case 4:
-				deltaX = 0;
-				deltaY = 1;
-				break;
-			case 5:
-				deltaX = -1;
-				deltaY = 1;
-				break;
-			case 6:
-				deltaX = -1;
-				deltaY = 0;
-				break;
-			case 7:
-				deltaX = -1;
-				deltaY = -1;
-				break;
-			case 8:
-				deltaX = 0;
-				deltaY = 0;
-				break;
-			}
-			boolean playerSpotted = detectPlayer(eunit , deltaX, deltaY, VISUAL_RANGE);
-			// System.out.println("playerSpotted "+playerSpotted);
-			if (playerSpotted) {
-				eunit.state = ES_FOLLOW;
-			}
-
-		} else if (eunit.state == ES_FOLLOW) {
-			int playerPos[] = this.game.player.getGridPosition();
-			if (eunit.tileX == playerPos[0] && eunit.tileY == playerPos[1]) {
-				eunit.direction = ES_ATTACK;
-			}
-
-		}
-
-	}
+//	private void updateState8w(EntityUnit eunit) {
+//		// for sensing player
+//		if (eunit.state == ES_WANDER || eunit.state == ES_STAND) {
+//			int deltaX = 0;
+//			int deltaY = 0;
+//			int d8 = eunit.direction8w;
+//
+////			 deltaY = (eunit.direction=='d')?1:0;
+////			 deltaY = (eunit.direction=='u')?-1:0;
+////			 deltaX = (eunit.direction=='l')?-1:0;
+////			 deltaX = (eunit.direction=='r')?1:0;
+//			switch (d8) {
+//			case 0:
+//				deltaX = 0;
+//				deltaY = -1;
+//				break;
+//			case 1:
+//				deltaX = 1;
+//				deltaY = -1;
+//				break;
+//			case 2:
+//				deltaX = 1;
+//				deltaY = 0;
+//				break;
+//			case 3:
+//				deltaX = 1;
+//				deltaY = 1;
+//				break;
+//			case 4:
+//				deltaX = 0;
+//				deltaY = 1;
+//				break;
+//			case 5:
+//				deltaX = -1;
+//				deltaY = 1;
+//				break;
+//			case 6:
+//				deltaX = -1;
+//				deltaY = 0;
+//				break;
+//			case 7:
+//				deltaX = -1;
+//				deltaY = -1;
+//				break;
+//			case 8:
+//				deltaX = 0;
+//				deltaY = 0;
+//				break;
+//			}
+//			boolean playerSpotted = detectPlayer(eunit , deltaX, deltaY, VISUAL_RANGE);
+//			// System.out.println("playerSpotted "+playerSpotted);
+//			if (playerSpotted) {
+//				eunit.state = ES_FOLLOW;
+//			}
+//
+//		} else if (eunit.state == ES_FOLLOW) {
+//			int playerPos[] = this.game.player.getGridPosition();
+//			if (eunit.tileX == playerPos[0] && eunit.tileY == playerPos[1]) {
+//				eunit.direction = ES_ATTACK;
+//			}
+//
+//		}
+//
+//	}
 
 	private int[] attackMotion(EntityUnit eunit) {
 		int[] deltaXY4 = { 0, 0 };
@@ -800,7 +854,7 @@ public class Entity {
 
 	}
 
-	public boolean moveOverlapsOtherEntityUnit(EntityUnit eunitA) {
+	private boolean moveOverlapsOtherEntityUnit(EntityUnit eunitA) {
 		// stop enemies and NPCs from overlapping
 		// eunitA is unit current unit being moved, eunitB is other unit
 		eunitA.colliderTest.x = eunitA.x;
@@ -980,7 +1034,7 @@ public class Entity {
 
 	}
 
-	public void drawSolidArea(Rectangle solidArea) {
+	private void drawSolidArea(Rectangle solidArea) {
 		if (game.g == null)
 			return;
 		game.g.setColor(Color.black);
@@ -1029,32 +1083,29 @@ public class Entity {
 		}
 	}
 
-	private void cycleSpriteAttack(EntityUnit eunit) {
-		int directionIndexpart = 0;
-		switch (eunit.direction) {
-
-		case UP:
-			directionIndexpart = 0;
-			break;
-		case DOWN:
-			directionIndexpart = 4;
-			break;
-		case LEFT:
-			directionIndexpart = 8;
-			break;
-		case RIGHT:
-			directionIndexpart = 12;
-			break;
-		default:
-			directionIndexpart = 4;
-		}
-	}
+//	private void cycleSpriteAttack(EntityUnit eunit) {
+//		int directionIndexpart = 0;
+//		switch (eunit.direction) {
+//
+//		case UP:
+//			directionIndexpart = 0;
+//			break;
+//		case DOWN:
+//			directionIndexpart = 4;
+//			break;
+//		case LEFT:
+//			directionIndexpart = 8;
+//			break;
+//		case RIGHT:
+//			directionIndexpart = 12;
+//			break;
+//		default:
+//			directionIndexpart = 4;
+//		}
+//	}
 
 	private void cycleSprite(EntityUnit eunit) {
-//		if (eunit.state=='a') {
-//			cycleSpriteAttack(eunit);
-//			return;
-//		}
+ 
 		int directionIndexpart = 0;
 
 		switch (eunit.direction) {
@@ -1151,36 +1202,36 @@ public class Entity {
 		eunit.y += deltaY;
 	}
 
-	private void moveDirection4W(EntityUnit eunit) {
-
-		if (eunit.state == 'w') {
-			eunit.currentSpeed = SPEED_WALK;
-		} else if (eunit.state == 'f') {
-			eunit.currentSpeed = SPEED_CHASE;
-		} else {
-			eunit.currentSpeed = 0;
-		}
-		switch (eunit.direction) {
-		case 'n':
-			break;
-		case UP:
-			eunit.y += -eunit.currentSpeed;
-
-			break;
-		case DOWN:
-			eunit.y += eunit.currentSpeed;
-			break;
-		case LEFT:
-			eunit.x += -eunit.currentSpeed;
-			break;
-		case RIGHT:
-			eunit.x += eunit.currentSpeed;
-			break;
-		default:
-			break;
-
-		}
-	}
+//	private void moveDirection4W(EntityUnit eunit) {
+//
+//		if (eunit.state == 'w') {
+//			eunit.currentSpeed = SPEED_WALK;
+//		} else if (eunit.state == 'f') {
+//			eunit.currentSpeed = SPEED_CHASE;
+//		} else {
+//			eunit.currentSpeed = 0;
+//		}
+//		switch (eunit.direction) {
+//		case 'n':
+//			break;
+//		case UP:
+//			eunit.y += -eunit.currentSpeed;
+//
+//			break;
+//		case DOWN:
+//			eunit.y += eunit.currentSpeed;
+//			break;
+//		case LEFT:
+//			eunit.x += -eunit.currentSpeed;
+//			break;
+//		case RIGHT:
+//			eunit.x += eunit.currentSpeed;
+//			break;
+//		default:
+//			break;
+//
+//		}
+//	}
 
 	private int[] calculateMoveFromDirection4W(EntityUnit eunit) {
 		int[] deltaXY = { 0, 0 };
@@ -1246,109 +1297,109 @@ public class Entity {
 		return deltaXY;
 	}
 
-	private int[] calculateMoveFromDirection8W(EntityUnit eunit) {
-		// returns change in X and change in Y for entity in World Coords
-		// does not move the entity
-
-		/**
-		 * 0 top 1 trc 2 right 3 brc 4 bottom 5 blc 6 left 7 tlc 8 neutral
-		 */
-		int[] deltaXY = { 0, 0 };
-
-		if (eunit.state == 'w') {
-			eunit.currentSpeed = SPEED_WALK;
-		} else if (eunit.state == 'f') {
-			eunit.currentSpeed = SPEED_CHASE;
-		} else {
-			eunit.currentSpeed = 0;
-		}
-		// eunit.worldX = 0;
-		// eunit.worldY = 0;
-		// System.out.println("speed "+ eunit.currentSpeed);
-		switch (eunit.direction8w) {
-		case 8:
-			break;
-		case 0:
-			deltaXY[0] += -eunit.currentSpeed;
-
-			break;
-		case 1:
-			deltaXY[0] += eunit.currentSpeed;
-			deltaXY[1] += -eunit.currentSpeed;
-			break;
-		case 2:
-			deltaXY[0] += eunit.currentSpeed;
-			break;
-		case 3:
-			deltaXY[0] += eunit.currentSpeed;
-			deltaXY[1] += eunit.currentSpeed;
-			break;
-		case 4:
-			deltaXY[1] += eunit.currentSpeed;
-
-			break;
-		case 5:
-			deltaXY[1] += eunit.currentSpeed;
-			deltaXY[0] += -eunit.currentSpeed;
-			break;
-		case 6:
-			deltaXY[0] += -eunit.currentSpeed;
-			break;
-		case 7:
-			deltaXY[0] += -eunit.currentSpeed;
-			deltaXY[1] += -eunit.currentSpeed;
-			break;
-		default:
-//			eunit.worldY = 0;
-//			eunit.worldY = 0;
-			break;
-
-		}
-		// System.out.println("d8w "+eunit.direction8w);
-		return deltaXY;
-	}
-
-	private boolean inbounds(EntityUnit eunit) {
-
-		if (eunit.x >= 0 && eunit.x + eunit.width < game.worldSizePxX && eunit.y >= 0
-				&& eunit.y + eunit.height < game.worldSizePxY) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+//	private int[] calculateMoveFromDirection8W(EntityUnit eunit) {
+//		// returns change in X and change in Y for entity in World Coords
+//		// does not move the entity
+//
+//		/**
+//		 * 0 top 1 trc 2 right 3 brc 4 bottom 5 blc 6 left 7 tlc 8 neutral
+//		 */
+//		int[] deltaXY = { 0, 0 };
+//
+//		if (eunit.state == 'w') {
+//			eunit.currentSpeed = SPEED_WALK;
+//		} else if (eunit.state == 'f') {
+//			eunit.currentSpeed = SPEED_CHASE;
+//		} else {
+//			eunit.currentSpeed = 0;
+//		}
+//		// eunit.worldX = 0;
+//		// eunit.worldY = 0;
+//		// System.out.println("speed "+ eunit.currentSpeed);
+//		switch (eunit.direction8w) {
+//		case 8:
+//			break;
+//		case 0:
+//			deltaXY[0] += -eunit.currentSpeed;
+//
+//			break;
+//		case 1:
+//			deltaXY[0] += eunit.currentSpeed;
+//			deltaXY[1] += -eunit.currentSpeed;
+//			break;
+//		case 2:
+//			deltaXY[0] += eunit.currentSpeed;
+//			break;
+//		case 3:
+//			deltaXY[0] += eunit.currentSpeed;
+//			deltaXY[1] += eunit.currentSpeed;
+//			break;
+//		case 4:
+//			deltaXY[1] += eunit.currentSpeed;
+//
+//			break;
+//		case 5:
+//			deltaXY[1] += eunit.currentSpeed;
+//			deltaXY[0] += -eunit.currentSpeed;
+//			break;
+//		case 6:
+//			deltaXY[0] += -eunit.currentSpeed;
+//			break;
+//		case 7:
+//			deltaXY[0] += -eunit.currentSpeed;
+//			deltaXY[1] += -eunit.currentSpeed;
+//			break;
+//		default:
+////			eunit.worldY = 0;
+////			eunit.worldY = 0;
+//			break;
+//
+//		}
+//		// System.out.println("d8w "+eunit.direction8w);
+//		return deltaXY;
+//	}
+//
+//	private boolean inbounds(EntityUnit eunit) {
+//
+//		if (eunit.x >= 0 && eunit.x + eunit.width < game.worldSizePxX && eunit.y >= 0
+//				&& eunit.y + eunit.height < game.worldSizePxY) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
 
 	/**
 	 * returns true if character bumped the main border
 	 * 
 	 * @return
 	 */
-	private boolean borderBump(EntityUnit eunit) {
-
-		int velXLocal = 0;
-		int velYLocal = 0;
-
-		if (eunit.x < 0) {
-			velXLocal = eunit.currentSpeed;
-
-		} else if (eunit.x + eunit.width >= game.worldSizePxX) {
-			velXLocal = -eunit.currentSpeed;
-
-		} else if (eunit.y < 0) {
-			velYLocal = eunit.currentSpeed;
-
-		} else if (eunit.y + eunit.height >= game.worldSizePxY) {
-			velYLocal = -eunit.currentSpeed;
-
-		} else {
-			return false;
-		}
-
-		eunit.x += velXLocal;
-		eunit.y += velYLocal;
-
-		return true;
-	}
+//	private boolean borderBump(EntityUnit eunit) {
+//
+//		int velXLocal = 0;
+//		int velYLocal = 0;
+//
+//		if (eunit.x < 0) {
+//			velXLocal = eunit.currentSpeed;
+//
+//		} else if (eunit.x + eunit.width >= game.worldSizePxX) {
+//			velXLocal = -eunit.currentSpeed;
+//
+//		} else if (eunit.y < 0) {
+//			velYLocal = eunit.currentSpeed;
+//
+//		} else if (eunit.y + eunit.height >= game.worldSizePxY) {
+//			velYLocal = -eunit.currentSpeed;
+//
+//		} else {
+//			return false;
+//		}
+//
+//		eunit.x += velXLocal;
+//		eunit.y += velYLocal;
+//
+//		return true;
+//	}
 
 	private void setDirectionByPathFind(EntityUnit eunit) {
 
@@ -1436,12 +1487,12 @@ public class Entity {
 
 	}
 
-	private void updateColliderUnit(EntityUnit eunit) {
-		eunit.x = eunit.x + WALL_COLLIDE_WIGGLEROOM;
-		eunit.y = eunit.y + WALL_COLLIDE_WIGGLEROOM;
-		eunit.width = eunit.width - WALL_COLLIDE_WIGGLEROOM;
-		eunit.height = eunit.height - WALL_COLLIDE_WIGGLEROOM;
-
-	}
+//	private void updateColliderUnit(EntityUnit eunit) {
+//		eunit.x = eunit.x + WALL_COLLIDE_WIGGLEROOM;
+//		eunit.y = eunit.y + WALL_COLLIDE_WIGGLEROOM;
+//		eunit.width = eunit.width - WALL_COLLIDE_WIGGLEROOM;
+//		eunit.height = eunit.height - WALL_COLLIDE_WIGGLEROOM;
+//
+//	}
 
 }

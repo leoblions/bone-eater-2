@@ -173,7 +173,8 @@ public class Menu {
 			switch(buttonID) {
 			case 0:
 				this.game.switchState(Game.GState.PLAY);
-				System.out.println("RESET GAME");
+			
+				game.loadLevel(0);
 				return;
 			case 1:
 				this.game.switchState(Game.GState.PLAY);
