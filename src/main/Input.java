@@ -93,7 +93,11 @@ public class Input {
 
 			break;
 		case KeyEvent.VK_BACK_QUOTE:
-			this.game.toggleConsole();
+			//this.game.toggleConsole();
+			
+			this.game.toggleState(Game.GState.CONSOLE, Game.GState.PLAY);
+			System.out.println(game.gameState.toString());
+			break;
 			
 		case KeyEvent.VK_ESCAPE:
 			this.game.toggleState(GState.MENU,GState.PLAY);

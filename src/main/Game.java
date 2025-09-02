@@ -29,6 +29,8 @@ public class Game extends JPanel implements Runnable {
 	static final int COLL_GRID_SIZE = 50;
 	static final int ROWS = 25;
 	static final int COLS = 25;
+	
+	static final int MAXIMUM_LEVEL = 10;
 	 
 	int worldSizePxX = TILE_SIZE * COLS;
 	int worldSizePxY = TILE_SIZE * ROWS;
@@ -122,9 +124,10 @@ public class Game extends JPanel implements Runnable {
 		this.pathfind = new Pathfind(this);
 		this.background = new Background(this);
 		this.trigger = new Trigger(this);
+		this.brain = new Brain(this);
 		this.hud = new Hud(this);
 		this.console = new Console(this);
-		this.brain = new Brain(this);
+		
 		this.camera = new Camera(this);
 		this.decor = new Decor(this);
 		this.decal = new Decal(this);
@@ -222,7 +225,10 @@ public class Game extends JPanel implements Runnable {
 
 	void draw() {
 
-		if (this.gameState == GState.PLAY) {
+		switch (gameState) {
+		case PLAY:
+		case CONSOLE:
+		case GAMEOVER:
 			this.tilegrid.draw();
 			// this.wall.draw();
 			this.collision.draw();
@@ -237,23 +243,35 @@ public class Game extends JPanel implements Runnable {
 			this.pathfind.draw();
 			this.editor.draw();
 			this.console.draw();
-		} else {
+			break;
+		case MENU:
+		case OPTIONS:
 			this.menu.draw();
-		}
-		// this.background.draw();
+			break;
+		default:
+			break;
+			
+		} 
 
 	}
 
 	void update() {
 		// System.out.println("test");
 		this.sound.update();
-		if (this.gameState == GState.CONSOLE) {
-			this.console.update();
-		} else if (this.gameState == GState.MENU) {
+		switch( gameState) {
+		
+			 
+		case MENU:
+		case OPTIONS:
 			this.menu.update();
-		} else {
+			break;
+		case CONSOLE:
+			this.console.update();
+		case PLAY: 
+		case TOOLBAR:
 			this.tilegrid.update();
 			// this.wall.update();
+			this.brain.update();
 			this.collision.update();
 			this.entity.update();
 			this.decor.update();
@@ -266,8 +284,13 @@ public class Game extends JPanel implements Runnable {
 			this.hud.update();
 			this.camera.update();
 			this.pickup.update();
-
+			break;
+			
+			
+			
+			
 		}
+		  
 
 		this.input.update();
 
@@ -292,7 +315,7 @@ public class Game extends JPanel implements Runnable {
 			if (this.gameState != GState.CONSOLE) {
 				this.gameState = GState.CONSOLE;
 			} else {
-				this.gameState = GState.PAUSE;
+				this.gameState = GState.PLAY;
 			}
 
 		}
@@ -348,12 +371,13 @@ public class Game extends JPanel implements Runnable {
 	}
 
 	public enum GState {
-		PLAY, PAUSE, MENU, OPTIONS, GAMEOVER, CONSOLE, TOOLABAR, INVENTORY
+		PLAY, PAUSE, MENU, OPTIONS, GAMEOVER, CONSOLE, INVENTORY, TOOLBAR
 	}
 
 	public void resizeWindow() {
 		this.camera.initBounds();
 		this.decor.setDrawDistance();
+		this.hud.updatePositions();
 		
 	}
 }

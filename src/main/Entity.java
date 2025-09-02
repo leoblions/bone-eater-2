@@ -84,7 +84,9 @@ public class Entity {
 	final int SPEED_CHASE = 5;
 	final int TICKS_PER_FRAME = 10;
 	final int ATTACK_HIT_TICK_PERIOD = 10;
-	private final int HITBOX_SIZE = 30;
+	private final int HITBOX_SIZE = 70;
+	private final int HITBOX_SIZE_INC = 50;
+	private final int HITBOX_OFFSET = -50;
 
 	public static final int NEW_ENTITY_DEFAULT_UID = 0;
 	public static final int ENTITY_ACTIVATE_DELAY_TICKS = 120;
@@ -116,8 +118,6 @@ public class Entity {
 	public boolean activateEntityFlag = false;
 	public Delay entityActivateDalay;
 	public Rectangle playerCollider;
-	public final int HITBOX_SIZE_INC = 50;
-	public final int HITBOX_OFFSET = -50;
 	public boolean playerMelee = false;
 	private boolean attackOnThisTick = false;
 	public boolean frozen = false;
@@ -553,6 +553,7 @@ public class Entity {
 			eunit.state = ES_DEAD;
 			eunit.currentImageIndex = 0;
 			game.sound.playSE(Sound.S_DIE);
+			game.brain.killedEnemy();
 		}
 		switch (eunit.state) {
 		case ES_WANDER:
@@ -1187,8 +1188,8 @@ public class Entity {
 			break;
 		default:
 		}
-		this.hitbox.x = hitX;
-		this.hitbox.y = hitY;
+		this.hitbox.x = hitX +HITBOX_OFFSET;
+		this.hitbox.y = hitY +HITBOX_OFFSET;
 		if (this.game.player.pointCollidePlayer(hitX, hitY)) {
 			return true;
 

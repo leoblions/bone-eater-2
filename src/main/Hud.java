@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -16,19 +17,38 @@ public class Hud {
 
 	Game game;
 	BufferedImage healthbar;
-	final int INTERACT_SCREENX = 470;
-	final int INTERACT_SCREENY = 470;
+	String objectiveString = "";
+	final int INTERACT_SCREENX_OFFSET = -100;
+	final int INTERACT_SCREENY_OFFSET = -100;
+	private int interactScreenX, interactScreenY;
 	private int healthwidth = 150;
 	private int healthFilled = START_HEALTH_WIDTH;
 	BufferedImage interact;
 	BufferedImage[] icons;
 	boolean showInteract = true;
 	public int showActionPromptDelay = 0;
+	private int Swidth = 0;
+	
+	private Font objectiveFont = new Font("Serif", Font.BOLD, 20);
+	private Color objectiveColor = new Color(255,255,255,255);
 
 	public Hud(Game game) {
 		this.game = game;
+		Swidth = game.getWidth();
 		this.initImages();
+		updatePositions();
+		updateObjectiveString();
 		Image image;
+	}
+	
+	public void updatePositions(){
+		this.interactScreenX = game.width + INTERACT_SCREENX_OFFSET;
+		this.interactScreenY = game.height +INTERACT_SCREENY_OFFSET;
+		
+	}
+	
+	public void updateObjectiveString() {
+		this.objectiveString = String.format("Objectives: %d/%d",game.brain.objectivesComplete,game.brain.objectivesTotal);
 	}
 
 	private void initImages() {
@@ -54,14 +74,23 @@ public class Hud {
 			this.game.g.fillRect(HEALTHBAR_SCREENX + 52, HEALTHBAR_SCREENY + 40, this.healthFilled, 12);
 			this.game.g.drawImage(healthbar, HEALTHBAR_SCREENX, HEALTHBAR_SCREENY, 300, 100, null);
 
-			if (this.showInteract)
-				this.game.g.drawImage(interact, INTERACT_SCREENX, INTERACT_SCREENY, 90, 90, null);
+			if (this.showInteract) {
+				this.game.g.drawImage(interact, this.interactScreenX, this.interactScreenY, 90, 90, null);
+			}
+			this.game.g.setColor(objectiveColor);
+			this.game.g.setFont(objectiveFont);
+	 
+			this.game.g.drawString(objectiveString, this.interactScreenX-100, 50);
 		}
 
 	}
 
 	public void update() {
 		showActionPromptDelay = showActionPromptDelay > 0 ? showActionPromptDelay - 1 : showActionPromptDelay;
+		if(Swidth==0) {
+			updatePositions();
+		}
+		updatePositions();
 
 	}
 

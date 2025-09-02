@@ -103,6 +103,17 @@ public class Menu {
 		this.mainButtons[3].paddingX = 70;
 		this.mainButtons[2].paddingY = 25;
 		this.mainButtons[3].paddingY = 25;
+		
+		this.optionButtons[0] = new Button(startX,y1,BUTTONCOLUMN_WIDTH,BUTTONCOLUMN_HEIGHT,null,"Music Volume");
+		this.optionButtons[1] = new Button(startX,y2,BUTTONCOLUMN_WIDTH,BUTTONCOLUMN_HEIGHT,null,"SFX Volume");
+		this.optionButtons[2] = new Button(startX,y3,BUTTONCOLUMN_WIDTH,25,null,"Difficulty");
+		this.optionButtons[3] = new Button(startX,y4,BUTTONCOLUMN_WIDTH,25,null,"Back");
+		this.optionButtons[0].paddingX = 30;
+		this.optionButtons[1].paddingX = 40;
+		this.optionButtons[2].paddingX = 46;
+		this.optionButtons[3].paddingX = 70;
+		this.optionButtons[2].paddingY = 25;
+		this.optionButtons[3].paddingY = 25;
 	}
 
 	private void initImages() {
@@ -180,11 +191,29 @@ public class Menu {
 				this.game.switchState(Game.GState.PLAY);
 				return;
 			case 2:
+				this.currentButtons = optionButtons;
 				this.game.switchState(Game.GState.OPTIONS);
 				break;
 			case 3:
 				System.exit(0);
 			}
+			break;
+		case OPTIONS:
+			switch(buttonID) {
+			case 0:
+				System.out.println("change music volume");
+				return;
+			case 1:
+				System.out.println("change sfx volume");
+				return;
+			case 2:
+				System.out.println("change difficulty");;
+				break;
+			case 3:
+				System.out.println("back");
+				this.game.switchState(Game.GState.MENU);
+			}
+			break;
 		}
 	}
 	

@@ -36,11 +36,17 @@ public class Brain {
 	int stage = 0;
 	Image image;
 	Image[] images;
+	
 	public ArrayList<int[]> actionRecords; // 0=actionID, 1=actionKind, 2=ActionArg, 3=nextActionID
 	public ArrayList<int[]> warpDestinations;
 	public ArrayDeque<Integer> queuedActions;
 	int MAX_QUEUED_ACTIONS = 10;
 	int BLANK_ACTION_ID = -1;
+	
+	int objectivesTotal=5;
+	int objectivesComplete=0;
+	boolean advanceLevelOnObjectivesComplete = false;
+	ObjectiveKind currentObjectiveKind = ObjectiveKind.KILL;
 
 	public Brain(Game game) {
 		this.game = game;
@@ -49,6 +55,13 @@ public class Brain {
 		 loadWarpDestinations();
 		this.loadActionRecordsThisLevel();
 
+	}
+	
+	public void killedEnemy() {
+		if (currentObjectiveKind==ObjectiveKind.KILL) {
+			objectivesComplete+=1;
+			game.hud.updateObjectiveString();
+		}
 	}
 
 	private void loadActionRecordsThisLevel() {
@@ -205,6 +218,9 @@ public class Brain {
 			}
 		}
 
+	}
+	enum ObjectiveKind{
+		KILL,PICKUP,TRIGGER
 	}
 
 }
