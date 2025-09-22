@@ -14,6 +14,7 @@ public class Menu {
 	final int BUTTONCOLUMN_WIDTH = 200;
 	final int BUTTONCOLUMN_HEIGHT = 40;
 	final int BUTTON_BGI_SIZE = 350;
+	private final int BUTTON_DEBOUNCE_BACK = 60;
 	private Point mousePoint;
 	
 	
@@ -41,6 +42,7 @@ public class Menu {
 	final int INTERACT_SCREENY = 470;
 	private int stackMenu = 150;
 	private int stackMenuButtons = 4;
+	private int buttonDebounce = 0;
 	BufferedImage interact;
 	BufferedImage[] icons;
 	
@@ -173,6 +175,9 @@ public class Menu {
 				button.highlighted = false;
 			}
 		}
+		if(buttonDebounce>0) {
+			buttonDebounce-=1;
+		}
 
 		//showActionPromptDelay = showActionPromptDelay > 0 ? showActionPromptDelay - 1 : showActionPromptDelay;
 
@@ -211,13 +216,18 @@ public class Menu {
 				break;
 			case 3:
 				System.out.println("back");
+				this.buttonDebounce = BUTTON_DEBOUNCE_BACK;
 				this.game.switchState(Game.GState.MENU);
+				this.currentButtons = mainButtons;
 			}
 			break;
 		}
 	}
 	
 	public void handleClick(int button, int down) {
+		if(this.buttonDebounce>0) {
+			return;
+		}
 		switch (button) {
 		case 1:// LC
 			for (int i = 0;i<this.currentButtons.length;i++) {
