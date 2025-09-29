@@ -22,9 +22,12 @@ public class Trigger {
 	 */
 	final Color TRIGGER_COLOR = new Color(0, 0, 255, 70);
 	public final int FIELDS = 6;// 0=ID, 1=LEV, 2=GX, 3=GY, 4=W, 5=H
-	public final int DEFAULT_ACTION_ID = -1;
+	public final int DEFAULT_ACTION_ID = 0;
 	public final int TF_ROOM_ID = 0;
 	public final int TF_ACTION_ID = 1;
+	public final int NOT_FOUND = -1;
+	public final int TK_NO_TRIGGER = 0;
+	public final int TK_TRIGGER = 1;
 	public final int TFGRIDX = 2;// units are in tiles, not pixels
 	public final int TFGRIDY = 3;
 	public final int TFGRIDW = 4;
@@ -40,6 +43,12 @@ public class Trigger {
 		this.currentRecords = new LinkedList<>();
 		loadRecordsFromFile();
 		// filterAllRecordsToCurrentRoomRecords();
+	}
+	
+	public void initRecords() {
+		
+		this.currentRecords = new LinkedList<>();
+	
 	}
 
 	public void loadRecordsFromFile() {
@@ -91,9 +100,9 @@ public class Trigger {
 //	}
 
 	public void draw() {
-		if(this.game.editor.editMode!='o') {
-			return;
-		}
+//		if(this.game.editor.editMode!='o') {
+//			return;
+//		}
 		for (int r = 0; r < this.currentRecords.size(); r++) {
 
 			int[] trecord = this.currentRecords.get(r);
@@ -101,6 +110,10 @@ public class Trigger {
 			int gridY = trecord[TFGRIDY];
 			int gridW = trecord[TFGRIDW];
 			int gridH = trecord[TFGRIDH];
+			int kind = trecord[TF_ACTION_ID];
+			if(kind!=TK_TRIGGER) {
+				return;
+			}
 
 			this.game.g.setColor(TRIGGER_COLOR);
 			this.game.g.fillRect(gridX * tileSize -game.cameraX, gridY * tileSize-game.cameraY, gridW * tileSize - 1, gridH * tileSize - 1);
@@ -112,7 +125,7 @@ public class Trigger {
 	public int matchRecordGXY(int gridX, int gridY) {
 		// -1 if not found
 		boolean matched = false;
-		int matchIndex = -1;
+		int matchIndex = NOT_FOUND;
 		// room records
 		for (int r = 0; r < this.currentRecords.size(); r++) {
 			int[] trecord = this.currentRecords.get(r);
@@ -126,7 +139,7 @@ public class Trigger {
 			return matchIndex;
 
 		} else {
-			return -1;
+			return NOT_FOUND;
 		}
 	}
 
@@ -160,7 +173,7 @@ public class Trigger {
 
 			int matchIndex = matchRecordGXY(gridX, gridY);
 
-			if (matchIndex != -1) {
+			if (matchIndex != NOT_FOUND) {
 				this.currentRecords.remove(matchIndex);
 				System.out.println("deleted trigger record");
 
@@ -168,13 +181,17 @@ public class Trigger {
 
 		} else {
 
-			if (matchRecordGXY(gridX, gridY) != -1) {
+			if (matchRecordGXY(gridX, gridY) != NOT_FOUND) {
 				return;
 
 			} else {
+				int kind = this.game.editor.assetID;
+				if(kind >TK_TRIGGER) {
+					kind = TK_TRIGGER;
+				}
 				int[] newTRecord = new int[FIELDS];
 				newTRecord[TF_ROOM_ID] = getUnusedRoomID();
-				newTRecord[TF_ACTION_ID] = DEFAULT_ACTION_ID;
+				newTRecord[TF_ACTION_ID] = kind;
 				newTRecord[TFGRIDX] = gridX;
 				newTRecord[TFGRIDY] = gridY;
 				newTRecord[TFGRIDW] = 1;

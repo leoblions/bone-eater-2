@@ -129,7 +129,9 @@ public class EntityUnit extends Rectangle {
 		direction = 'n';
 		direction8w = 8;
 		switch(kind) {
-		case EK_GUARD:// basic guard
+		case Kind.GUARD:// basic guard
+		case Kind.PEASANT:// peasant, does not chase
+		case Kind.WOMAN:// female civilian
 			this.width = 40;
 			this.height = 80;
 			this.widthS=40;

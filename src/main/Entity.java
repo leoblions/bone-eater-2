@@ -43,6 +43,7 @@ public class Entity {
 	final int r = 4;
 
 	public static final char ES_FOLLOW = 'f';
+	public static final char ES_FLEE = 'l';
 	public static final char ES_STAND = 's';
 	public static final char ES_WANDER = 'w';
 	public static final char ES_WALK = 'w';
@@ -76,7 +77,12 @@ public class Entity {
 
 	final int ENTITY_PLAYER_COLLIDE_RANGE = 40;
 	final boolean CHECK_COLLISIONS = false;
+	
+	
 	final int EK_GUARD = 0;
+	final int EK_PEASANT = 1;
+	final int EK_WOMAN = 2;
+	final int EK_ZOMBIEF = 3;
 
 	final boolean DRAW_COLLRECT = true;
 
@@ -148,8 +154,8 @@ public class Entity {
 	
 	public void startLevel(int level) {
 		this.entityUnits.clear();
-		this.addEntityGrid(5, 5, 0, 's', 1);
-		this.addEntityGrid(10, 4, 0, 'w', 1);
+		this.addEntityGrid(5, 5, 1, 's', 1);
+		this.addEntityGrid(10, 4, 2, 'w', 1);
 		this.addEntityGrid(24, 8, 0, 'w', 1);
 		this.addEntityWorld(1800, 810, 0, 'w', 1);
 		this.addEntityWorld(240, 1200, 0, 'w', 1);
@@ -165,6 +171,8 @@ public class Entity {
 		BufferedImage[] tempBI, tempBIL, tempBIR = null;
 		String URL = null;
 		try {
+			// guard
+			
 			URL = "/images/guard_100_200w.png";
 			// tempBI = new Imageutils(game).spriteSheetCutter(URL, 4, 4, 100, 200);
 			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
@@ -178,7 +186,47 @@ public class Entity {
 			URL = "/images/guard_gr_fall.png";
 			tempBI = this.game.imageutils.spriteSheetCutter(URL, 2, 4, 300, 200);
 
-			this.deathImages[EK_GUARD] = tempBI;
+			this.deathImages[Kind.GUARD] = tempBI;
+			
+			// peasant
+			
+			URL = "/images/peasant_100_200w.png";
+			// tempBI = new Imageutils(game).spriteSheetCutter(URL, 4, 4, 100, 200);
+			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
+			this.entityImages[Kind.PEASANT] = tempBI;
+
+			URL = "/images/peasant_100_200a.png";
+			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
+
+			this.attackImages[Kind.PEASANT] = tempBI;
+
+			URL = "/images/guard_gr_fall.png";
+			tempBI = this.game.imageutils.spriteSheetCutter(URL, 2, 4, 300, 200);
+
+			this.deathImages[Kind.PEASANT] = tempBI;
+			
+			// woman
+			
+			URL = "/images/woman_100_200w.png";
+			// tempBI = new Imageutils(game).spriteSheetCutter(URL, 4, 4, 100, 200);
+			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
+			this.entityImages[Kind.WOMAN] = tempBI;
+
+			URL = "/images/woman_100_200a.png";
+			tempBI = this.game.imageutils.characterSheetUDL4(URL, 100, 200);
+
+			this.attackImages[Kind.WOMAN] = tempBI;
+
+			URL = "/images/guard_gr_fall.png";
+			tempBI = this.game.imageutils.spriteSheetCutter(URL, 2, 4, 300, 200);
+
+			this.deathImages[Kind.WOMAN] = tempBI;
+			
+			
+			
+			
+			
+			// shadows
 
 			URL = "/images/shadow.png";
 			tempBI = this.game.imageutils.spriteSheetCutter(URL, 1, 1, 100, 100);
@@ -648,70 +696,7 @@ public class Entity {
 
 	}
 
-//	private void updateState8w(EntityUnit eunit) {
-//		// for sensing player
-//		if (eunit.state == ES_WANDER || eunit.state == ES_STAND) {
-//			int deltaX = 0;
-//			int deltaY = 0;
-//			int d8 = eunit.direction8w;
-//
-////			 deltaY = (eunit.direction=='d')?1:0;
-////			 deltaY = (eunit.direction=='u')?-1:0;
-////			 deltaX = (eunit.direction=='l')?-1:0;
-////			 deltaX = (eunit.direction=='r')?1:0;
-//			switch (d8) {
-//			case 0:
-//				deltaX = 0;
-//				deltaY = -1;
-//				break;
-//			case 1:
-//				deltaX = 1;
-//				deltaY = -1;
-//				break;
-//			case 2:
-//				deltaX = 1;
-//				deltaY = 0;
-//				break;
-//			case 3:
-//				deltaX = 1;
-//				deltaY = 1;
-//				break;
-//			case 4:
-//				deltaX = 0;
-//				deltaY = 1;
-//				break;
-//			case 5:
-//				deltaX = -1;
-//				deltaY = 1;
-//				break;
-//			case 6:
-//				deltaX = -1;
-//				deltaY = 0;
-//				break;
-//			case 7:
-//				deltaX = -1;
-//				deltaY = -1;
-//				break;
-//			case 8:
-//				deltaX = 0;
-//				deltaY = 0;
-//				break;
-//			}
-//			boolean playerSpotted = detectPlayer(eunit , deltaX, deltaY, VISUAL_RANGE);
-//			// System.out.println("playerSpotted "+playerSpotted);
-//			if (playerSpotted) {
-//				eunit.state = ES_FOLLOW;
-//			}
-//
-//		} else if (eunit.state == ES_FOLLOW) {
-//			int playerPos[] = this.game.player.getGridPosition();
-//			if (eunit.tileX == playerPos[0] && eunit.tileY == playerPos[1]) {
-//				eunit.direction = ES_ATTACK;
-//			}
-//
-//		}
-//
-//	}
+
 
 	private int[] attackMotion(EntityUnit eunit) {
 		int[] deltaXY4 = { 0, 0 };
@@ -1084,26 +1069,6 @@ public class Entity {
 		}
 	}
 
-//	private void cycleSpriteAttack(EntityUnit eunit) {
-//		int directionIndexpart = 0;
-//		switch (eunit.direction) {
-//
-//		case UP:
-//			directionIndexpart = 0;
-//			break;
-//		case DOWN:
-//			directionIndexpart = 4;
-//			break;
-//		case LEFT:
-//			directionIndexpart = 8;
-//			break;
-//		case RIGHT:
-//			directionIndexpart = 12;
-//			break;
-//		default:
-//			directionIndexpart = 4;
-//		}
-//	}
 
 	private void cycleSprite(EntityUnit eunit) {
  
@@ -1203,36 +1168,7 @@ public class Entity {
 		eunit.y += deltaY;
 	}
 
-//	private void moveDirection4W(EntityUnit eunit) {
-//
-//		if (eunit.state == 'w') {
-//			eunit.currentSpeed = SPEED_WALK;
-//		} else if (eunit.state == 'f') {
-//			eunit.currentSpeed = SPEED_CHASE;
-//		} else {
-//			eunit.currentSpeed = 0;
-//		}
-//		switch (eunit.direction) {
-//		case 'n':
-//			break;
-//		case UP:
-//			eunit.y += -eunit.currentSpeed;
-//
-//			break;
-//		case DOWN:
-//			eunit.y += eunit.currentSpeed;
-//			break;
-//		case LEFT:
-//			eunit.x += -eunit.currentSpeed;
-//			break;
-//		case RIGHT:
-//			eunit.x += eunit.currentSpeed;
-//			break;
-//		default:
-//			break;
-//
-//		}
-//	}
+
 
 	private int[] calculateMoveFromDirection4W(EntityUnit eunit) {
 		int[] deltaXY = { 0, 0 };

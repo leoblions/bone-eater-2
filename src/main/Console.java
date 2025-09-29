@@ -162,6 +162,20 @@ public class Console {
 				}
 				game.editor.setAssetID(kind);
 				break;
+			case "TRIGGER":
+				game.editor.editMode = Editor.TRIGGER;
+				if (wordAmount != 2)
+					break;
+				try {
+				kind = Integer.parseInt(splitCommand[1]);
+				}catch(Exception e) {
+					kind = 0;
+					if(splitCommand[1].contentEquals("RESET")) {
+						game.trigger.initRecords();
+					}
+				}
+				game.editor.setAssetID(kind);
+				break;
 			case "EDIT":
 			case "EDITMODE":
 
