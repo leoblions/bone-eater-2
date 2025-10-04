@@ -207,9 +207,10 @@ public class Brain {
 		return null;
 	}
 
-	public void handlePressTrigger(int actionID) {
-		// match trigger ID to action ID
+	public void handlePressTrigger(int[] triggerRecord) {
+		// match trigger room ID to action ID
 		// both trigger and action ID should be unique per room
+		int actionID = triggerRecord[Trigger.TF_ROOM_ID];
 		if (this.game.playerPressActivate) {
 			System.out.println("Player press trigger activated actionID " + actionID);
 			int[] arecord = getActionRecord(actionID);

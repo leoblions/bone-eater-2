@@ -312,6 +312,15 @@ public class Entity {
 		eunit.state = state;
 		this.entityUnits.add(eunit);
 	}
+	
+	public void reset() {
+
+		ArrayList<EntityUnit> recordsNew = new ArrayList<>();
+		entityUnits = recordsNew;
+
+		System.out.println("Reset entity data ");
+
+	}
 
 	public void draw() {
 		if (drawHitbox) {

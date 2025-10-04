@@ -107,6 +107,10 @@ public class Pickup {
 			e.printStackTrace();
 		}
 	}
+	
+	public void reset() {
+		levelData = new ArrayList<int[]>();
+	}
 
 	public void randomPlacePickup(int amount, int kind) {
 		int itemsPlaced = 0;

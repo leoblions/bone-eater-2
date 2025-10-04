@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -240,6 +241,13 @@ public class Collision {
 		}
 
 		System.out.println("Load tilegrid data " + dataPath.toString());
+
+	}
+	
+	public void reset() {
+
+		
+		 this.grid = Utils.fill2DI(Game.COLS*2, Game.ROWS*2, DEFAULT_FILL);
 
 	}
 

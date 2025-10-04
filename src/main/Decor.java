@@ -5,7 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 
 //import main.Tile.TileType;
@@ -16,6 +18,7 @@ public class Decor {
 	private static final String DATA_FILE_SUFFIX = ".csv";
 	private static final String SPRITE_SHEET_URL = "/images/decorCommon.png";
 	private final int DRAW_RANGE_TILES = 7;
+	private int DEFAULT_FILL = -1;
 
 	final int SAFOFFSETX = 0;
 	final int SAFOFFSETY = 1;
@@ -94,7 +97,14 @@ public class Decor {
 		this.drawRangeTilesX = this.game.getWidth() / this.game.TILE_SIZE;
 		this.drawRangeTilesY = this.game.getHeight() / this.game.TILE_SIZE;
 	}
+	
+	public void reset() {
 
+		this.grid = Utils.fill2DI(Game.COLS, Game.ROWS, DEFAULT_FILL);
+
+		System.out.println("Reset decor data ");
+
+	}
 	public void loadGridCurrentRoom() {
 		String fileName = DATA_FILE_PREFIX + this.game.level + DATA_FILE_SUFFIX;
 

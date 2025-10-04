@@ -1,18 +1,18 @@
 package main;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
 public class Tilegrid {
-	 int ROWS = 25;
-	 int COLS = 25;
+//	 int Game.ROWS = 25;
+//	 int Game.COLS = 25;
 	final int MAX_KIND = 31;
 	final int DEFAULT_FILL =0;
 	final int ILLEGAL_TILE = -1;
@@ -44,9 +44,9 @@ public class Tilegrid {
 	}
 	
 	public void initGrid() {
-		this.grid=new int[ROWS][COLS];
-		for(int y = 0;y< ROWS;y++) {
-			for(int x = 0;x< COLS;x++) {
+		this.grid=new int[Game.ROWS][Game.COLS];
+		for(int y = 0;y< Game.ROWS;y++) {
+			for(int x = 0;x< Game.COLS;x++) {
 				this.grid[y][x]=DEFAULT_FILL;
 				
 			}
@@ -54,9 +54,9 @@ public class Tilegrid {
 		
 	}
 	public int[][] nullGrid() {
-		int newgrid[][] =new int[ROWS][COLS];
-		for(int y = 0;y< ROWS;y++) {
-			for(int x = 0;x< COLS;x++) {
+		int newgrid[][] =new int[Game.ROWS][Game.COLS];
+		for(int y = 0;y< Game.ROWS;y++) {
+			for(int x = 0;x< Game.COLS;x++) {
 				newgrid[y][x]=DEFAULT_FILL;
 				
 			}
@@ -72,9 +72,9 @@ public class Tilegrid {
 		}
 	}
 	public boolean[][] nullGridBL() {
-		boolean newgrid[][] =new boolean[ROWS][COLS];
-		for(int y = 0;y< ROWS;y++) {
-			for(int x = 0;x< COLS;x++) {
+		boolean newgrid[][] =new boolean[Game.ROWS][Game.COLS];
+		for(int y = 0;y< Game.ROWS;y++) {
+			for(int x = 0;x< Game.COLS;x++) {
 				newgrid[y][x]=false;
 				
 			}
@@ -121,6 +121,17 @@ public class Tilegrid {
 
 	}
 	
+	public void reset() {
+
+		
+			
+		
+		this.grid = Utils.fill2DI(Game.COLS, Game.ROWS, DEFAULT_FILL);
+		
+		System.out.println("Reset tilegrid data "  );
+
+	}
+	
 	
 	public BufferedImage[] initImages() throws IOException {
 		try {
@@ -142,8 +153,8 @@ public class Tilegrid {
 	}
 	
 	public void setTileXYK(int gridX, int gridY, int kind) {
-		int x = Utils.clamp(0, COLS-1, gridX);
-		int y = Utils.clamp(0, ROWS-1, gridY);
+		int x = Utils.clamp(0, Game.COLS-1, gridX);
+		int y = Utils.clamp(0, Game.ROWS-1, gridY);
 		this.grid[y][x] = Utils.clamp(0, MAX_KIND, kind);
 	}
 	
@@ -151,8 +162,8 @@ public class Tilegrid {
 //		if(this.game.editor.editMode=='n') {
 //			return;
 //		}
-		for(int y = 0;y< ROWS;y++) {
-			for(int x = 0;x< COLS;x++) {
+		for(int y = 0;y< Game.ROWS;y++) {
+			for(int x = 0;x< Game.COLS;x++) {
 				int cellValue = this.grid[y][x];
 				image = this.images[cellValue];
 				
@@ -183,8 +194,8 @@ public class Tilegrid {
 		if(this.game.editor.editMode=='n') {
 			return;
 		}
-		for(int y = 0;y< ROWS;y++) {
-			for(int x = 0;x< COLS;x++) {
+		for(int y = 0;y< Game.ROWS;y++) {
+			for(int x = 0;x< Game.COLS;x++) {
 				int cellValue = this.grid[y][x];
 				if (cellValue>15) {
 			

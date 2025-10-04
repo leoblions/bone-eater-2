@@ -31,9 +31,11 @@ public class Utils {
 
 	public final static String COL_SEPARATOR = ",";
 	public final static String ROW_SEPARATOR = "\n";
+	public final static char COMMENT = '#';
 	public final static String IMAGE_PLACEHOLDER = "/images/ph.png";
 	public final static boolean MOCK_WRITE_FILE = false;
 	public final static boolean WRITE_NEW_FILE = false;
+	private static final boolean DO_STRIP_COMMENT_LINES = true;
 
 	public Utils() {
 
@@ -41,6 +43,17 @@ public class Utils {
 
 	public static int clamp(int min, int max, int test) {
 		return (test > max) ? max : (test < min) ? min : test;
+	}
+	
+	public static int[][] fill2DI(int cols, int rows, int fillValue){
+		int[][] output = new int[rows][cols];
+		
+		for(int row = 0;row<Game.ROWS;row++) {
+			for(int col = 0;col<Game.COLS;col++) {
+				output[row][col]=fillValue;
+			}
+		}
+		return output;
 	}
 	
 	/**
@@ -195,10 +208,40 @@ public class Utils {
 		return outputArray;
 
 	}
+	
+	private static String[][] stripCommentLines2DAString(String[][] inputArray){
+		
+		ArrayList<String[]> outputALofSA= new ArrayList<>(); 
+		String firstPart = "";
+		for (int y = 0; y < inputArray.length; y++) {
+			firstPart = inputArray[y][0];
+			//System.out.println(firstPart);
+			char firstChar = firstPart.charAt(0);
+			if(firstChar == (COMMENT)) {
+				;
+			}else {
+				outputALofSA.add(inputArray[y]);
+			}
+		}
+		int rows = outputALofSA.size();
+		String[][] outputArray = new String[rows][];
+		for (int y = 0; y < rows; y++) {
+			outputArray[y]= outputALofSA.get(y);
+		}
+		return outputArray;
+		
+		
+		
+	}
 
 	public static int[][] openCSVto2DAInt(String filePath) throws Exception {
+		// ignores comment lines
 
 		String[][] strings2DA = openCSVto2DA(filePath);
+		if(DO_STRIP_COMMENT_LINES) {
+			strings2DA = stripCommentLines2DAString(strings2DA);
+		}
+		
 		if (null == strings2DA) {
 			throw new Exception("openCSVto2DAInt: no valid data");
 		}

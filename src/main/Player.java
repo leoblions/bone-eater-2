@@ -147,10 +147,10 @@ public class Player extends Rectangle{
 		default:
 			break;
 		}
-		tileForward[0] = Utils.clamp(0, game.tilegrid.COLS - 1, fx);
-		tileForward[1] = Utils.clamp(0,game.tilegrid.ROWS - 1, fy);
-		tilePlayer[0] = Utils.clamp(0, game.tilegrid.COLS , tx);
-		tilePlayer[1] = Utils.clamp(0, game.tilegrid.ROWS , ty);
+		tileForward[0] = Utils.clamp(0, game.COLS - 1, fx);
+		tileForward[1] = Utils.clamp(0,game.ROWS - 1, fy);
+		tilePlayer[0] = Utils.clamp(0, game.COLS , tx);
+		tilePlayer[1] = Utils.clamp(0, game.ROWS , ty);
 	}
 	
 	public void attack() {

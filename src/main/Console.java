@@ -77,8 +77,15 @@ public class Console {
 				break;
 			case "SAVE":
 				game.editor.saveOrLoadData(true);
+				break;
 			case "LOAD":
 				game.editor.saveOrLoadData(false);
+				break;
+			case "CLEAR":
+				game.editor.clear();
+				break;
+			case "RESET":
+				game.editor.resetCurrent();
 			case "WARP":
 				if (wordAmount != 2)
 					break;

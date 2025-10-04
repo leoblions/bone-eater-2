@@ -18,7 +18,7 @@ public class Editor {
 	public static final char COLLISION = 'c';
 	public static final char PICKUP = 'p';
 	private final int MIN_ASSET_ID = -1;
-	
+
 	Color smBorder = new Color(50, 50, 50, 50);
 	private static String editModeString, assetIDstring, latchString;
 	Font arial16;
@@ -46,7 +46,7 @@ public class Editor {
 	}
 
 	public void updateStrings() {
-		editModeString = "Edit mode "+ String.valueOf(this.editMode);
+		editModeString = "Edit mode " + String.valueOf(this.editMode);
 		assetIDstring = getAssetIDString();
 	}
 
@@ -75,21 +75,21 @@ public class Editor {
 			System.out.println("paint collision " + gridXColl + " " + gridYColl + " " + assetID);
 			break;
 		case WALL:
-			//this.game.wall.setTileXYK(gridX, gridY, assetID);
+			// this.game.wall.setTileXYK(gridX, gridY, assetID);
 			System.out.println("paint wall " + gridX + " " + gridY + " " + assetID);
 			break;
 		case TRIGGER:
-			 delete = assetID==0;
-			this.game.trigger.setTileGXY(gridX,gridY,delete);
+			// System.out.println("edit triggers");
+			this.game.trigger.setTileXYK(gridX, gridY, assetID);
 			break;
 		case PICKUP:
-			 delete = assetID==-1;
-			this.game.pickup.setTileGXY(gridX,gridY,delete);
+			delete = assetID == -1;
+			this.game.pickup.setTileGXY(gridX, gridY, delete);
 			break;
 		case DECOR:
-			 delete = assetID==-1;
-			 System.out.println("paint decor " + gridX + " " + gridY + " " + assetID);
-			 this.game.decor.setTileXYK(gridX, gridY, assetID);
+			delete = assetID == -1;
+			System.out.println("paint decor " + gridX + " " + gridY + " " + assetID);
+			this.game.decor.setTileXYK(gridX, gridY, assetID);
 			break;
 
 		}
@@ -99,7 +99,7 @@ public class Editor {
 	public void draw() {
 		game.g.setColor(Color.red);
 		game.g.setFont(arial16);
-		game.g.drawString(String.format("Player wx:%d wy:%d", this.game.player.x,this.game.player.y), 10, 50);
+		game.g.drawString(String.format("Player wx:%d wy:%d", this.game.player.x, this.game.player.y), 10, 50);
 		game.g.drawString(editModeString, 10, 70);
 		game.g.drawString(assetIDstring, 10, 90);
 		game.g.drawString(latchString, 10, 110);
@@ -114,60 +114,58 @@ public class Editor {
 		}
 
 	}
-	
-	public void saveOrLoadData(boolean save){
-		//true=save
-		switch(this.editMode) {
+
+	public void saveOrLoadData(boolean save) {
+		// true=save
+		switch (this.editMode) {
 		case NORMAL:
 			return;
-			
-		case TILE: 
-			if(save) {
+
+		case TILE:
+			if (save) {
 				this.game.tilegrid.saveTilegrid();
-			}else {
-				this.game.tilegrid.loadTilegrid() ;
+			} else {
+				this.game.tilegrid.loadTilegrid();
 			}
 			break;
-		case PICKUP:  
-			if(save) {
+		case PICKUP:
+			if (save) {
 				this.game.pickup.saveCurrentData();
-			}else {
+			} else {
 				this.game.pickup.loadCurrentData();
 			}
 			break;
-		case COLLISION: 
-			if(save) {
+		case COLLISION:
+			if (save) {
 				this.game.collision.saveTilegrid();
-			}else {
-				this.game.collision.loadTilegrid() ;
+			} else {
+				this.game.collision.loadTilegrid();
 			}
 			break;
 		case TRIGGER:
-			if(save) {
+			if (save) {
 				this.game.trigger.saveRecordsToFile();
-			}else {
-				this.game.trigger.loadRecordsFromFile() ;
+			} else {
+				this.game.trigger.loadRecordsFromFile();
 			}
 			break;
 		case DECOR:
-			if(save) {
+			if (save) {
 				this.game.decor.saveGridCurrentRoom();
-			}else {
-				this.game.decor.loadGridCurrentRoom() ;
+			} else {
+				this.game.decor.loadGridCurrentRoom();
 			}
 			break;
 		case WALL:
-			if(save) {
-				//this.game.wall.saveTilegrid();
-			}else {
-				//this.game.wall.loadTilegrid() ;
+			if (save) {
+				// this.game.wall.saveTilegrid();
+			} else {
+				// this.game.wall.loadTilegrid() ;
 			}
 			break;
-			
-		
+
 		}
-		
-		
+
 	}
 
 	public void handleClick(int button, int down) {
@@ -205,13 +203,10 @@ public class Editor {
 		}
 
 	}
-	
-
 
 	public void toggleEditMode() {
 
 	}
-
 
 	public void toggleLatch() {
 		this.latchEnable = !this.latchEnable;
@@ -232,7 +227,6 @@ public class Editor {
 		}
 
 	}
-	
 
 	public void click(int kind, int mouseX, int mouseY) {
 		if (true) {
@@ -256,6 +250,52 @@ public class Editor {
 				break;
 
 			}
+		}
+
+	}
+
+	public void clear() {
+		// reset all components of current map
+		
+		this.game.tilegrid.reset();
+		System.out.println("reset");
+		this.game.pickup.reset();
+
+		this.game.collision.reset();
+
+		this.game.trigger.reset();
+
+		this.game.decor.reset();
+		
+		this.game.entity.reset();
+
+	}
+
+	public void resetCurrent() {
+		// reset current component
+
+		switch (this.editMode) {
+		case NORMAL:
+			return;
+
+		case TILE:
+			this.game.tilegrid.reset();
+			break;
+		case PICKUP:
+			this.game.pickup.reset();
+			break;
+		case COLLISION:
+			this.game.collision.reset();
+			break;
+		case TRIGGER:
+			this.game.trigger.reset();
+			break;
+		case DECOR:
+			this.game.decor.reset();
+			break;
+		default:
+			break;
+
 		}
 
 	}
