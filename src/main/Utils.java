@@ -158,6 +158,9 @@ public class Utils {
 			// System.out.println(currentLineStrings);
 		}
 		int outerArrayLength = allLines.size();
+		if(outerArrayLength<0 || lineLength<0) {
+			return null;
+		}
 		outerArray = new String[outerArrayLength][lineLength];
 		int rows = outerArrayLength;
 		int cols = lineLength;

@@ -104,7 +104,13 @@ public class Console {
 				// game.warp.warpToLocation(level, gridX, gridY);
 				break;
 			case "FILLTILE":
+				kind = this.game.editor.assetID;
+				try {
 				kind = Integer.parseInt(splitCommand[1]);
+				}catch(Exception e) {
+					
+				}
+				this.game.tilegrid.reset(kind);
 				// game.tileManager.fillTile(kind);
 				break;
 			case "ADDITEM":
@@ -245,6 +251,7 @@ public class Console {
 				this.game.brain.changeLevel(newLevel);
 				levelString = String.format("Current level changed to: %d\n", game.level);
 				System.out.println(levelString);
+				game.editor.saveOrLoadData(false);
 				break;
 
 			default:

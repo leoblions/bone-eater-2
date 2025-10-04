@@ -116,55 +116,24 @@ public class Editor {
 	}
 
 	public void saveOrLoadData(boolean save) {
-		// true=save
-		switch (this.editMode) {
-		case NORMAL:
-			return;
-
-		case TILE:
-			if (save) {
-				this.game.tilegrid.saveTilegrid();
-			} else {
-				this.game.tilegrid.loadTilegrid();
-			}
-			break;
-		case PICKUP:
-			if (save) {
-				this.game.pickup.saveCurrentData();
-			} else {
-				this.game.pickup.loadCurrentData();
-			}
-			break;
-		case COLLISION:
-			if (save) {
-				this.game.collision.saveTilegrid();
-			} else {
-				this.game.collision.loadTilegrid();
-			}
-			break;
-		case TRIGGER:
-			if (save) {
-				this.game.trigger.saveRecordsToFile();
-			} else {
-				this.game.trigger.loadRecordsFromFile();
-			}
-			break;
-		case DECOR:
-			if (save) {
-				this.game.decor.saveGridCurrentRoom();
-			} else {
-				this.game.decor.loadGridCurrentRoom();
-			}
-			break;
-		case WALL:
-			if (save) {
-				// this.game.wall.saveTilegrid();
-			} else {
-				// this.game.wall.loadTilegrid() ;
-			}
-			break;
-
+		
+			
+		if(save) {
+			this.game.tilegrid.saveTilegrid();
+			this.game.pickup.saveCurrentData();
+			this.game.collision.saveTilegrid();
+			this.game.trigger.saveRecordsToFile();
+			this.game.decor.saveGridCurrentRoom();
+			
+		}else {
+			this.game.tilegrid.loadTilegrid();
+			this.game.pickup.loadCurrentData();
+			this.game.collision.loadTilegrid();
+			this.game.trigger.loadRecordsFromFile();
+			this.game.decor.loadGridCurrentRoom();
 		}
+
+		
 
 	}
 

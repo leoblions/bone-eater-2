@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -236,6 +237,8 @@ public class Collision {
 			parentDirAsFile.setReadable(true);
 			int[][] tg = Utils.openCSVto2DAInt(completePath.toString());
 			this.grid = tg;
+		} catch(FileNotFoundException e) {
+			reset();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

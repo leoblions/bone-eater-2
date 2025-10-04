@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,9 @@ import main.Game.GState;
  * that's loaded on entry. CSV data is converted into LOIA, which is used to
  * instantiate EntityUnits Edits apply to LOIA and entityUnits data is saved
  * from LOIA
+ * 
+ * data columns:
+ * GX,GY,kind,state,UID
  * 
  */
 public class Entity {
@@ -119,6 +123,7 @@ public class Entity {
 	ArrayList<int[]> entityUnitData; // stores entity init data only, 0=GX, 1=GY, 2=KIND, 3=UID
 	ArrayList<EntityUnit> entityUnits; // stores refs to Entity objects
 	ArrayList<EntityUnit> entityTouchedList;
+	ArrayList<int[]> entityInitData;
 	private boolean modified = false;
 	public boolean playerTouchedActorSincelastTick = false;
 	public boolean activateEntityFlag = false;
@@ -133,8 +138,9 @@ public class Entity {
 
 	public Entity(Game game) {
 		this.game = game;
-		entityUnits = new ArrayList<>();
-		entityTouchedList = new ArrayList<>();
+		entityUnits = new ArrayList<>();// stores references to units themselves
+		entityInitData = new ArrayList<>(); // stores a few values for initializing units
+		entityTouchedList = new ArrayList<>(); 
 		this.hitbox = new Rectangle(10, 10,HITBOX_SIZE, HITBOX_SIZE);
 
 		// this.addEntity(5, 5, 0, 0);
@@ -149,6 +155,31 @@ public class Entity {
 		
 		//startLevel(this.game.level);
 
+		
+	}
+	
+	public String getDataFileString() {
+		return String.format("entity_%d.csv", game.level);
+	}
+	
+	
+	public void saveCurrentData() {
+		String filename = this.game.pickup.getDataFileString();
+		Utils.saveRecordsToFile(filename,  entityInitData);
+	}
+
+	public void loadCurrentData() {
+		String filename = getDataFileString();
+		try {
+			entityInitData = Utils.loadRecordsFromFile(filename);
+			for(int i=0;i<entityInitData.size();i++) {
+				int[] iUnit = entityInitData.get(i);
+				this.addEntityGrid(iUnit[0], iUnit[1], iUnit[2], (char)iUnit[3], iUnit[4]);
+			}
+		} catch (FileNotFoundException e) {
+			System.err.println("Editor failed to load Pickup data");
+			e.printStackTrace();
+		}
 		
 	}
 	

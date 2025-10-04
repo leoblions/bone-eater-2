@@ -68,7 +68,7 @@ public class Pickup {
 		levelData = new ArrayList<int[]>();
 		cullRegion = new int[4];
 		testRect = new Rectangle(0, 0, 75, 75);
-		testRectangle = new Rectangle(0, 0, DRAW_WIDTH+25, DRAW_HEIGHT+25);
+		testRectangle = new Rectangle(0, 0, DRAW_WIDTH + 25, DRAW_HEIGHT + 25);
 
 		try {
 			this.itemImages = getImages();
@@ -95,6 +95,10 @@ public class Pickup {
 
 	public void saveCurrentData() {
 		String filename = this.game.pickup.getDataFileString();
+		if (null == levelData) {
+			System.out.println("Pickup did not save data: null");
+			return;
+		}
 		Utils.saveRecordsToFile(filename, levelData);
 	}
 
@@ -102,12 +106,13 @@ public class Pickup {
 		String filename = getDataFileString();
 		try {
 			levelData = Utils.loadRecordsFromFile(filename);
-		} catch (FileNotFoundException e) {
-			System.err.println("Editor failed to load Pickup data");
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("Editor failed to load Pickup data ");
+			 
+		  reset();
 		}
 	}
-	
+
 	public void reset() {
 		levelData = new ArrayList<int[]>();
 	}
@@ -146,11 +151,14 @@ public class Pickup {
 	}
 
 	private void checkPickupTouchedPlayer() {
+		if (levelData == null) {
+			return;
+		}
 		for (int[] pickup : levelData) {
 			if (pickup != null && pickup[F_COLLECTED] == ACTIVE && pickup[F_VISIBLE] == VISIBLE) {
 				int kind = pickup[F_KIND];
-				testRect.x = pickup[F_GRIDX] * Game.TILE_SIZE ;
-				testRect.y = pickup[F_GRIDY] * Game.TILE_SIZE ;
+				testRect.x = pickup[F_GRIDX] * Game.TILE_SIZE;
+				testRect.y = pickup[F_GRIDY] * Game.TILE_SIZE;
 				if (game.player.intersects(testRect)) {
 					System.out.println("Player pickup item " + kind);
 					pickup[F_COLLECTED] = COLLECTED;
@@ -248,6 +256,9 @@ public class Pickup {
 		int TopLeftCornerY = game.cameraY;
 
 		int screenX, screenY;
+		if (levelData == null) {
+			return;
+		}
 
 		for (int[] pickup : this.levelData) {
 			if (pickup != null && pickup[F_VISIBLE] == VISIBLE && pickup[F_COLLECTED] == ACTIVE) {
@@ -324,7 +335,7 @@ public class Pickup {
 	}
 
 	public String getDataFileString() {
-		return String.format("pickup %d.csv", game.level);
+		return String.format("pickup_%d.csv", game.level);
 	}
 
 	public void setTileGXY(int gridX, int gridY, boolean delete) {
