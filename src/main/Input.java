@@ -90,6 +90,9 @@ public class Input {
 			
 			this.game.playerPressActivate = true;
 			//System.out.println("player pressed activate");
+			if(this.game.frozen || this.game.conversation.showDialogBox) {
+				this.game.conversation.advanceConversation();
+			}
 
 			break;
 		case KeyEvent.VK_BACK_QUOTE:

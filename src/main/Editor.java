@@ -2,11 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 
 public class Editor {
 	Game game;
@@ -17,7 +13,9 @@ public class Editor {
 	public static final char WALL = 'w';
 	public static final char COLLISION = 'c';
 	public static final char PICKUP = 'p';
+	private static final char ENTITY = 0;
 	private final int MIN_ASSET_ID = -1;
+	private int PREVIEW_HEIGHT = 100;
 
 	Color smBorder = new Color(50, 50, 50, 50);
 	private static String editModeString, assetIDstring, latchString;
@@ -30,6 +28,10 @@ public class Editor {
 	public boolean latchEnable = true;
 	public boolean latchActive = false;
 	public boolean latch;
+	public boolean previewAsset = true;
+	private int previewX =0;
+	private int previewY = 0;
+	BufferedImage previewImage = null;
 
 	public Editor(Game game) {
 		this.game = game;
@@ -38,6 +40,8 @@ public class Editor {
 		editModeString = String.valueOf(this.editMode);
 		assetIDstring = getAssetIDString();
 		this.latchString = "";
+		this.previewY = this.game.HEIGHT - PREVIEW_HEIGHT;
+		
 
 	}
 
@@ -54,7 +58,39 @@ public class Editor {
 		int tempAssetID = assetID;
 
 		this.updateStrings();
+		this.setPreviewImage();
 	}
+	
+	public void setPreviewImage() {
+		
+		switch (this.editMode) {
+		case NORMAL:
+			previewImage = null;
+			break;
+		case TILE:
+			this.previewImage = this.game.tilegrid.getImage(assetID);
+			break;
+		case COLLISION:
+			previewImage = null;
+			break;
+		case WALL:
+			previewImage = null;
+			break;
+		case TRIGGER:
+			previewImage = null;
+			break;
+		case PICKUP:
+			this.previewImage = this.game.pickup.getImage(assetID);
+			break;
+		case DECOR:
+			this.previewImage = this.game.decor.getImage(assetID);
+			break;
+		case ENTITY:
+			this.previewImage = this.game.entity.getImage(this.assetID);
+			break;
+		}
+
+		}
 
 	public void paintAsset() {
 		int gridX = (this.game.mouseX + game.cameraX) / this.game.tilegrid.tileSize;
@@ -103,6 +139,11 @@ public class Editor {
 		game.g.drawString(editModeString, 10, 70);
 		game.g.drawString(assetIDstring, 10, 90);
 		game.g.drawString(latchString, 10, 110);
+		if(this.previewImage!=null ) {
+			game.g.drawImage(previewImage, previewX,
+
+					previewY, PREVIEW_HEIGHT, PREVIEW_HEIGHT, null);
+		}
 
 	}
 
@@ -124,6 +165,7 @@ public class Editor {
 			this.game.collision.saveTilegrid();
 			this.game.trigger.saveRecordsToFile();
 			this.game.decor.saveGridCurrentRoom();
+			this.game.entity.saveCurrentData();
 			
 		}else {
 			this.game.tilegrid.loadTilegrid();
@@ -131,6 +173,7 @@ public class Editor {
 			this.game.collision.loadTilegrid();
 			this.game.trigger.loadRecordsFromFile();
 			this.game.decor.loadGridCurrentRoom();
+			this.game.entity.loadCurrentData();
 		}
 
 		

@@ -60,6 +60,7 @@ public class Game extends JPanel implements Runnable {
 	public Decal decal;
 	public Pickup pickup;
 	public Menu menu;
+	public Conversation conversation;
 
 	public   int width = 600;
 	public   int height = 600;
@@ -77,6 +78,7 @@ public class Game extends JPanel implements Runnable {
 	public final String SETTINGS_FILE = "settings.ini";
 	public boolean playerPressActivate;
 	public int[] visibleArea;
+	public boolean frozen = false; // disable enemy AI, freeze player
 
 	public Game() {
 		level = 0;
@@ -127,7 +129,7 @@ public class Game extends JPanel implements Runnable {
 		this.brain = new Brain(this);
 		this.hud = new Hud(this);
 		this.console = new Console(this);
-		
+		this.conversation = new Conversation(this);
 		this.camera = new Camera(this);
 		this.decor = new Decor(this);
 		this.decal = new Decal(this);
@@ -242,6 +244,8 @@ public class Game extends JPanel implements Runnable {
 			this.hud.draw();
 			this.pathfind.draw();
 			this.editor.draw();
+
+			this.conversation.draw();
 			this.console.draw();
 			break;
 		case MENU:
@@ -284,6 +288,7 @@ public class Game extends JPanel implements Runnable {
 			this.hud.update();
 			this.camera.update();
 			this.pickup.update();
+			this.conversation.update();
 			break;
 			
 			
@@ -378,6 +383,6 @@ public class Game extends JPanel implements Runnable {
 		this.camera.initBounds();
 		this.decor.setDrawDistance();
 		this.hud.updatePositions();
-		
+		this.conversation.setupTextBox();
 	}
 }

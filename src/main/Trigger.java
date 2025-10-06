@@ -94,6 +94,7 @@ public class Trigger {
 	}
 
 	public void saveRecordsToFile() {
+		
 		this.currentRecords.removeIf(Objects::isNull);
 		int tg[][] = Utils.LOIAtoint2DA(currentRecords);
 		String dataFolderName = Game.LEVEL_DATA_SUBDIR;
@@ -106,7 +107,8 @@ public class Trigger {
 			parentDirAsFile.setWritable(true);
 			Utils.writeInt2DAToCSV(tg, completePath.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.printf("Failed to save trigger data %s \n",completePath);
+			//e.printStackTrace();
 		}
 
 		System.out.println("Save trigger data " + dataPath.toString());

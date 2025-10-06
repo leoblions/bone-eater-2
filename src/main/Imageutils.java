@@ -87,6 +87,29 @@ public class Imageutils {
 		}
 		return images;
 	}
+	
+	public BufferedImage[] spriteSheetCutterOffset(String fileURL, int cols, int rows, int width, int height, int offsetX, int offsetY)
+			throws IOException {
+		BufferedImage[] images = new BufferedImage[rows * cols];
+		BufferedImage spriteSheet = null;
+		try {
+			spriteSheet = ImageIO.read(getClass().getResourceAsStream(fileURL));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int subscript = 0;
+		BufferedImage tempImage = null;
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				int x = c * width;
+				int y = r * height;
+				tempImage = spriteSheet.getSubimage(offsetX + x, offsetY+ y, width, height);
+				images[subscript] = tempImage;
+				subscript++;
+			}
+		}
+		return images;
+	}
 
 	public BufferedImage[] spriteSheetCutterBW(String fileURL, int cols, int rows, int width, int height)
 			throws IOException {

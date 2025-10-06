@@ -64,7 +64,7 @@ public class Brain {
 		}
 	}
 
-	private void loadActionRecordsThisLevel() {
+	private void loadActionRecordsThisLevel()  {
 		String fullFilename = null;
 		try {
 			fullFilename = ACTION_RECORDS_FILE + this.game.level + ".csv";
@@ -73,6 +73,9 @@ public class Brain {
 			System.err.println("File not found, creating mock file " + fullFilename);
 			Utils.saveMockRecordsToFile(fullFilename, FIELDS);
 			this.actionRecords = new ArrayList<>();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -85,6 +88,9 @@ public class Brain {
 			System.err.println("File not found, creating mock file " + WARP_DESTINATIONS_FILE);
 			Utils.saveMockRecordsToFile(WARP_DESTINATIONS_FILE, WD_FIELDS);
 			this.warpDestinations = new ArrayList<>();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -222,6 +228,10 @@ public class Brain {
 	}
 	enum ObjectiveKind{
 		KILL,PICKUP,TRIGGER
+	}
+	public void endConversationNPC(int speakerNPC) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

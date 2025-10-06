@@ -71,6 +71,10 @@ public class Tilegrid {
 			return ILLEGAL_TILE;
 		}
 	}
+	
+	public BufferedImage getImage(int kind) {
+		return this.images[kind];
+	}
 
 	public boolean[][] nullGridBL() {
 		boolean newgrid[][] = new boolean[Game.ROWS][Game.COLS];

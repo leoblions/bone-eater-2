@@ -26,16 +26,19 @@ public class Decor {
 	final int SAFHEIGHT = 3;
 
 	// image data
-	//doors and windows, corners
+	// doors and windows, corners
 	private static final String SPRITE_WALL_OVERLAY = "/images/tileWallOverlay1.png";
 	private static final String SPRITE_WALL_OVERLAY2 = "/images/tileWallOverlay2.png";
-	
+
 	// 100x100 outdoor
-	//private static final String SPRITE_URL_OUTDOOR1 = "/images/decor_outdoor_furniture.png"; //16
+	// private static final String SPRITE_URL_OUTDOOR1 =
+	// "/images/decor_outdoor_furniture.png"; //16
 	// 100x200 outdoor
-	//private static final String SPRITE_URL_OUTDOOR2 = "/images/decor_tall_plants.png"; //x8
+	// private static final String SPRITE_URL_OUTDOOR2 =
+	// "/images/decor_tall_plants.png"; //x8
 	// 100x100
-	//private static final String SPRITE_URL_INDOOR1 = "/images/decor_100_100_2.png";
+	// private static final String SPRITE_URL_INDOOR1 =
+	// "/images/decor_100_100_2.png";
 	// private static int[] sizeArray;
 	Game game;
 	BufferedImage[] images;
@@ -58,21 +61,20 @@ public class Decor {
 	private int drawRangeTilesX, drawRangeTilesY;
 	// public Dictionary<int, Integer> kindMap;
 	int drawableRange;
-	//final int MAX_KIND = 32;
-	//public final int WALL_TILE_TYPE = 1;
+	// final int MAX_KIND = 32;
+	// public final int WALL_TILE_TYPE = 1;
 	public final int BLANK_DECOR_TYPE = -1;
 	private boolean modified = false;
 	private int xstart, xend, ystart, yend, yCutoff;
 	int rows, cols;
 	int[][] grid;
-	
+
 	int[][] sizeArray; // offsetX, offsetY, width, height
 
 	public Decor(Game game) {
 		this.game = game;
 		this.cols = Game.COLS;
 		this.rows = Game.ROWS;
-		
 
 		// grid = new int[game.ROWS][game.COLS];
 		grid = Utils.initBlankGrid(game.ROWS, game.COLS, BLANK_DECOR_TYPE);
@@ -92,12 +94,12 @@ public class Decor {
 		setDrawDistance();
 
 	}
-	
+
 	public void setDrawDistance() {
 		this.drawRangeTilesX = this.game.getWidth() / this.game.TILE_SIZE;
 		this.drawRangeTilesY = this.game.getHeight() / this.game.TILE_SIZE;
 	}
-	
+
 	public void reset() {
 
 		this.grid = Utils.fill2DI(Game.COLS, Game.ROWS, DEFAULT_FILL);
@@ -105,6 +107,7 @@ public class Decor {
 		System.out.println("Reset decor data ");
 
 	}
+
 	public void loadGridCurrentRoom() {
 		String fileName = DATA_FILE_PREFIX + this.game.level + DATA_FILE_SUFFIX;
 
@@ -169,20 +172,26 @@ public class Decor {
 				sizeArray[i][SAFOFFSETY] = 0;
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
-			}
-			else if (i > 23 && i <= 39) {
+			} else if (i > 23 && i <= 39) {
 				sizeArray[i][SAFOFFSETX] = 0;
 				sizeArray[i][SAFOFFSETY] = 0;
 				sizeArray[i][SAFWIDTH] = 100;
 				sizeArray[i][SAFHEIGHT] = 100;
-			} else if(i> 40 && i< 50){
-				{
-					sizeArray[i][SAFOFFSETX] = 0;
-					sizeArray[i][SAFOFFSETY] = -100;
-					sizeArray[i][SAFWIDTH] = 100;
-					sizeArray[i][SAFHEIGHT] = 200;
-				}
-			}else {
+			} else if (i > 40 && i < 50) {
+
+				sizeArray[i][SAFOFFSETX] = 0;
+				sizeArray[i][SAFOFFSETY] = -100;
+				sizeArray[i][SAFWIDTH] = 100;
+				sizeArray[i][SAFHEIGHT] = 200;
+
+			} else if (i > 63 && i < 68) {
+
+				sizeArray[i][SAFOFFSETX] = 0;
+				sizeArray[i][SAFOFFSETY] = -100;
+				sizeArray[i][SAFWIDTH] = 200;
+				sizeArray[i][SAFHEIGHT] = 300;
+
+			} else {
 				sizeArray[i][SAFOFFSETX] = 0;
 				sizeArray[i][SAFOFFSETY] = 0;
 				sizeArray[i][SAFWIDTH] = 100;
@@ -215,8 +224,6 @@ public class Decor {
 
 	}
 
-	
-
 	public int clamp(int minval, int maxval, int test) {
 		if (test < minval)
 			return minval;
@@ -225,14 +232,12 @@ public class Decor {
 		return test;
 	}
 
-
-
 	private void updateDrawRange() {
 		int playerGP[] = this.game.player.getGridPosition();
-		int x1 = playerGP[0] -  this.drawRangeTilesX;
-		int x2 = playerGP[0] +  this.drawRangeTilesX;
-		int y1 = playerGP[1] -  this.drawRangeTilesY;
-		int y2 = playerGP[1] +  this.drawRangeTilesY;
+		int x1 = playerGP[0] - this.drawRangeTilesX;
+		int x2 = playerGP[0] + this.drawRangeTilesX;
+		int y1 = playerGP[1] - this.drawRangeTilesY;
+		int y2 = playerGP[1] + this.drawRangeTilesY;
 		x1 = Math.max(0, x1);
 		y1 = Math.max(0, y1);
 		x2 = Math.max(x2, cols - 1);
@@ -243,35 +248,35 @@ public class Decor {
 		ystart = y1;
 		xend = x2;
 		yend = y2;
-		yCutoff =  (game.player.y +50 )/ game.TILE_SIZE;
+		yCutoff = (game.player.y + 50) / game.TILE_SIZE;
 
 	}
+
 	public void draw() {
 		draw('d');
-		
+
 	}
 
 	public void draw(char plane) {
-/*
- * 		 this function gets called twice per frame, so decor items appear in front or behind player.
-		 render tiles above yCutoff first, then render Actors, then render lower Decor
-		 Sprites on top are below player character, second call to this function.
-		 plane is b for background, f for foreground
- */
+		/*
+		 * this function gets called twice per frame, so decor items appear in front or
+		 * behind player. render tiles above yCutoff first, then render Actors, then
+		 * render lower Decor Sprites on top are below player character, second call to
+		 * this function. plane is b for background, f for foreground
+		 */
 
 		int screenX, screenY;
 		int yStartModified, yEndModified;
 
-		
-		if(plane=='b') {
+		if (plane == 'b') {
 			yStartModified = ystart;
 			yEndModified = yCutoff;
-			
-		}else if(plane=='f') {
+
+		} else if (plane == 'f') {
 			yStartModified = yCutoff;
 			yEndModified = yend;
-			
-		}else {
+
+		} else {
 			yStartModified = ystart;
 			yEndModified = yend;
 		}
@@ -294,10 +299,10 @@ public class Decor {
 					screenY = worldY - game.cameraY;
 					int size[] = sizeArray[kind];
 					try {
-					game.g.drawImage(images[kind], screenX + size[SAFOFFSETX], screenY + size[SAFOFFSETY],
-							size[SAFWIDTH], size[SAFHEIGHT], null);
-					}catch(Exception e) {
-						
+						game.g.drawImage(images[kind], screenX + size[SAFOFFSETX], screenY + size[SAFOFFSETY],
+								size[SAFWIDTH], size[SAFHEIGHT], null);
+					} catch (Exception e) {
+
 					}
 
 				}
@@ -343,11 +348,11 @@ public class Decor {
 	}
 
 	public void update() {
-		if(this.drawRangeTilesX<=0||this.drawRangeTilesY<=0) {
+		if (this.drawRangeTilesX <= 0 || this.drawRangeTilesY <= 0) {
 			setDrawDistance();
 		}
 		updateDrawRange();
-		
+
 	}
 
 	public boolean visibleOnScreen(int worldX, int worldY) {
@@ -364,21 +369,38 @@ public class Decor {
 	}
 
 	private void initDecorImages() throws IOException {
-		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x 0-15
-		BufferedImage[] decorOverlay2 = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY2, 2, 4, 100, 100); // 8x 16-23
-		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter("/images/decor_outdoor_furniture.png", 4, 4, 100, 100); // 16x
-																													// 100x100 24-47
-		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter("/images/decor_tall_plants.png", 4, 2, 100, 200);// 8x
-																														// 100x200 48 - 55 
-		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter("/images/decor_100_100_2.png", 4, 4, 100, 100);// 16x 48 - 63
+		BufferedImage[] decorOverlay = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY, 4, 4, 100, 100); // 16x
+																													// 0-15
+		BufferedImage[] decorOverlay2 = new Imageutils(game).spriteSheetCutter(SPRITE_WALL_OVERLAY2, 2, 4, 100, 100); // 8x
+																														// 16-23
+		BufferedImage[] decorOutdoor = new Imageutils(game).spriteSheetCutter("/images/decor_outdoor_furniture.png", 4,
+				4, 100, 100); // 16x
+		// 100x100 24-47
+		BufferedImage[] decorOutdoorTall = new Imageutils(game).spriteSheetCutter("/images/decor_tall_plants.png", 4, 2,
+				100, 200);// 8x
+		// 100x200 48 - 55
+		BufferedImage[] common2Decor = new Imageutils(game).spriteSheetCutter("/images/decor_100_100_2.png", 4, 4, 100,
+				100);// 16x 48 - 63
+
+		BufferedImage[] graveyardDecor = new Imageutils(game).spriteSheetCutter("/images/graveyardSprites.png", 2, 2,
+				150, 200);
+		BufferedImage[] graveyardDecor2 = new Imageutils(game).spriteSheetCutterOffset("/images/graveyardSprites.png",
+				1, 4, 100, 100, 300, 0);
 		this.images = Imageutils.appendArray(decorOverlay, decorOverlay2);
 		this.images = Imageutils.appendArray(images, decorOutdoor);
-		//this.images = Imageutils.appendArray(images, decorOutdoor);
+		// this.images = Imageutils.appendArray(images, decorOutdoor);
 		this.images = Imageutils.appendArray(images, decorOutdoorTall);// 100x100
-		
+
 		this.images = Imageutils.appendArray(images, common2Decor);
+		// graveyard large
+		this.images = Imageutils.appendArray(images, graveyardDecor);
+		this.images = Imageutils.appendArray(images, graveyardDecor2);
 		this.maxKind = this.images.length;
 
+	}
+
+	public BufferedImage getImage(int kind) {
+		return this.images[kind];
 	}
 
 	public int clampKind(int kind) {
@@ -410,6 +432,5 @@ public class Decor {
 		}
 
 	}
-	
 
 }

@@ -622,7 +622,7 @@ public class Utils {
 		return false;
 	}
 	
-	public static ArrayList<int[]> loadRecordsFromFile(String fileName) throws FileNotFoundException {
+	public static ArrayList<int[]> loadRecordsFromFile(String fileName) throws Exception {
 		String dataFolderName = Game.LEVEL_DATA_SUBDIR;
 		ArrayList<int[]> recordsNew =null;
 		Utils.createDirectoryIfNotExist(dataFolderName);
@@ -637,11 +637,9 @@ public class Utils {
 			
 		}catch(FileNotFoundException e) {
 			// File error
+			System.err.printf("File not found %s \n",fileName);
 			throw e;
-		} catch (Exception e) {
-			// Misc error
-			e.printStackTrace();
-		}
+		} 
 		
 		System.out.println("Load file data " + dataPath.toString());
 		return recordsNew;

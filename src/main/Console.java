@@ -117,6 +117,11 @@ public class Console {
 				kind = Integer.parseInt(splitCommand[1]);
 				// game.inventory.addItem(kind, 1);
 				break;
+			case "ASSET":
+				kind = Integer.parseInt(splitCommand[1]);
+				this.game.editor.assetID = kind;
+				break;
+			
 			case "TILE":
 				game.editor.editMode = Editor.TILE;
 				if (wordAmount != 2)
@@ -247,7 +252,13 @@ public class Console {
 				System.out.println(locationStringM);
 				break;
 			case "LEVEL":
-				int newLevel = Integer.parseInt(splitCommand[1]);
+				int newLevel = 0;
+				try {
+					  newLevel = Integer.parseInt(splitCommand[1]);
+				}catch(NumberFormatException  e) {
+					return;
+				}
+				
 				this.game.brain.changeLevel(newLevel);
 				levelString = String.format("Current level changed to: %d\n", game.level);
 				System.out.println(levelString);

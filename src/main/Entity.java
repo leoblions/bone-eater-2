@@ -158,6 +158,11 @@ public class Entity {
 		
 	}
 	
+	public BufferedImage getImage(int kind ) {
+		//int index = IMAGES_PER_ENTITY * kind;
+		return entityImages[kind][0];
+	}
+	
 	public String getDataFileString() {
 		return String.format("entity_%d.csv", game.level);
 	}
@@ -165,6 +170,9 @@ public class Entity {
 	
 	public void saveCurrentData() {
 		String filename = this.game.pickup.getDataFileString();
+		if(entityInitData==null||entityInitData.size()==0) {
+			return;
+		}
 		Utils.saveRecordsToFile(filename,  entityInitData);
 	}
 
@@ -176,9 +184,10 @@ public class Entity {
 				int[] iUnit = entityInitData.get(i);
 				this.addEntityGrid(iUnit[0], iUnit[1], iUnit[2], (char)iUnit[3], iUnit[4]);
 			}
-		} catch (FileNotFoundException e) {
-			System.err.println("Editor failed to load Pickup data");
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("Editor failed to load entity data");
+			this.entityInitData = new ArrayList<>();
+			this.entityUnits = new ArrayList<>();
 		}
 		
 	}
@@ -1274,109 +1283,7 @@ public class Entity {
 		return deltaXY;
 	}
 
-//	private int[] calculateMoveFromDirection8W(EntityUnit eunit) {
-//		// returns change in X and change in Y for entity in World Coords
-//		// does not move the entity
-//
-//		/**
-//		 * 0 top 1 trc 2 right 3 brc 4 bottom 5 blc 6 left 7 tlc 8 neutral
-//		 */
-//		int[] deltaXY = { 0, 0 };
-//
-//		if (eunit.state == 'w') {
-//			eunit.currentSpeed = SPEED_WALK;
-//		} else if (eunit.state == 'f') {
-//			eunit.currentSpeed = SPEED_CHASE;
-//		} else {
-//			eunit.currentSpeed = 0;
-//		}
-//		// eunit.worldX = 0;
-//		// eunit.worldY = 0;
-//		// System.out.println("speed "+ eunit.currentSpeed);
-//		switch (eunit.direction8w) {
-//		case 8:
-//			break;
-//		case 0:
-//			deltaXY[0] += -eunit.currentSpeed;
-//
-//			break;
-//		case 1:
-//			deltaXY[0] += eunit.currentSpeed;
-//			deltaXY[1] += -eunit.currentSpeed;
-//			break;
-//		case 2:
-//			deltaXY[0] += eunit.currentSpeed;
-//			break;
-//		case 3:
-//			deltaXY[0] += eunit.currentSpeed;
-//			deltaXY[1] += eunit.currentSpeed;
-//			break;
-//		case 4:
-//			deltaXY[1] += eunit.currentSpeed;
-//
-//			break;
-//		case 5:
-//			deltaXY[1] += eunit.currentSpeed;
-//			deltaXY[0] += -eunit.currentSpeed;
-//			break;
-//		case 6:
-//			deltaXY[0] += -eunit.currentSpeed;
-//			break;
-//		case 7:
-//			deltaXY[0] += -eunit.currentSpeed;
-//			deltaXY[1] += -eunit.currentSpeed;
-//			break;
-//		default:
-////			eunit.worldY = 0;
-////			eunit.worldY = 0;
-//			break;
-//
-//		}
-//		// System.out.println("d8w "+eunit.direction8w);
-//		return deltaXY;
-//	}
-//
-//	private boolean inbounds(EntityUnit eunit) {
-//
-//		if (eunit.x >= 0 && eunit.x + eunit.width < game.worldSizePxX && eunit.y >= 0
-//				&& eunit.y + eunit.height < game.worldSizePxY) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
 
-	/**
-	 * returns true if character bumped the main border
-	 * 
-	 * @return
-	 */
-//	private boolean borderBump(EntityUnit eunit) {
-//
-//		int velXLocal = 0;
-//		int velYLocal = 0;
-//
-//		if (eunit.x < 0) {
-//			velXLocal = eunit.currentSpeed;
-//
-//		} else if (eunit.x + eunit.width >= game.worldSizePxX) {
-//			velXLocal = -eunit.currentSpeed;
-//
-//		} else if (eunit.y < 0) {
-//			velYLocal = eunit.currentSpeed;
-//
-//		} else if (eunit.y + eunit.height >= game.worldSizePxY) {
-//			velYLocal = -eunit.currentSpeed;
-//
-//		} else {
-//			return false;
-//		}
-//
-//		eunit.x += velXLocal;
-//		eunit.y += velYLocal;
-//
-//		return true;
-//	}
 
 	private void setDirectionByPathFind(EntityUnit eunit) {
 
@@ -1464,12 +1371,6 @@ public class Entity {
 
 	}
 
-//	private void updateColliderUnit(EntityUnit eunit) {
-//		eunit.x = eunit.x + WALL_COLLIDE_WIGGLEROOM;
-//		eunit.y = eunit.y + WALL_COLLIDE_WIGGLEROOM;
-//		eunit.width = eunit.width - WALL_COLLIDE_WIGGLEROOM;
-//		eunit.height = eunit.height - WALL_COLLIDE_WIGGLEROOM;
-//
-//	}
+
 
 }

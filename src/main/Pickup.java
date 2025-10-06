@@ -95,6 +95,9 @@ public class Pickup {
 
 	public void saveCurrentData() {
 		String filename = this.game.pickup.getDataFileString();
+		if(levelData==null||levelData.size()==0) {
+			return;
+		}
 		if (null == levelData) {
 			System.out.println("Pickup did not save data: null");
 			return;
@@ -106,6 +109,8 @@ public class Pickup {
 		String filename = getDataFileString();
 		try {
 			levelData = Utils.loadRecordsFromFile(filename);
+		} catch (NullPointerException e){
+			 reset();
 		} catch (Exception e) {
 			System.err.println("Editor failed to load Pickup data ");
 			 
@@ -115,6 +120,10 @@ public class Pickup {
 
 	public void reset() {
 		levelData = new ArrayList<int[]>();
+	}
+	
+	public BufferedImage getImage(int kind) {
+		return this.itemImages[kind];
 	}
 
 	public void randomPlacePickup(int amount, int kind) {
