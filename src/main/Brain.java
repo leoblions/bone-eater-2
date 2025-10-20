@@ -47,6 +47,12 @@ public class Brain {
 	int objectivesComplete=0;
 	boolean advanceLevelOnObjectivesComplete = false;
 	ObjectiveKind currentObjectiveKind = ObjectiveKind.KILL;
+	/*
+	 * Triggers:
+	 * Player touches trigger, which sends a trigger array to Brain.
+	 * Brain gets the actionID from the trigger Array.
+	 * Brain looks up actionID in a table and decides what to do.
+	 */
 
 	public Brain(Game game) {
 		this.game = game;
@@ -221,6 +227,7 @@ public class Brain {
 			System.out.println("Player press trigger activated actionID " + actionID);
 			int[] arecord = getActionRecord(actionID);
 			if (arecord != null) {
+				System.out.println("Brain run actionID "+actionID);
 				runAction(actionID);
 			}
 		}
