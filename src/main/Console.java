@@ -93,6 +93,13 @@ public class Console {
 				System.out.println("Warp to ID " + warpID);
 				// game.warp.warpToID(warpID);
 				break;
+			case "CONV":
+				if (wordAmount != 2)
+					break;
+				int convID = Integer.parseInt(splitCommand[1]);
+				System.out.println("Test conversation to ID " + convID);
+				game.conversation.startConversation(convID);
+				break;
 			case "WARPLOC":
 				if (wordAmount != 3)
 					break;
