@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 public class Brain {
 	final String ACTION_RECORDS_FILE = "action_records";
+	final String ACTION_TABLE_FILE = "action_table";
 	final String WARP_DESTINATIONS_FILE = "warp_destinations.csv";
 	final int[] dummyRecord = { -1, -1, -1, -1 };
 	// action record fields
@@ -59,7 +60,8 @@ public class Brain {
 		this.initImages();
 		queuedActions = new ArrayDeque<>();
 		 loadWarpDestinations();
-		this.loadActionRecordsThisLevel();
+		//this.loadActionRecordsThisLevel();
+		this.loadActionTable();
 
 	}
 	
@@ -69,11 +71,10 @@ public class Brain {
 			game.hud.updateObjectiveString();
 		}
 	}
-
-	private void loadActionRecordsThisLevel()  {
+	private void loadActionTable()  {
 		String fullFilename = null;
 		try {
-			fullFilename = ACTION_RECORDS_FILE + this.game.level + ".csv";
+			fullFilename = ACTION_TABLE_FILE  + ".csv";
 			this.actionRecords = Utils.loadRecordsFromFile(fullFilename);
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found, creating mock file " + fullFilename);
@@ -84,6 +85,21 @@ public class Brain {
 			e.printStackTrace();
 		}
 	}
+
+//	private void loadActionRecordsThisLevel()  {
+//		String fullFilename = null;
+//		try {
+//			fullFilename = ACTION_RECORDS_FILE + this.game.level + ".csv";
+//			this.actionRecords = Utils.loadRecordsFromFile(fullFilename);
+//		} catch (FileNotFoundException e) {
+//			System.err.println("File not found, creating mock file " + fullFilename);
+//			Utils.saveMockRecordsToFile(fullFilename, FIELDS);
+//			this.actionRecords = new ArrayList<>();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 	
 	private void loadWarpDestinations() {
 		
@@ -177,11 +193,12 @@ public class Brain {
 	}
 
 	public void changeLevel(int levelID) {
+		System.out.println("Brain Change Level "+levelID);
 		this.game.level = levelID;
 		this.game.trigger.loadRecordsFromFile();
 		this.game.tilegrid.loadTilegrid() ;
 		this.game.decor.loadGridCurrentRoom();
-		loadActionRecordsThisLevel();
+		//loadActionRecordsThisLevel();
 	}
 
 	public void draw() {

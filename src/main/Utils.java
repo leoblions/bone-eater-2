@@ -148,14 +148,29 @@ public class Utils {
 		scanner = new Scanner(dataFile);
 		while (scanner.hasNextLine()) {
 			String[] currentLineStrings;
-
+			boolean isComment = false;
 			String data = scanner.nextLine();
 			currentLineStrings = data.split(COL_SEPARATOR);
-			if (lineLength == -1) {
-				lineLength = currentLineStrings.length;
+			if(currentLineStrings.length >0 && currentLineStrings[0].charAt(0)!=COMMENT) {
+				
 			}
-			allLines.add(currentLineStrings);
+			String firstColString = currentLineStrings[0];
+			char firstChar = firstColString.charAt(0);
+			isComment = (firstChar==COMMENT);
+//			if (lineLength == -1 ) {
+//				lineLength = currentLineStrings.length;
+//			}
+			if(!isComment) {
+				allLines.add(currentLineStrings);
+			}
+			
 			// System.out.println(currentLineStrings);
+		}
+		// set line length of output array to longest line
+		for(String[] line : allLines) {
+			if(line.length > lineLength) {
+				lineLength = line.length;
+			}
 		}
 		int outerArrayLength = allLines.size();
 		if(outerArrayLength<0 || lineLength<0) {
@@ -173,7 +188,7 @@ public class Utils {
 //			System.out.printf("File %s does not exist. \n",filePath);
 //			e.printStackTrace();
 //		}
-
+		scanner.close();
 		return outerArray;
 
 	}
@@ -645,6 +660,8 @@ public class Utils {
 		return recordsNew;
 		
 	}
+
+	
 	
 	
 	

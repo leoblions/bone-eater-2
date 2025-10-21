@@ -121,7 +121,7 @@ public class Menu {
 	private void initImages() {
 		BufferedImage spriteSheet;
 		try {
-			this.fontispieceImage = ImageIO.read(getClass().getResource("/images/BE2Metal.png")); 
+			this.fontispieceImage = ImageIO.read(getClass().getResource("/images/be2title.png")); 
 			this.background = ImageIO.read(getClass().getResource("/images/moody.png")); 
 			this.stackBackground = ImageIO.read(getClass().getResource("/images/gothicMenuButtons.png")); 
 			this.highlight = ImageIO.read(getClass().getResource("/images/highlightButton.png")); 
@@ -147,7 +147,7 @@ public class Menu {
 					if(button.highlighted) {
 						this.game.g.drawImage(highlight, button.x, button.y , button.width, button.height, null);
 					}
-					this.game.g.drawRect(button.x, button.y , button.width, button.height);
+					//this.game.g.drawRect(button.x, button.y , button.width, button.height);
 					this.game.g.setColor(BUTTON_FONT_COLOR);
 					this.game.g.drawString(button.text, button.x+button.paddingX, button.y+button.paddingY);
 					

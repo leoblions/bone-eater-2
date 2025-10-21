@@ -1,0 +1,4 @@
+#fields: 0=actionID, 1=actionKind, 2=ActionArg, 3=nextActionID
+#kinds: 0=warp 1=dialog 2=questflag 3=additem 4=subitem 5=heal
+0,0,1,-1
+1,0,1,-1
