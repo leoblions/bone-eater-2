@@ -86,7 +86,10 @@ public class Trigger {
 			LinkedList<int[]> recordsNew = new LinkedList<>(Arrays.asList(allRecordsTmp));
 			currentRecords = recordsNew;
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.printf("Trigger load level data failed.  Creating blank table for %d\n",this.game.level);
+			LinkedList<int[]> recordsNew = new LinkedList<>();
+			currentRecords = recordsNew;
 		}
 
 		System.out.println("Load trigger data " + dataPath.toString());

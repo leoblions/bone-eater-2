@@ -101,15 +101,28 @@ public class Console {
 				game.conversation.startConversation(convID);
 				break;
 			case "WARPLOC":
-				if (wordAmount != 3)
+				int level = this.game.level;
+				int gridX = 0;
+				int gridY = 0;
+				if (wordAmount == 4) {
+					level = Integer.parseInt(splitCommand[1]);
+					gridX = Integer.parseInt(splitCommand[2]);
+					gridY = Integer.parseInt(splitCommand[3]);
+					game.brain.warpToLocation(level, gridX, gridY);
+				}else if (wordAmount == 3) {
+					level = this.game.level;
+					gridX = Integer.parseInt(splitCommand[1]);
+					gridY = Integer.parseInt(splitCommand[2]);
+					game.brain.warpToLocation(level, gridX, gridY);
+				}else {
+					System.out.println("Command Warploc takes 2 or 3 args.");
 					break;
-				int level = Integer.parseInt(splitCommand[1]);
-
-				int gridX = Integer.parseInt(splitCommand[2]);
-
-				int gridY = Integer.parseInt(splitCommand[3]);
-				// game.warp.warpToLocation(level, gridX, gridY);
+				}
 				break;
+					
+				
+				
+			
 			case "FILLTILE":
 				kind = this.game.editor.assetID;
 				try {

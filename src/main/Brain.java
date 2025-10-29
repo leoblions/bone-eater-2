@@ -198,6 +198,9 @@ public class Brain {
 		this.game.trigger.loadRecordsFromFile();
 		this.game.tilegrid.loadTilegrid() ;
 		this.game.decor.loadGridCurrentRoom();
+		this.game.entity.loadCurrentData();
+		this.game.collision.loadTilegrid();
+		this.game.pickup.loadCurrentData();
 		//loadActionRecordsThisLevel();
 	}
 
@@ -255,6 +258,14 @@ public class Brain {
 	}
 	public void endConversationNPC(int speakerNPC) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	public void warpToLocation(int level, int gridX, int gridY) {
+		if (level != this.game.level) {
+			this.changeLevel(level);
+		}
+		this.game.player.warpPlayer(gridX, gridY);
 		
 	}
 

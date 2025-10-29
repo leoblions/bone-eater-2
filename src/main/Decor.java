@@ -384,8 +384,10 @@ public class Decor {
 
 		BufferedImage[] graveyardDecor = new Imageutils(game).spriteSheetCutter("/images/graveyardSprites.png", 2, 2,
 				150, 200);
-		BufferedImage[] graveyardDecor2 = new Imageutils(game).spriteSheetCutterOffset("/images/graveyardSprites.png",
-				1, 4, 100, 100, 300, 0);
+		BufferedImage[] graveyardDecor2 = new Imageutils(game).spriteSheetCutterOffset("/images/graveyardSprites.png",1, 4, 100, 100, 300, 0);
+		BufferedImage[] iron_fence = new Imageutils(game).spriteSheetCutterOffset("/images/iron_fence.png",3, 3, 100, 100, 0, 0);
+		
+				
 		this.images = Imageutils.appendArray(decorOverlay, decorOverlay2);
 		this.images = Imageutils.appendArray(images, decorOutdoor);
 		// this.images = Imageutils.appendArray(images, decorOutdoor);
@@ -395,6 +397,7 @@ public class Decor {
 		// graveyard large
 		this.images = Imageutils.appendArray(images, graveyardDecor);
 		this.images = Imageutils.appendArray(images, graveyardDecor2);
+		this.images = Imageutils.appendArray(images, iron_fence);
 		this.maxKind = this.images.length;
 
 	}
