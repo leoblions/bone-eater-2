@@ -115,7 +115,7 @@ public class Editor {
 			System.out.println("paint wall " + gridX + " " + gridY + " " + assetID);
 			break;
 		case TRIGGER:
-			// System.out.println("edit triggers");
+			System.out.println("edit triggers");
 			this.game.trigger.setTileXYK(gridX, gridY, assetID);
 			break;
 		case PICKUP:

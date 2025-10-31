@@ -179,6 +179,7 @@ public class Brain {
 			this.changeLevel(level);
 		}
 		this.game.player.warpPlayer(gridX, gridY);
+		this.game.camera.recenterCamera();
 		this.game.player.invincible = invincibleOG;
 	}
 
@@ -201,6 +202,7 @@ public class Brain {
 		this.game.entity.loadCurrentData();
 		this.game.collision.loadTilegrid();
 		this.game.pickup.loadCurrentData();
+		this.game.camera.recenterCamera();
 		//loadActionRecordsThisLevel();
 	}
 

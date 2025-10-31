@@ -43,8 +43,9 @@ public class Camera {
 	}
 	
 	public void recenterCamera() {
-		game.cameraY =  game.player.y - (Game.HEIGHT/2);
-		game.cameraX =  game.player.x - (Game.WIDTH/2);
+		
+		game.cameraY =  game.player.y - (game.height/2);
+		game.cameraX =  game.player.x - (game.width/2);
 	}
 	
 	

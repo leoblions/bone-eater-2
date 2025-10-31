@@ -31,12 +31,12 @@ public class Trigger {
 	public static final int DEFAULT_ACTION_ID = 0;
 
 	// TF denotes which subscript of data in trigger record
-	public static final int TF_ROOM_ID = 0; // which trigger in current room
-	public static final int TF_KIND = 1; // what kind of trigger
+	public static final int TF_ROOM_ID = 0; // which trigger in level, distinguish multiple per level
+	public static final int TF_KIND = 1; // what kind of trigger per room
 	public static final int TFGRIDX = 2;// units are in tiles, not pixels
-	public final int TFGRIDY = 3;
-	public final int TFGRIDW = 4;
-	public final int TFGRIDH = 5;
+	public static final int TFGRIDY = 3;
+	public static final int TFGRIDW = 4;
+	public static final int TFGRIDH = 5;
 	// Trigger kinds
 	public static final int NOT_FOUND = -1;
 	public static final int TK_NO_TRIGGER = 0;
@@ -219,21 +219,20 @@ public class Trigger {
 
 		} else {
 			int matchingTriggerIndex = -1;
-
+			System.out.printf("modify trigger record %d %d %d \n",gridX,gridY,kind);
 			matchingTriggerIndex = matchRecordGXY(gridX, gridY);
 
-			// int kind = this.game.editor.assetID;
-//			if (kind > TK_TRIGGER) {
-//				kind = TK_TRIGGER;
-//			}
+
 			int[] newTRecord = new int[FIELDS];
-			newTRecord[TF_ROOM_ID] = getUnusedRoomID();
+			//newTRecord[TF_ROOM_ID] = getUnusedRoomID();
+			newTRecord[TF_ROOM_ID] = this.game.level;
 			newTRecord[TF_KIND] = kind;
 			newTRecord[TFGRIDX] = gridX;
 			newTRecord[TFGRIDY] = gridY;
 			newTRecord[TFGRIDW] = 1;
 			newTRecord[TFGRIDH] = 1;
 			newTRecord[TF_KIND] = kind;
+			System.out.printf("modify trigger record %d %d %d \n",gridX,gridY,kind);
 			if (matchingTriggerIndex == NOT_FOUND) {
 
 				this.currentRecords.add(newTRecord);

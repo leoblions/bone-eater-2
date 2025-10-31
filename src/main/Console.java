@@ -114,6 +114,7 @@ public class Console {
 					gridX = Integer.parseInt(splitCommand[1]);
 					gridY = Integer.parseInt(splitCommand[2]);
 					game.brain.warpToLocation(level, gridX, gridY);
+					game.camera.recenterCamera();
 				}else {
 					System.out.println("Command Warploc takes 2 or 3 args.");
 					break;
